@@ -37,7 +37,6 @@ import java.util.List;
 import org.checkerframework.checker.index.qual.LTLengthOf;
 import org.checkerframework.checker.index.qual.LessThan;
 import org.checkerframework.checker.index.qual.NonNegative;
-import org.checkerframework.checker.index.qual.Positive;
 
 /**
  * A class for arithmetic on values of type {@code BigInteger}.

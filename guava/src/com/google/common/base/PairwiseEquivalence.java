@@ -18,7 +18,7 @@ import com.google.common.annotations.GwtCompatible;
 import java.io.Serializable;
 import java.util.Iterator;
 import javax.annotation.CheckForNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
+
 import org.checkerframework.checker.signedness.qual.UnknownSignedness;
 
 @GwtCompatible(serializable = true)

@@ -19,7 +19,6 @@ import static com.google.common.base.Preconditions.checkPositionIndexes;
 
 import com.google.errorprone.annotations.Immutable;
 import org.checkerframework.checker.index.qual.LTLengthOf;
-import org.checkerframework.checker.index.qual.LengthOf;
 import org.checkerframework.checker.index.qual.NonNegative;
 import org.checkerframework.common.value.qual.MinLen;
 import java.nio.ByteBuffer;
