@@ -28,7 +28,7 @@
     <dependency>
       <groupId>org.checkerframework</groupId>
       <artifactId>checker-qual</artifactId>
-      <version>0.0.0</version>
+      <version>${checker.version}</version>
     </dependency>
     <dependency>
       <groupId>com.google.errorprone</groupId>
