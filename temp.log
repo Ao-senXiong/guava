@@ -1,80 +1,65 @@
 [INFO] Scanning for projects...
+[WARNING] 
+[WARNING] Some problems were encountered while building the effective model for com.google.guava:guava:bundle:31.1-jre
+[WARNING] 'profiles.profile[checkerframework-local].dependencies.dependency.systemPath' for io.github.eisop:checker-qual:jar should use a variable instead of a hard-coded path /Users/aosenxiong/waterloo/eisop/checker-framework/checker/dist/checker.jar @ line 388, column 23
+[WARNING] 'profiles.profile[checkerframework-local].dependencies.dependency.systemPath' for io.github.eisop:checker:jar should use a variable instead of a hard-coded path /Users/aosenxiong/waterloo/eisop/checker-framework/checker/dist/checker.jar @ line 395, column 23
+[WARNING] 
+[WARNING] It is highly recommended to fix these problems because they threaten the stability of your build.
+[WARNING] 
+[WARNING] For this reason, future Maven versions might no longer support building such malformed projects.
+[WARNING] 
 [INFO] 
 [INFO] -----------------------< com.google.guava:guava >-----------------------
 [INFO] Building Guava: Google Core Libraries for Java 31.1-jre
 [INFO]   from pom.xml
 [INFO] -------------------------------[ bundle ]-------------------------------
-[INFO] Downloading from central: https://repo.maven.apache.org/maven2/org/apache/maven/plugins/maven-resources-plugin/maven-metadata.xml
-[INFO] Downloaded from central: https://repo.maven.apache.org/maven2/org/apache/maven/plugins/maven-resources-plugin/maven-metadata.xml (988 B at 6.9 kB/s)
 [WARNING] Ignoring incompatible plugin version 4.0.0-beta-1: The plugin org.apache.maven.plugins:maven-resources-plugin:4.0.0-beta-1 requires Maven version 4.0.0-beta-3
 [INFO] Latest version of plugin org.apache.maven.plugins:maven-resources-plugin failed compatibility check
 [INFO] Looking for compatible RELEASE version of plugin org.apache.maven.plugins:maven-resources-plugin
 [INFO] Selected plugin org.apache.maven.plugins:maven-resources-plugin:3.3.1
-[INFO] Downloading from central: https://repo.maven.apache.org/maven2/org/apache/maven/plugins/maven-install-plugin/maven-metadata.xml
-[INFO] Downloaded from central: https://repo.maven.apache.org/maven2/org/apache/maven/plugins/maven-install-plugin/maven-metadata.xml (895 B at 90 kB/s)
-[WARNING] Ignoring incompatible plugin version 4.0.0-beta-1: The plugin org.apache.maven.plugins:maven-install-plugin:4.0.0-beta-1 requires Maven version 4.0.0-beta-3
+[WARNING] Ignoring incompatible plugin version 4.0.0-beta-2: The plugin org.apache.maven.plugins:maven-install-plugin:4.0.0-beta-2 requires Maven version 4.0.0-rc-2
 [INFO] Latest version of plugin org.apache.maven.plugins:maven-install-plugin failed compatibility check
 [INFO] Looking for compatible RELEASE version of plugin org.apache.maven.plugins:maven-install-plugin
-[INFO] Selected plugin org.apache.maven.plugins:maven-install-plugin:3.1.3
-[INFO] Downloading from central: https://repo.maven.apache.org/maven2/org/apache/maven/plugins/maven-deploy-plugin/maven-metadata.xml
-[INFO] Downloaded from central: https://repo.maven.apache.org/maven2/org/apache/maven/plugins/maven-deploy-plugin/maven-metadata.xml (984 B at 89 kB/s)
-[WARNING] Ignoring incompatible plugin version 4.0.0-beta-1: The plugin org.apache.maven.plugins:maven-deploy-plugin:4.0.0-beta-1 requires Maven version 4.0.0-beta-3
+[WARNING] Ignoring incompatible plugin version 4.0.0-beta-1: The plugin org.apache.maven.plugins:maven-install-plugin:4.0.0-beta-1 requires Maven version 4.0.0-beta-3
+[INFO] Selected plugin org.apache.maven.plugins:maven-install-plugin:3.1.4
+[WARNING] Ignoring incompatible plugin version 4.0.0-beta-2: The plugin org.apache.maven.plugins:maven-deploy-plugin:4.0.0-beta-2 requires Maven version 4.0.0-rc-2
 [INFO] Latest version of plugin org.apache.maven.plugins:maven-deploy-plugin failed compatibility check
 [INFO] Looking for compatible RELEASE version of plugin org.apache.maven.plugins:maven-deploy-plugin
-[INFO] Selected plugin org.apache.maven.plugins:maven-deploy-plugin:3.1.3
-[INFO] 
-[INFO] --- clean:3.2.0:clean (default-clean) @ guava ---
-[INFO] Deleting /Users/aosenxiong/waterloo/eisop/guava/guava/target
+[WARNING] Ignoring incompatible plugin version 4.0.0-beta-1: The plugin org.apache.maven.plugins:maven-deploy-plugin:4.0.0-beta-1 requires Maven version 4.0.0-beta-3
+[INFO] Selected plugin org.apache.maven.plugins:maven-deploy-plugin:3.1.4
 [INFO] 
 [INFO] --- enforcer:3.0.0-M3:enforce (enforce-versions) @ guava ---
 [INFO] 
 [INFO] --- dependency:3.1.1:properties (default) @ guava ---
 [INFO] 
 [INFO] --- dependency:3.1.1:unpack-dependencies (unpack-jdk-sources) @ guava ---
-[INFO] Unpacking /Library/Java/JavaVirtualMachines/temurin-17.jdk/Contents/Home/lib/src.zip to /Users/aosenxiong/waterloo/eisop/guava/guava/target/jdk-sources with includes "" and excludes "**/module-info.java,**/java/io/FileDescriptor.java"
+[INFO] jdk:srczip:jar:999 already exists in destination.
 [INFO] 
 [INFO] --- compiler:3.8.1:compile (value-check) @ guava ---
 [WARNING]  Parameter 'compilerArguments' is deprecated: use {@link #compilerArgs} instead.
 [INFO] Changes detected - recompiling the module!
 [INFO] Compiling 619 source files to /Users/aosenxiong/waterloo/eisop/guava/guava/target/classes
-[INFO] -------------------------------------------------------------
-[WARNING] COMPILATION WARNING : 
-[INFO] -------------------------------------------------------------
 [WARNING] /Users/aosenxiong/waterloo/eisop/guava/guava/src/com/google/common/util/concurrent/AbstractFuture.java:[33,20] [removal] AccessController in java.security has been deprecated and marked for removal
 [WARNING] /Users/aosenxiong/waterloo/eisop/guava/guava/src/com/google/common/reflect/Types.java:[42,20] [removal] AccessControlException in java.security has been deprecated and marked for removal
 [WARNING] /Users/aosenxiong/waterloo/eisop/guava/guava/src/com/google/common/util/concurrent/AbstractFuture.java:[33,20] [removal] AccessController in java.security has been deprecated and marked for removal
 [WARNING] /Users/aosenxiong/waterloo/eisop/guava/guava/src/com/google/common/reflect/Types.java:[42,20] [removal] AccessControlException in java.security has been deprecated and marked for removal
 [WARNING] /Users/aosenxiong/waterloo/eisop/guava/guava/src/com/google/common/util/concurrent/AbstractFuture.java:[33,20] [removal] AccessController in java.security has been deprecated and marked for removal
 [WARNING] /Users/aosenxiong/waterloo/eisop/guava/guava/src/com/google/common/reflect/Types.java:[42,20] [removal] AccessControlException in java.security has been deprecated and marked for removal
-[WARNING] /Users/aosenxiong/waterloo/eisop/guava/guava/src/com/google/common/hash/BloomFilter.java:[523,40] [[value, allcheckers]:cast.unsafe] cast from "@IntRangeFromPositive long" to "@IntRange(from=1, to=2147483647) double" cannot be statically verified
 [WARNING] /Users/aosenxiong/waterloo/eisop/guava/guava/src/com/google/common/util/concurrent/AbstractFuture.java:[1329,14] [removal] AccessController in java.security has been deprecated and marked for removal
 [WARNING] /Users/aosenxiong/waterloo/eisop/guava/guava/src/com/google/common/hash/Striped64.java:[303,26] [removal] AccessController in java.security has been deprecated and marked for removal
 [WARNING] /Users/aosenxiong/waterloo/eisop/guava/guava/src/com/google/common/primitives/UnsignedBytes.java:[358,30] [removal] AccessController in java.security has been deprecated and marked for removal
 [WARNING] /Users/aosenxiong/waterloo/eisop/guava/guava/src/com/google/common/cache/Striped64.java:[296,26] [removal] AccessController in java.security has been deprecated and marked for removal
 [WARNING] /Users/aosenxiong/waterloo/eisop/guava/guava/src/com/google/common/hash/LittleEndianByteArray.java:[180,28] [removal] AccessController in java.security has been deprecated and marked for removal
 [WARNING] /Users/aosenxiong/waterloo/eisop/guava/guava/src/com/google/common/reflect/Types.java:[370,19] [removal] AccessControlException in java.security has been deprecated and marked for removal
-[INFO] 13 warnings 
-[INFO] -------------------------------------------------------------
-[INFO] -------------------------------------------------------------
-[ERROR] COMPILATION ERROR : 
-[INFO] -------------------------------------------------------------
-[ERROR] /Users/aosenxiong/waterloo/eisop/guava/guava/src/com/google/common/io/ByteSource.java:[567,26] error: [[value, allcheckers]:type.arguments.not.inferred] Could not infer type arguments for Optional.of
-  unsatisfiable constraint: @IntRange(from=-2147483647, to=2147483647) Long <: @IntRangeFromNonNegative Long
-[INFO] 1 error
-[INFO] -------------------------------------------------------------
-[INFO] ------------------------------------------------------------------------
-[INFO] BUILD FAILURE
-[INFO] ------------------------------------------------------------------------
-[INFO] Total time:  34.620 s
-[INFO] Finished at: 2025-02-20T11:55:40-05:00
-[INFO] ------------------------------------------------------------------------
-[ERROR] Failed to execute goal org.apache.maven.plugins:maven-compiler-plugin:3.8.1:compile (value-check) on project guava: Compilation failure
-[ERROR] /Users/aosenxiong/waterloo/eisop/guava/guava/src/com/google/common/io/ByteSource.java:[567,26] error: [[value, allcheckers]:type.arguments.not.inferred] Could not infer type arguments for Optional.of
-[ERROR]   unsatisfiable constraint: @IntRange(from=-2147483647, to=2147483647) Long <: @IntRangeFromNonNegative Long
-[ERROR] -> [Help 1]
-[ERROR] 
-[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
-[ERROR] Re-run Maven using the -X switch to enable full debug logging.
-[ERROR] 
-[ERROR] For more information about the errors and possible solutions, please read the following articles:
-[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ guava ---
+[INFO] Copying 0 resource from src to target/classes
+[INFO] 
+[INFO] --- compiler:3.8.1:compile (default-compile) @ guava ---
+[WARNING]  Parameter 'compilerArguments' is deprecated: use {@link #compilerArgs} instead.
+[INFO] Nothing to compile - all classes are up to date
+[INFO] 
+[INFO] --- compiler:3.8.1:compile (main-compile) @ guava ---
+[WARNING]  Parameter 'compilerArguments' is deprecated: use {@link #compilerArgs} instead.
+[INFO] Changes detected - recompiling the module!
+[INFO] Compiling 619 source files to /Users/aosenxiong/waterloo/eisop/guava/guava/target/classes
