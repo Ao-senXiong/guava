@@ -84,8 +84,8 @@ final class TableCollectors {
 
   static <
           T extends @Nullable @Readonly Object,
-          R extends @Nullable Object,
-          C extends @Nullable Object,
+          R extends @Nullable @Immutable Object,
+          C extends @Nullable @Immutable Object,
           V extends @Nullable @Readonly Object,
           I extends Table<R, C, V>>
       Collector<T, ?, I> toTable(
@@ -105,8 +105,8 @@ final class TableCollectors {
 
   static <
           T extends @Nullable @Readonly Object,
-          R extends @Nullable Object,
-          C extends @Nullable Object,
+          R extends @Nullable @Immutable Object,
+          C extends @Nullable @Immutable Object,
           V extends @Nullable @Readonly Object,
           I extends Table<R, C, V>>
       Collector<T, ?, I> toTable(
@@ -138,6 +138,7 @@ final class TableCollectors {
         });
   }
 
+  @Immutable
   private static final class ImmutableTableCollectorState<R extends @Immutable Object, C extends @Immutable Object, V> {
     final @Mutable List<MutableCell<R, C, V>> insertionOrder = new ArrayList<>();
     final @Mutable Table<R, C, MutableCell<R, C, V>> table = HashBasedTable.create();
@@ -166,7 +167,7 @@ final class TableCollectors {
     }
   }
 
-  private static final @Mutable class MutableCell<R extends @Immutable Object, C extends @Immutable Object, V> extends AbstractCell<R, C, V> {
+  private static final class MutableCell<R extends @Immutable Object, C extends @Immutable Object, V> extends AbstractCell<R, C, V> {
     private final R row;
     private final C column;
     private V value;
@@ -199,9 +200,9 @@ final class TableCollectors {
   }
 
   private static <
-          R extends @Nullable Object, C extends @Nullable Object, V extends @Nullable @Readonly Object>
+          R extends @Nullable @Immutable Object, C extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object>
       void mergeTables(
-          @Mutable Table<R, C, V> table,
+              Table<R, C, V> table,
           @ParametricNullness R row,
           @ParametricNullness C column,
           @ParametricNullness V value,

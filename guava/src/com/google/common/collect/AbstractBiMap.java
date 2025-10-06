@@ -39,7 +39,10 @@ import javax.annotation.CheckForNull;
 import org.checkerframework.checker.nullness.qual.KeyFor;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.checker.nullness.qual.PolyNull;
+import org.checkerframework.checker.pico.qual.Assignable;
+import org.checkerframework.checker.pico.qual.Immutable;
 import org.checkerframework.checker.pico.qual.Mutable;
+import org.checkerframework.checker.pico.qual.Readonly;
 import org.checkerframework.checker.pico.qual.ReceiverDependentMutable;
 import org.checkerframework.checker.signedness.qual.PolySigned;
 import org.checkerframework.checker.signedness.qual.UnknownSignedness;
@@ -60,39 +63,40 @@ import org.checkerframework.framework.qual.CFComment;
 @AnnotatedFor({"nullness"})
 @GwtCompatible(emulated = true)
 @ElementTypesAreNonnullByDefault
-@ReceiverDependentMutable abstract class AbstractBiMap<K extends @Nullable Object, V extends @Nullable Object>
+@ReceiverDependentMutable
+abstract class AbstractBiMap<K extends @Nullable @Immutable Object, V extends @Nullable @Immutable Object>
     extends ForwardingMap<K, V> implements BiMap<K, V>, Serializable {
 
-  private transient @Mutable Map<K, V> delegate;
+  private transient Map<K, V> delegate;
   @RetainedWith transient AbstractBiMap<V, K> inverse;
 
   /** Package-private constructor for creating a map-backed bimap. */
-  AbstractBiMap(Map<K, V> forward, Map<V, K> backward) {
+  AbstractBiMap(@ReceiverDependentMutable Map<K, V> forward, @ReceiverDependentMutable Map<V, K> backward) {
     setDelegates(forward, backward);
   }
 
   /** Private constructor for inverse bimap. */
-  private AbstractBiMap(Map<K, V> backward, AbstractBiMap<V, K> forward) {
+  private AbstractBiMap(@ReceiverDependentMutable Map<K, V> backward, @ReceiverDependentMutable AbstractBiMap<V, K> forward) {
     delegate = backward;
     inverse = forward;
   }
 
   @Override
-  protected Map<K, V> delegate() {
+  protected @ReceiverDependentMutable Map<K, V> delegate() {
     return delegate;
   }
 
   /** Returns its input, or throws an exception if this is not a valid key. */
   @CanIgnoreReturnValue
   @ParametricNullness
-  K checkKey(@ParametricNullness K key) {
+  K checkKey(@Readonly AbstractBiMap<K,V> this,  @ParametricNullness K key) {
     return key;
   }
 
   /** Returns its input, or throws an exception if this is not a valid value. */
   @CanIgnoreReturnValue
   @ParametricNullness
-  V checkValue(@ParametricNullness V value) {
+  V checkValue(@Readonly AbstractBiMap<K,V> this, @ParametricNullness V value) {
     return value;
   }
 
@@ -100,7 +104,7 @@ import org.checkerframework.framework.qual.CFComment;
    * Specifies the delegate maps going in each direction. Called by the constructor and by
    * subclasses during deserialization.
    */
-  void setDelegates(Map<K, V> forward, Map<V, K> backward) {
+  void setDelegates(@Mutable AbstractBiMap<K, V> this, Map<K, V> forward, Map<V, K> backward) {
     checkState(delegate == null);
     checkState(inverse == null);
     checkArgument(forward.isEmpty());
@@ -110,11 +114,11 @@ import org.checkerframework.framework.qual.CFComment;
     inverse = makeInverse(backward);
   }
 
-  AbstractBiMap<V, K> makeInverse(Map<V, K> backward) {
-    return new Inverse<>(backward, this);
+  AbstractBiMap<V, K> makeInverse(@ReceiverDependentMutable Map<V, K> backward) {
+    return new @ReceiverDependentMutable Inverse<>(backward, this);
   }
 
-  void setInverse(AbstractBiMap<V, K> inverse) {
+  void setInverse(@Mutable AbstractBiMap<K, V> this, AbstractBiMap<V, K> inverse) {
     this.inverse = inverse;
   }
 
@@ -122,7 +126,7 @@ import org.checkerframework.framework.qual.CFComment;
 
   @Pure
   @Override
-  public boolean containsValue(@CheckForNull @UnknownSignedness Object value) {
+  public boolean containsValue(@Readonly AbstractBiMap<K, V> this, @CheckForNull @UnknownSignedness @Readonly Object value) {
     return inverse.containsKey(value);
   }
 
@@ -161,6 +165,7 @@ import org.checkerframework.framework.qual.CFComment;
   }
 
   private void updateInverseMap(
+          @Mutable AbstractBiMap<K, V> this,
       @ParametricNullness K key,
       boolean containedKey,
       @CheckForNull V oldValue,
@@ -175,34 +180,34 @@ import org.checkerframework.framework.qual.CFComment;
   @CanIgnoreReturnValue
   @Override
   @CheckForNull
-  public V remove(@CheckForNull @UnknownSignedness Object key) {
+  public V remove(@Mutable AbstractBiMap<K, V> this, @CheckForNull @UnknownSignedness @Readonly Object key) {
     return containsKey(key) ? removeFromBothMaps(key) : null;
   }
 
   @CanIgnoreReturnValue
   @ParametricNullness
-  private V removeFromBothMaps(@CheckForNull Object key) {
+  private V removeFromBothMaps(@Mutable AbstractBiMap<K, V> this, @CheckForNull @Readonly Object key) {
     // The cast is safe because the callers of this method first check that the key is present.
     V oldValue = uncheckedCastNullableTToT(delegate.remove(key));
     removeFromInverseMap(oldValue);
     return oldValue;
   }
 
-  private void removeFromInverseMap(@ParametricNullness V oldValue) {
+  private void removeFromInverseMap(@Mutable AbstractBiMap<K, V> this, @ParametricNullness V oldValue) {
     inverse.delegate.remove(oldValue);
   }
 
   // Bulk Operations
 
   @Override
-  public void putAll(Map<? extends K, ? extends V> map) {
+  public void putAll(@Mutable AbstractBiMap<K, V> this, @Readonly Map<? extends K, ? extends V> map) {
     for (Entry<? extends K, ? extends V> entry : map.entrySet()) {
       put(entry.getKey(), entry.getValue());
     }
   }
 
   @Override
-  public void replaceAll(BiFunction<? super K, ? super V, ? extends V> function) {
+  public void replaceAll(@Mutable AbstractBiMap<K, V> this, BiFunction<? super K, ? super V, ? extends V> function) {
     this.delegate.replaceAll(function);
     inverse.delegate.clear();
     Entry<K, V> broken = null;
@@ -225,7 +230,7 @@ import org.checkerframework.framework.qual.CFComment;
   }
 
   @Override
-  public void clear() {
+  public void clear(@Mutable AbstractBiMap<K, V> this) {
     delegate.clear();
     inverse.delegate.clear();
   }
@@ -237,7 +242,8 @@ import org.checkerframework.framework.qual.CFComment;
     return inverse;
   }
 
-  @CheckForNull private transient Set<K> keySet;
+  @CFComment("Change to @LazyFinal later")
+  @CheckForNull private transient @Assignable Set<K> keySet;
 
   @SideEffectFree
   @Override
@@ -247,6 +253,7 @@ import org.checkerframework.framework.qual.CFComment;
   }
 
   @WeakOuter
+  @ReceiverDependentMutable
   private class KeySet extends ForwardingSet<K> {
     @Override
     protected Set<K> delegate() {
@@ -254,12 +261,12 @@ import org.checkerframework.framework.qual.CFComment;
     }
 
     @Override
-    public void clear() {
+    public void clear(@Mutable KeySet this) {
       AbstractBiMap.this.clear();
     }
 
     @Override
-    public boolean remove(@CheckForNull @UnknownSignedness Object key) {
+    public boolean remove(@Mutable KeySet this, @CheckForNull @UnknownSignedness @Readonly Object key) {
       if (!contains(key)) {
         return false;
       }
@@ -268,12 +275,12 @@ import org.checkerframework.framework.qual.CFComment;
     }
 
     @Override
-    public boolean removeAll(Collection<?> keysToRemove) {
+    public boolean removeAll(@Mutable KeySet this, @Readonly Collection<?> keysToRemove) {
       return standardRemoveAll(keysToRemove);
     }
 
     @Override
-    public boolean retainAll(Collection<?> keysToRetain) {
+    public boolean retainAll(@Mutable KeySet this, @Readonly Collection<?> keysToRetain) {
       return standardRetainAll(keysToRetain);
     }
 
@@ -283,7 +290,8 @@ import org.checkerframework.framework.qual.CFComment;
     }
   }
 
-  @CheckForNull private transient Set<V> valueSet;
+  @CFComment("Change to @LazyFinal later")
+  @CheckForNull private transient @Assignable Set<V> valueSet;
 
   @SideEffectFree
   @Override
@@ -297,6 +305,7 @@ import org.checkerframework.framework.qual.CFComment;
   }
 
   @WeakOuter
+  @ReceiverDependentMutable
   private class ValueSet extends ForwardingSet<V> {
     final Set<V> valuesDelegate = inverse.keySet();
 
@@ -318,7 +327,7 @@ import org.checkerframework.framework.qual.CFComment;
 
     @Override
     @SuppressWarnings("nullness") // bug in our checker's handling of toArray signatures
-    public <T extends @Nullable @UnknownSignedness Object> T[] toArray(T[] array) {
+    public <T extends @Nullable @UnknownSignedness @Readonly Object> T[] toArray(T[] array) {
       return standardToArray(array);
     }
 
@@ -329,7 +338,8 @@ import org.checkerframework.framework.qual.CFComment;
     }
   }
 
-  @CheckForNull private transient Set<Entry<K, V>> entrySet;
+  @CFComment("Change to @LazyFinal later")
+  @CheckForNull private transient @Assignable Set<Entry<K, V>> entrySet;
 
   @SideEffectFree
   @Override
@@ -338,10 +348,11 @@ import org.checkerframework.framework.qual.CFComment;
     return (result == null) ? entrySet = new EntrySet() : result;
   }
 
+  @ReceiverDependentMutable
   class BiMapEntry extends ForwardingMapEntry<K, V> {
     private final Entry<K, V> delegate;
 
-    BiMapEntry(Entry<K, V> delegate) {
+    BiMapEntry(@ReceiverDependentMutable Entry<K, V> delegate) {
       this.delegate = delegate;
     }
 
@@ -397,6 +408,7 @@ import org.checkerframework.framework.qual.CFComment;
   }
 
   @WeakOuter
+  @ReceiverDependentMutable
   private class EntrySet extends ForwardingSet<Entry<K, V>> {
     final Set<Entry<K, V>> esDelegate = delegate.entrySet();
 
@@ -411,7 +423,7 @@ import org.checkerframework.framework.qual.CFComment;
     }
 
     @Override
-    public boolean remove(@Mutable EntrySet this,  @CheckForNull @UnknownSignedness Object object) {
+    public boolean remove(@Mutable EntrySet this,  @CheckForNull @UnknownSignedness @Readonly Object object) {
       /*
        * `o instanceof Entry` is guaranteed by `contains`, but we check it here to satisfy our
        * nullness checker.
@@ -453,37 +465,38 @@ import org.checkerframework.framework.qual.CFComment;
 
     @Override
     @SuppressWarnings("nullness") // bug in our checker's handling of toArray signatures
-    public <T extends @Nullable @UnknownSignedness Object> T[] toArray(T[] array) {
+    public <T extends @Nullable @UnknownSignedness @Readonly Object> T[] toArray(T[] array) {
       return standardToArray(array);
     }
 
     @Pure
     @Override
-    public boolean contains(@CheckForNull @UnknownSignedness Object o) {
+    public boolean contains(@Readonly EntrySet this, @CheckForNull @UnknownSignedness @Readonly Object o) {
       return Maps.containsEntryImpl(delegate(), o);
     }
 
     @Pure
     @Override
-    public boolean containsAll(Collection<?> c) {
+    public boolean containsAll(@Readonly EntrySet this, @Readonly Collection<?> c) {
       return standardContainsAll(c);
     }
 
     @Override
-    public boolean removeAll(@Mutable EntrySet this, Collection<?> c) {
+    public boolean removeAll(@Mutable EntrySet this, @Readonly Collection<?> c) {
       return standardRemoveAll(c);
     }
 
     @Override
-    public boolean retainAll(Collection<?> c) {
+    public boolean retainAll(@Mutable EntrySet this, @Readonly Collection<?> c) {
       return standardRetainAll(c);
     }
   }
 
   /** The inverse of any other {@code AbstractBiMap} subclass. */
-  static class Inverse<K extends @Nullable Object, V extends @Nullable Object>
+  @ReceiverDependentMutable
+  static class Inverse<K extends @Nullable @Immutable Object, V extends @Nullable @Immutable Object>
       extends AbstractBiMap<K, V> {
-    Inverse(Map<K, V> backward, AbstractBiMap<V, K> forward) {
+    Inverse(@ReceiverDependentMutable Map<K, V> backward, @ReceiverDependentMutable AbstractBiMap<V, K> forward) {
       super(backward, forward);
     }
 

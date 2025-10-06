@@ -49,6 +49,7 @@ import org.checkerframework.checker.index.qual.NonNegative;
 import org.checkerframework.checker.nullness.qual.KeyFor;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.checker.pico.qual.Assignable;
+import org.checkerframework.checker.pico.qual.Immutable;
 import org.checkerframework.checker.pico.qual.Mutable;
 import org.checkerframework.checker.pico.qual.Readonly;
 import org.checkerframework.checker.pico.qual.ReceiverDependentMutable;
@@ -94,7 +95,8 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
  */
 @GwtCompatible
 @ElementTypesAreNonnullByDefault
-@ReceiverDependentMutable abstract class AbstractMapBasedMultimap<K extends @Nullable Object, V extends @Readonly @Nullable Object>
+@ReceiverDependentMutable
+abstract class AbstractMapBasedMultimap<K extends @Nullable @Immutable Object, V extends @Readonly @Nullable Object>
     extends AbstractMultimap<K, V> implements Serializable {
   /*
    * Here's an outline of the overall design.
@@ -115,7 +117,7 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
    * an entry for the provided key, and if so replaces the delegate.
    */
 
-  private transient @Assignable @Mutable Map<K, @Readonly Collection<V>> map;
+  private transient @Assignable Map<K, @Readonly Collection<V>> map;
   private transient @Assignable int totalSize;
 
   /**
@@ -124,7 +126,7 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
    * @param map place to store the mapping from each key to its corresponding values
    * @throws IllegalArgumentException if {@code map} is not empty
    */
-  protected AbstractMapBasedMultimap(Map<K, @Mutable Collection<V>> map) {
+  protected AbstractMapBasedMultimap(@ReceiverDependentMutable Map<K, @Mutable Collection<V>> map) {
     checkArgument(map.isEmpty());
     this.map = map;
   }
@@ -184,7 +186,7 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
   }
 
   @Override
-  public boolean containsKey(@CheckForNull @UnknownSignedness Object key) {
+  public boolean containsKey(@CheckForNull @UnknownSignedness @Readonly Object key) {
     return map.containsKey(key);
   }
 
@@ -256,7 +258,7 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
    * <p>The returned collection is immutable.
    */
   @Override
-  public Collection<V> removeAll(@Mutable AbstractMapBasedMultimap<K, V> this, @CheckForNull Object key) {
+  public Collection<V> removeAll(@Mutable AbstractMapBasedMultimap<K, V> this, @CheckForNull @Readonly Object key) {
     Collection<V> collection = map.remove(key);
 
     if (collection == null) {
@@ -333,15 +335,16 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
    * the corresponding methods of the full wrapped collection.
    */
   @WeakOuter
+  @ReceiverDependentMutable
   class WrappedCollection extends AbstractCollection<V> {
     @ParametricNullness final K key;
-    @Mutable Collection<V> delegate;
+    Collection<V> delegate;
     @CheckForNull final WrappedCollection ancestor;
     @CheckForNull final Collection<V> ancestorDelegate;
 
     WrappedCollection(
         @ParametricNullness K key,
-        @Mutable Collection<V> delegate,
+        @ReceiverDependentMutable Collection<V> delegate,
         @CheckForNull WrappedCollection ancestor) {
       this.key = key;
       this.delegate = delegate;
@@ -408,7 +411,7 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
     }
 
     @Override
-    public boolean equals(@CheckForNull @UnknownSignedness Object object) {
+    public boolean equals(@CheckForNull @UnknownSignedness @Readonly Object object) {
       if (object == this) {
         return true;
       }
@@ -417,7 +420,7 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
     }
 
     @Override
-    public int hashCode(@UnknownSignedness WrappedCollection this) {
+    public int hashCode(@UnknownSignedness @Readonly WrappedCollection this) {
       refreshIfEmpty();
       return delegate.hashCode();
     }
@@ -428,7 +431,7 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
       return delegate.toString();
     }
 
-    @Mutable Collection<V> getDelegate() {
+    Collection<V> getDelegate() {
       return delegate;
     }
 
@@ -603,6 +606,7 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
 
   /** Set decorator that stays in sync with the multimap values for a key. */
   @WeakOuter
+  @ReceiverDependentMutable
   class WrappedSet extends WrappedCollection implements Set<V> {
     WrappedSet(@ParametricNullness K key, Set<V> delegate) {
       super(key, delegate, null);
@@ -630,6 +634,7 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
 
   /** SortedSet decorator that stays in sync with the multimap values for a key. */
   @WeakOuter
+  @ReceiverDependentMutable
   class WrappedSortedSet extends WrappedCollection implements SortedSet<V> {
     WrappedSortedSet(
         @ParametricNullness K key,
@@ -691,6 +696,7 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
   }
 
   @WeakOuter
+  @ReceiverDependentMutable
   class WrappedNavigableSet extends WrappedSortedSet implements NavigableSet<V> {
     WrappedNavigableSet(
         @ParametricNullness K key,
@@ -777,6 +783,7 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
 
   /** List decorator that stays in sync with the multimap values for a key. */
   @WeakOuter
+  @ReceiverDependentMutable
   class WrappedList extends WrappedCollection implements List<V> {
     WrappedList(
         @ParametricNullness K key, List<V> delegate, @CheckForNull WrappedCollection ancestor) {
@@ -926,6 +933,7 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
    * List decorator that stays in sync with the multimap values for a key and supports rapid random
    * access.
    */
+  @ReceiverDependentMutable
   private class RandomAccessWrappedList extends WrappedList implements RandomAccess {
     RandomAccessWrappedList(
         @ParametricNullness K key, List<V> delegate, @CheckForNull WrappedCollection ancestor) {
@@ -949,6 +957,7 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
   }
 
   @WeakOuter
+  @ReceiverDependentMutable
   private class KeySet extends Maps.KeySet<K, Collection<V>> {
     KeySet(final Map<K, Collection<V>> subMap) {
       super(subMap);
@@ -1025,6 +1034,7 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
   }
 
   @WeakOuter
+  @ReceiverDependentMutable
   private class SortedKeySet extends KeySet implements SortedSet<K> {
 
     SortedKeySet(SortedMap<K, Collection<V>> subMap) {
@@ -1070,6 +1080,7 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
   }
 
   @WeakOuter
+  @ReceiverDependentMutable
   class NavigableKeySet extends SortedKeySet implements NavigableSet<K> {
     NavigableKeySet(NavigableMap<K, Collection<V>> subMap) {
       super(subMap);
@@ -1164,7 +1175,7 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
   }
 
   /** Removes all values for the provided key. */
-  private void removeValuesForKey(@CheckForNull Object key) {
+  private void removeValuesForKey(@CheckForNull @Readonly Object key) {
     Collection<V> collection = Maps.safeRemove(map, key);
 
     if (collection != null) {
@@ -1174,6 +1185,7 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
     }
   }
 
+  @ReceiverDependentMutable
   private abstract class Itr<T extends @Nullable @Readonly Object> implements Iterator<T> {
     final Iterator<Entry<K, Collection<V>>> keyIterator;
     @CheckForNull K key;
@@ -1345,7 +1357,7 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
   }
 
   @WeakOuter
-  private class AsMap extends ViewCachingAbstractMap<K, Collection<V>> {
+  @ReceiverDependentMutable private class AsMap extends ViewCachingAbstractMap<K, Collection<V>> {
     /**
      * Usually the same as map, but smaller for the headMap(), tailMap(), or subMap() of a
      * SortedAsMap.
@@ -1421,7 +1433,7 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
     }
 
     @Override
-    public void clear() {
+    public void clear(@Mutable AsMap this) {
       if (submap == map) {
         AbstractMapBasedMultimap.this.clear();
       } else {
@@ -1499,6 +1511,7 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
   }
 
   @WeakOuter
+  @ReceiverDependentMutable
   private class SortedAsMap extends AsMap implements SortedMap<K, Collection<V>> {
     SortedAsMap(SortedMap<K, Collection<V>> submap) {
       super(submap);
@@ -1558,6 +1571,7 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
     }
   }
 
+  @ReceiverDependentMutable
   class NavigableAsMap extends SortedAsMap implements NavigableMap<K, Collection<V>> {
 
     NavigableAsMap(NavigableMap<K, Collection<V>> submap) {

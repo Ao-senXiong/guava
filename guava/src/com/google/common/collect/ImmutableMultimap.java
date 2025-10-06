@@ -80,6 +80,7 @@ import org.checkerframework.framework.qual.AnnotatedFor;
 @AnnotatedFor({"nullness"})
 @GwtCompatible(emulated = true)
 @ElementTypesAreNonnullByDefault
+@Immutable
 public abstract class ImmutableMultimap<K extends @Immutable Object, V extends @Immutable Object> extends BaseImmutableMultimap<K, V>
     implements Serializable {
 
@@ -560,6 +561,7 @@ public abstract class ImmutableMultimap<K extends @Immutable Object, V extends @
     return new EntryCollection<>(this);
   }
 
+  @Immutable
   private static class EntryCollection<K extends @Immutable Object, V extends @Immutable Object> extends ImmutableCollection<Entry<K, V>> {
     @Weak final ImmutableMultimap<K, V> multimap;
 
@@ -664,6 +666,7 @@ public abstract class ImmutableMultimap<K extends @Immutable Object, V extends @
 
   @SuppressWarnings("serial") // Uses writeReplace, not default serialization
   @WeakOuter
+  @Immutable
   class Keys extends ImmutableMultiset<K> {
     @Override
     public boolean contains(@CheckForNull @UnknownSignedness Object object) {
@@ -753,6 +756,7 @@ public abstract class ImmutableMultimap<K extends @Immutable Object, V extends @
     };
   }
 
+  @Immutable
   private static final class Values<K extends @Immutable Object, V extends @Immutable Object> extends ImmutableCollection<V> {
     @Weak private final transient ImmutableMultimap<K, V> multimap;
 

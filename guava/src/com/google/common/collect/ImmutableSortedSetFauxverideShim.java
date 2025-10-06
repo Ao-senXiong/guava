@@ -19,6 +19,7 @@ package com.google.common.collect;
 import com.google.common.annotations.GwtIncompatible;
 import com.google.errorprone.annotations.DoNotCall;
 import java.util.stream.Collector;
+import org.checkerframework.checker.pico.qual.Immutable;
 import org.checkerframework.framework.qual.AnnotatedFor;
 
 /**
@@ -41,6 +42,7 @@ import org.checkerframework.framework.qual.AnnotatedFor;
 @AnnotatedFor({"nullness"})
 @GwtIncompatible
 @ElementTypesAreNonnullByDefault
+@Immutable
 abstract class ImmutableSortedSetFauxverideShim<E> extends ImmutableSet.CachingAsList<E> {
   /**
    * Not supported. Use {@link ImmutableSortedSet#toImmutableSortedSet} instead. This method exists

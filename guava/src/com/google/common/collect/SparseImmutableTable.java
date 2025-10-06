@@ -27,6 +27,7 @@ import java.util.Map.Entry;
 @GwtCompatible
 //@Immutable(containerOf = {"R", "C", "V"})
 @ElementTypesAreNonnullByDefault
+@Immutable
 final class SparseImmutableTable<R extends @Immutable Object, C extends @Immutable Object, V> extends RegularImmutableTable<R, C, V> {
   static final ImmutableTable<Object, Object, Object> EMPTY =
       new SparseImmutableTable<>(

@@ -22,6 +22,7 @@ import java.util.Map.Entry;
 import javax.annotation.CheckForNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.checker.signedness.qual.UnknownSignedness;
+import org.checkerframework.checker.pico.qual.Immutable;
 import org.checkerframework.checker.pico.qual.Mutable;
 import org.checkerframework.checker.pico.qual.Readonly;
 import org.checkerframework.checker.pico.qual.ReceiverDependentMutable;
@@ -37,7 +38,8 @@ import org.checkerframework.framework.qual.AnnotatedFor;
 @AnnotatedFor({"nullness"})
 @GwtCompatible
 @ElementTypesAreNonnullByDefault
-@ReceiverDependentMutable abstract class AbstractMapEntry<K extends @Nullable Object, V extends @Readonly @Nullable Object>
+@ReceiverDependentMutable
+abstract class AbstractMapEntry<K extends @Nullable @Immutable Object, V extends @Readonly @Nullable Object>
     implements Entry<K, V> {
 
   @Pure

@@ -57,10 +57,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.checker.nullness.qual.PolyNull;
-import org.checkerframework.checker.pico.qual.Readonly;
-import org.checkerframework.checker.pico.qual.Mutable;
-import org.checkerframework.checker.pico.qual.Immutable;
 import org.checkerframework.checker.pico.qual.Assignable;
+import org.checkerframework.checker.pico.qual.Immutable;
+import org.checkerframework.checker.pico.qual.Mutable;
+import org.checkerframework.checker.pico.qual.Readonly;
 import org.checkerframework.checker.signedness.qual.UnknownSignedness;
 import org.checkerframework.dataflow.qual.Pure;
 import org.checkerframework.dataflow.qual.SideEffectFree;
@@ -84,6 +84,7 @@ import org.checkerframework.framework.qual.CFComment;
 @SuppressWarnings("serial") // we're overriding default serialization
 @ElementTypesAreNonnullByDefault
 @CFComment("Aosen: V is also immutable because it is used in multimap later")
+@Immutable
 public abstract class ImmutableMap<K extends @Immutable Object, V> implements Map<K, V>, Serializable {
 
   /**
@@ -98,7 +99,7 @@ public abstract class ImmutableMap<K extends @Immutable Object, V> implements Ma
    *
    * @since 21.0
    */
-  public static <T extends @Nullable Object, K extends @Immutable Object, V>
+  public static <T extends @Nullable @Readonly Object, K extends @Immutable Object, V>
       Collector<T, ?, ImmutableMap<K, V>> toImmutableMap(
           Function<? super T, ? extends K> keyFunction,
           Function<? super T, ? extends V> valueFunction) {
@@ -115,7 +116,7 @@ public abstract class ImmutableMap<K extends @Immutable Object, V> implements Ma
    *
    * @since 21.0
    */
-  public static <T extends @Nullable Object, K extends @Immutable Object, V>
+  public static <T extends @Nullable @Readonly Object, K extends @Immutable Object, V>
       Collector<T, ?, ImmutableMap<K, V>> toImmutableMap(
           Function<? super T, ? extends K> keyFunction,
           Function<? super T, ? extends V> valueFunction,
@@ -351,7 +352,7 @@ public abstract class ImmutableMap<K extends @Immutable Object, V> implements Ma
    * <p>A call to {@link Entry#setValue} on the returned entry will always throw {@link
    * UnsupportedOperationException}.
    */
-  static <K extends @Immutable Object, V> Entry<K, V> entryOf(K key, V value) {
+  static <K extends @Immutable Object, V> @Immutable Entry<K, V> entryOf(K key, V value) {
     return new ImmutableMapEntry<>(key, value);
   }
 
@@ -424,7 +425,7 @@ public abstract class ImmutableMap<K extends @Immutable Object, V> implements Ma
    * @since 2.0
    */
   @DoNotMock
-  public static @Mutable class Builder<K extends @Immutable Object, V> {
+  @Mutable public static class Builder<K extends @Immutable Object, V> {
     @CheckForNull Comparator<? super V> valueComparator;
     @Nullable Entry<K, V>[] entries;
     int size;
@@ -759,6 +760,7 @@ public abstract class ImmutableMap<K extends @Immutable Object, V> implements Ma
 
     @Override
     ImmutableSet<Entry<K, V>> createEntrySet() {
+      @Immutable
       class EntrySetImpl extends ImmutableMapEntrySet<K, V> {
         @Override
         ImmutableMap<K, V> map() {
@@ -967,20 +969,20 @@ public abstract class ImmutableMap<K extends @Immutable Object, V> implements Ma
 
   @Pure
   @Override
-  public boolean containsKey(@CheckForNull @UnknownSignedness Object key) {
+  public boolean containsKey(@CheckForNull @UnknownSignedness @Readonly Object key) {
     return get(key) != null;
   }
 
   @Pure
   @Override
-  public boolean containsValue(@CheckForNull @UnknownSignedness Object value) {
+  public boolean containsValue(@CheckForNull @UnknownSignedness @Readonly Object value) {
     return values().contains(value);
   }
 
   // Overriding to mark it Nullable
   @Override
   @CheckForNull
-  public abstract V get(@CheckForNull @UnknownSignedness Object key);
+  public abstract V get(@CheckForNull @UnknownSignedness @Readonly Object key);
 
   /**
    * @since 21.0 (but only since 23.5 in the Android <a

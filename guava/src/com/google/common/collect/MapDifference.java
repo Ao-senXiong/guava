@@ -21,6 +21,7 @@ import com.google.errorprone.annotations.DoNotMock;
 import java.util.Map;
 import javax.annotation.CheckForNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.checkerframework.checker.pico.qual.Immutable;
 import org.checkerframework.checker.pico.qual.Readonly;
 import org.checkerframework.checker.signedness.qual.UnknownSignedness;
 import org.checkerframework.dataflow.qual.Pure;
@@ -36,7 +37,7 @@ import org.checkerframework.framework.qual.AnnotatedFor;
 @GwtCompatible
 @AnnotatedFor({"nullness"})
 @ElementTypesAreNonnullByDefault
-public interface MapDifference<K extends @Nullable Object, V extends @Nullable @Readonly Object> {
+public interface MapDifference<K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object> {
   /**
    * Returns {@code true} if there are no differences between the two maps; that is, if the maps are
    * equal.

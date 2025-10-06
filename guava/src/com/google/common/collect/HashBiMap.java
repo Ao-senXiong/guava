@@ -45,7 +45,9 @@ import org.checkerframework.checker.index.qual.NonNegative;
 import org.checkerframework.checker.nullness.qual.KeyFor;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.checker.pico.qual.Assignable;
+import org.checkerframework.checker.pico.qual.Immutable;
 import org.checkerframework.checker.pico.qual.Mutable;
+import org.checkerframework.checker.pico.qual.Readonly;
 import org.checkerframework.checker.pico.qual.ReceiverDependentMutable;
 import org.checkerframework.checker.signedness.qual.UnknownSignedness;
 import org.checkerframework.dataflow.qual.Pure;
@@ -68,11 +70,12 @@ import org.checkerframework.framework.qual.AnnotatedFor;
 @AnnotatedFor({"nullness"})
 @GwtCompatible(emulated = true)
 @ElementTypesAreNonnullByDefault
-public final @ReceiverDependentMutable class HashBiMap<K extends @Nullable Object, V extends @Nullable Object>
+@ReceiverDependentMutable
+public final class HashBiMap<K extends @Nullable @Immutable Object, V extends @Nullable @Immutable Object>
     extends IteratorBasedAbstractMap<K, V> implements BiMap<K, V>, Serializable {
 
   /** Returns a new, empty {@code HashBiMap} with the default initial capacity (16). */
-  public static <K extends @Nullable Object, V extends @Nullable Object> HashBiMap<K, V> create() {
+  public static <K extends @Nullable @Immutable Object, V extends @Nullable @Immutable Object> HashBiMap<K, V> create() {
     return create(16);
   }
 
@@ -82,7 +85,7 @@ public final @ReceiverDependentMutable class HashBiMap<K extends @Nullable Objec
    * @param expectedSize the expected number of entries
    * @throws IllegalArgumentException if the specified expected size is negative
    */
-  public static <K extends @Nullable Object, V extends @Nullable Object> HashBiMap<K, V> create(
+  public static <K extends @Nullable @Immutable Object, V extends @Nullable @Immutable Object> HashBiMap<K, V> create(
       int expectedSize) {
     return new HashBiMap<>(expectedSize);
   }
@@ -91,14 +94,15 @@ public final @ReceiverDependentMutable class HashBiMap<K extends @Nullable Objec
    * Constructs a new bimap containing initial values from {@code map}. The bimap is created with an
    * initial capacity sufficient to hold the mappings in the specified map.
    */
-  public static <K extends @Nullable Object, V extends @Nullable Object> HashBiMap<K, V> create(
+  public static <K extends @Nullable @Immutable Object, V extends @Nullable @Immutable Object> HashBiMap<K, V> create(
       Map<? extends K, ? extends V> map) {
     HashBiMap<K, V> bimap = create(map.size());
     bimap.putAll(map);
     return bimap;
   }
 
-  private static final class BiEntry<K extends @Nullable Object, V extends @Nullable Object>
+  @ReceiverDependentMutable
+  private static final class BiEntry<K extends @Nullable @Immutable Object, V extends @Nullable @Immutable Object>
       extends ImmutableEntry<K, V> {
     final int keyHash;
     final int valueHash;
@@ -129,8 +133,8 @@ public final @ReceiverDependentMutable class HashBiMap<K extends @Nullable Objec
    * they are not initialized inline in the constructor, they are initialized from init(), which the
    * constructor calls (as does readObject()).
    */
-  private transient @Nullable @Assignable BiEntry<K, V>[] hashTableKToV;
-  private transient @Nullable @Assignable BiEntry<K, V>[] hashTableVToK;
+  private transient @Assignable @Nullable BiEntry<K, V>[] hashTableKToV;
+  private transient @Assignable @Nullable BiEntry<K, V>[] hashTableVToK;
   @Weak @CheckForNull private transient @Assignable BiEntry<K, V> firstInKeyInsertionOrder;
   @Weak @CheckForNull private transient @Assignable BiEntry<K, V> lastInKeyInsertionOrder;
   private transient @Assignable int size;
@@ -157,7 +161,7 @@ public final @ReceiverDependentMutable class HashBiMap<K extends @Nullable Objec
    * Finds and removes {@code entry} from the bucket linked lists in both the key-to-value direction
    * and the value-to-key direction.
    */
-  private void delete(BiEntry<K, V> entry) {
+  private void delete(@Mutable HashBiMap<K,V> this, @Readonly BiEntry<K, V> entry) {
     int keyBucket = entry.keyHash & mask;
     BiEntry<K, V> prevBucketEntry = null;
     for (BiEntry<K, V> bucketEntry = hashTableKToV[keyBucket];
@@ -206,7 +210,7 @@ public final @ReceiverDependentMutable class HashBiMap<K extends @Nullable Objec
     modCount++;
   }
 
-  private void insert(BiEntry<K, V> entry, @CheckForNull BiEntry<K, V> oldEntryForKey) {
+  private void insert(@Mutable HashBiMap<K,V> this, @Readonly BiEntry<K, V> entry, @CheckForNull @Readonly BiEntry<K, V> oldEntryForKey) {
     int keyBucket = entry.keyHash & mask;
     entry.nextInKToVBucket = hashTableKToV[keyBucket];
     hashTableKToV[keyBucket] = entry;
@@ -244,7 +248,7 @@ public final @ReceiverDependentMutable class HashBiMap<K extends @Nullable Objec
   }
 
   @CheckForNull
-  private BiEntry<K, V> seekByKey(@CheckForNull Object key, int keyHash) {
+  private BiEntry<K, V> seekByKey(@CheckForNull @Readonly Object key, int keyHash) {
     for (BiEntry<K, V> entry = hashTableKToV[keyHash & mask];
         entry != null;
         entry = entry.nextInKToVBucket) {
@@ -256,7 +260,7 @@ public final @ReceiverDependentMutable class HashBiMap<K extends @Nullable Objec
   }
 
   @CheckForNull
-  private BiEntry<K, V> seekByValue(@CheckForNull Object value, int valueHash) {
+  private BiEntry<K, V> seekByValue(@CheckForNull @Readonly Object value, int valueHash) {
     for (BiEntry<K, V> entry = hashTableVToK[valueHash & mask];
         entry != null;
         entry = entry.nextInVToKBucket) {
@@ -268,7 +272,7 @@ public final @ReceiverDependentMutable class HashBiMap<K extends @Nullable Objec
   }
 
   @Override
-  public boolean containsKey(@CheckForNull @UnknownSignedness Object key) {
+  public boolean containsKey(@Readonly HashBiMap<K,V> this, @CheckForNull @UnknownSignedness @Readonly Object key) {
     return seekByKey(key, smearedHash(key)) != null;
   }
 
@@ -284,25 +288,25 @@ public final @ReceiverDependentMutable class HashBiMap<K extends @Nullable Objec
    */
   @Pure
   @Override
-  public boolean containsValue(@CheckForNull @UnknownSignedness Object value) {
+  public boolean containsValue(@Readonly HashBiMap<K,V> this, @CheckForNull @UnknownSignedness @Readonly Object value) {
     return seekByValue(value, smearedHash(value)) != null;
   }
 
   @Override
   @CheckForNull
-  public V get(@CheckForNull @UnknownSignedness Object key) {
+  public V get(@Readonly HashBiMap<K,V> this, @CheckForNull @UnknownSignedness @Readonly Object key) {
     return Maps.valueOrNull(seekByKey(key, smearedHash(key)));
   }
 
   @CanIgnoreReturnValue
   @Override
   @CheckForNull
-  public V put(@ParametricNullness K key, @ParametricNullness V value) {
+  public V put(@Mutable HashBiMap<K,V> this, @ParametricNullness K key, @ParametricNullness V value) {
     return put(key, value, false);
   }
 
   @CheckForNull
-  private V put(@ParametricNullness K key, @ParametricNullness V value, boolean force) {
+  private V put(@Mutable HashBiMap<K,V> this, @ParametricNullness K key, @ParametricNullness V value, boolean force) {
     int keyHash = smearedHash(key);
     int valueHash = smearedHash(value);
 
@@ -339,12 +343,12 @@ public final @ReceiverDependentMutable class HashBiMap<K extends @Nullable Objec
   @CanIgnoreReturnValue
   @Override
   @CheckForNull
-  public V forcePut(@ParametricNullness K key, @ParametricNullness V value) {
+  public V forcePut(@Mutable HashBiMap<K,V> this, @ParametricNullness K key, @ParametricNullness V value) {
     return put(key, value, true);
   }
 
   @CheckForNull
-  private K putInverse(@ParametricNullness V value, @ParametricNullness K key, boolean force) {
+  private K putInverse(@Mutable HashBiMap<K,V> this, @ParametricNullness V value, @ParametricNullness K key, boolean force) {
     int valueHash = smearedHash(value);
     int keyHash = smearedHash(key);
 
@@ -415,7 +419,7 @@ public final @ReceiverDependentMutable class HashBiMap<K extends @Nullable Objec
   @CanIgnoreReturnValue
   @Override
   @CheckForNull
-  public V remove(@CheckForNull @UnknownSignedness Object key) {
+  public V remove(@Mutable HashBiMap<K,V> this, @CheckForNull @UnknownSignedness @Readonly Object key) {
     BiEntry<K, V> entry = seekByKey(key, smearedHash(key));
     if (entry == null) {
       return null;
@@ -428,7 +432,7 @@ public final @ReceiverDependentMutable class HashBiMap<K extends @Nullable Objec
   }
 
   @Override
-  public void clear() {
+  public void clear(@Mutable HashBiMap<K,V> this) {
     size = 0;
     Arrays.fill(hashTableKToV, null);
     Arrays.fill(hashTableVToK, null);
@@ -438,11 +442,12 @@ public final @ReceiverDependentMutable class HashBiMap<K extends @Nullable Objec
   }
 
   @Override
-  public @NonNegative int size() {
+  public @NonNegative int size(@Readonly HashBiMap<K,V> this) {
     return size;
   }
 
-  abstract class Itr<T extends @Nullable Object> implements Iterator<T> {
+  @ReceiverDependentMutable
+  abstract class Itr<T extends @Nullable @Readonly Object> implements Iterator<T> {
     @CheckForNull BiEntry<K, V> next = firstInKeyInsertionOrder;
     @CheckForNull BiEntry<K, V> toRemove = null;
     int expectedModCount = modCount;
@@ -471,7 +476,7 @@ public final @ReceiverDependentMutable class HashBiMap<K extends @Nullable Objec
     }
 
     @Override
-    public void remove() {
+    public void remove(@Mutable Itr<T> this) {
       if (modCount != expectedModCount) {
         throw new ConcurrentModificationException();
       }
@@ -491,6 +496,7 @@ public final @ReceiverDependentMutable class HashBiMap<K extends @Nullable Objec
     return new KeySet();
   }
 
+  @ReceiverDependentMutable
   private final class KeySet extends Maps.KeySet<K, V> {
     KeySet() {
       super(HashBiMap.this);
@@ -508,7 +514,7 @@ public final @ReceiverDependentMutable class HashBiMap<K extends @Nullable Objec
     }
 
     @Override
-    public boolean remove(@CheckForNull @UnknownSignedness Object o) {
+    public boolean remove(@Mutable KeySet this, @CheckForNull @UnknownSignedness Object o) {
       BiEntry<K, V> entry = seekByKey(o, smearedHash(o));
       if (entry == null) {
         return false;
@@ -606,9 +612,10 @@ public final @ReceiverDependentMutable class HashBiMap<K extends @Nullable Objec
     return (result == null) ? inverse = new Inverse() : result;
   }
 
-  private @Mutable final class Inverse extends IteratorBasedAbstractMap<V, K>
+  @ReceiverDependentMutable
+  private final class Inverse extends IteratorBasedAbstractMap<V, K>
       implements BiMap<V, K>, Serializable {
-    BiMap<K, V> forward() {
+    BiMap<K, V> forward(@Mutable Inverse this) {
       return HashBiMap.this;
     }
 
@@ -618,37 +625,37 @@ public final @ReceiverDependentMutable class HashBiMap<K extends @Nullable Objec
     }
 
     @Override
-    public void clear() {
+    public void clear(@Mutable Inverse this) {
       forward().clear();
     }
 
     @Override
-    public boolean containsKey(@CheckForNull @UnknownSignedness Object value) {
+    public boolean containsKey(@CheckForNull @UnknownSignedness @Readonly Object value) {
       return forward().containsValue(value);
     }
 
     @Override
     @CheckForNull
-    public K get(@CheckForNull @UnknownSignedness Object value) {
+    public K get(@CheckForNull @UnknownSignedness @Readonly Object value) {
       return Maps.keyOrNull(seekByValue(value, smearedHash(value)));
     }
 
     @CanIgnoreReturnValue
     @Override
     @CheckForNull
-    public K put(@ParametricNullness V value, @ParametricNullness K key) {
+    public K put(@Mutable Inverse this, @ParametricNullness V value, @ParametricNullness K key) {
       return putInverse(value, key, false);
     }
 
     @Override
     @CheckForNull
-    public K forcePut(@ParametricNullness V value, @ParametricNullness K key) {
+    public K forcePut(@Mutable Inverse this, @ParametricNullness V value, @ParametricNullness K key) {
       return putInverse(value, key, true);
     }
 
     @Override
     @CheckForNull
-    public K remove(@CheckForNull @UnknownSignedness Object value) {
+    public K remove(@Mutable Inverse this, @CheckForNull @UnknownSignedness @Readonly Object value) {
       BiEntry<K, V> entry = seekByValue(value, smearedHash(value));
       if (entry == null) {
         return null;
@@ -758,7 +765,7 @@ public final @ReceiverDependentMutable class HashBiMap<K extends @Nullable Objec
     }
 
     @Override
-    public void replaceAll(BiFunction<? super V, ? super K, ? extends K> function) {
+    public void replaceAll(@Mutable Inverse this, BiFunction<? super V, ? super K, ? extends K> function) {
       checkNotNull(function);
       BiEntry<K, V> oldFirst = firstInKeyInsertionOrder;
       clear();
@@ -772,8 +779,9 @@ public final @ReceiverDependentMutable class HashBiMap<K extends @Nullable Objec
     }
   }
 
+  @ReceiverDependentMutable
   private static final class InverseSerializedForm<
-          K extends @Nullable Object, V extends @Nullable Object>
+          K extends @Nullable @Immutable Object, V extends @Nullable @Immutable Object>
       implements Serializable {
     private final HashBiMap<K, V> bimap;
 

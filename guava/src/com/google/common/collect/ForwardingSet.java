@@ -55,19 +55,21 @@ import org.checkerframework.framework.qual.AnnotatedFor;
 @AnnotatedFor({"nullness"})
 @GwtCompatible
 @ElementTypesAreNonnullByDefault
-public @ReceiverDependentMutable abstract class ForwardingSet<E extends @Nullable @Readonly Object> extends ForwardingCollection<E>
+@ReceiverDependentMutable
+public abstract class ForwardingSet<E extends @Nullable @Readonly Object> extends ForwardingCollection<E>
     implements Set<E> {
   // TODO(lowasser): identify places where thread safety is actually lost
 
   /** Constructor for use by subclasses. */
-  protected @ReceiverDependentMutable ForwardingSet() {}
+  protected ForwardingSet() {}
 
   @Override
-  protected abstract @Mutable Set<E> delegate(@Readonly ForwardingSet<E> this);
+  // TODO(aosen): If I make poly on both, how to avoid rep exposure and type confusion?
+  protected abstract Set<E> delegate(@Readonly ForwardingSet<E> this);
 
   @Pure
   @Override
-  public boolean equals(@Readonly ForwardingSet<E> this, @CheckForNull @UnknownSignedness Object object) {
+  public boolean equals(@Readonly ForwardingSet<E> this, @CheckForNull @UnknownSignedness @Readonly Object object) {
     return object == this || delegate().equals(object);
   }
 
@@ -85,7 +87,7 @@ public @ReceiverDependentMutable abstract class ForwardingSet<E extends @Nullabl
    * @since 7.0 (this version overrides the {@code ForwardingCollection} version as of 12.0)
    */
   @Override
-  protected boolean standardRemoveAll(@Mutable ForwardingSet<E> this, Collection<?> collection) {
+  protected boolean standardRemoveAll(@Mutable ForwardingSet<E> this, @Readonly Collection<?> collection) {
     return Sets.removeAllImpl(this, checkNotNull(collection)); // for GWT
   }
 
@@ -96,7 +98,7 @@ public @ReceiverDependentMutable abstract class ForwardingSet<E extends @Nullabl
    *
    * @since 7.0
    */
-  protected boolean standardEquals(@Readonly ForwardingSet<E> this, @CheckForNull Object object) {
+  protected boolean standardEquals(@Readonly ForwardingSet<E> this, @CheckForNull @Readonly Object object) {
     return Sets.equalsImpl(this, object);
   }
 

@@ -51,6 +51,7 @@ import org.checkerframework.framework.qual.AnnotatedFor;
 @GwtCompatible(serializable = true, emulated = true)
 @SuppressWarnings("serial") // uses writeReplace(), not default serialization
 @ElementTypesAreNonnullByDefault
+@Immutable
 class RegularImmutableBiMap<K extends @Immutable Object , V extends @Immutable Object> extends ImmutableBiMap<K, V> {
   static final RegularImmutableBiMap<Object, Object> EMPTY =
       new RegularImmutableBiMap<>(
@@ -64,16 +65,16 @@ class RegularImmutableBiMap<K extends @Immutable Object , V extends @Immutable O
   private final transient int mask;
   private final transient int hashCode;
 
-  static <K extends @Immutable Object, V extends @Immutable Object> ImmutableBiMap<K, V> fromEntries(Entry<K, V>... entries) {
+  static <K extends @Immutable Object, V extends @Immutable Object> ImmutableBiMap<K, V> fromEntries(@Immutable Entry<K, V>... entries) {
     return fromEntryArray(entries.length, entries);
   }
 
-  static <K extends @Immutable Object, V extends @Immutable Object> ImmutableBiMap<K, V> fromEntryArray(int n, @Nullable Entry<K, V> @Mutable [] entryArray) {
+  static <K extends @Immutable Object, V extends @Immutable Object> ImmutableBiMap<K, V> fromEntryArray(int n, @Nullable @Immutable Entry<K, V> @Mutable [] entryArray) {
     checkPositionIndex(n, entryArray.length);
     int tableSize = Hashing.closedTableSize(n, MAX_LOAD_FACTOR);
     int mask = tableSize - 1;
-    @Nullable ImmutableMapEntry<K, V>[] keyTable = createEntryArray(tableSize);
-    @Nullable ImmutableMapEntry<K, V>[] valueTable = createEntryArray(tableSize);
+    @Nullable ImmutableMapEntry<K, V> @Mutable [] keyTable = createEntryArray(tableSize);
+    @Nullable ImmutableMapEntry<K, V> @Mutable [] valueTable = createEntryArray(tableSize);
     /*
      * The cast is safe: n==entryArray.length means that we have filled the whole array with Entry
      * instances, in which case it is safe to cast it from an array of nullable entries to an array
@@ -250,6 +251,7 @@ class RegularImmutableBiMap<K extends @Immutable Object , V extends @Immutable O
       return new InverseEntrySet();
     }
 
+    @Immutable
     final class InverseEntrySet extends ImmutableMapEntrySet<V, K> {
       @Override
       ImmutableMap<V, K> map() {
@@ -311,7 +313,7 @@ class RegularImmutableBiMap<K extends @Immutable Object , V extends @Immutable O
       this.forward = forward;
     }
 
-    Object readResolve() {
+    @Immutable Object readResolve() {
       return forward.inverse();
     }
 

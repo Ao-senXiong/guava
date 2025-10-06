@@ -52,8 +52,9 @@ import java.util.function.Predicate;
 import javax.annotation.CheckForNull;
 import org.checkerframework.checker.index.qual.NonNegative;
 import org.checkerframework.checker.nullness.qual.Nullable;
-import org.checkerframework.checker.pico.qual.Mutable;
+import org.checkerframework.checker.pico.qual.Immutable;
 import org.checkerframework.checker.pico.qual.Readonly;
+import org.checkerframework.checker.pico.qual.ReceiverDependentMutable;
 import org.checkerframework.checker.signedness.qual.UnknownSignedness;
 import org.checkerframework.dataflow.qual.Pure;
 import org.checkerframework.framework.qual.AnnotatedFor;
@@ -88,8 +89,8 @@ public final class Lists {
    * advantage of <a href="http://goo.gl/iz2Wi">"diamond" syntax</a>.
    */
   @GwtCompatible(serializable = true)
-  public static <E extends @Nullable @Readonly Object> @Mutable ArrayList<E> newArrayList() {
-    return new @Mutable ArrayList<>();
+  public static <E extends @Nullable @Readonly Object> ArrayList<E> newArrayList() {
+    return new ArrayList<>();
   }
 
   /**
@@ -108,7 +109,7 @@ public final class Lists {
    */
   @SafeVarargs
   @GwtCompatible(serializable = true)
-  public static <E extends @Nullable @Readonly Object> @Mutable ArrayList<E> newArrayList(E... elements) {
+  public static <E extends @Nullable @Readonly Object> ArrayList<E> newArrayList(E... elements) {
     checkNotNull(elements); // for GWT
     // Avoid integer overflow when a large array is passed in
     int capacity = computeArrayListCapacity(elements.length);
@@ -130,7 +131,7 @@ public final class Lists {
    * advantage of <a href="http://goo.gl/iz2Wi">"diamond" syntax</a>.
    */
   @GwtCompatible(serializable = true)
-  public static <E extends @Nullable @Readonly Object> @Mutable ArrayList<E> newArrayList(
+  public static <E extends @Nullable @Readonly Object> ArrayList<E> newArrayList(
       Iterable<? extends E> elements) {
     checkNotNull(elements); // for GWT
     // Let ArrayList's sizing logic work, if possible
@@ -147,7 +148,7 @@ public final class Lists {
    * ImmutableList#copyOf(Iterator)} instead.
    */
   @GwtCompatible(serializable = true)
-  public static <E extends @Nullable @Readonly Object> @Mutable ArrayList<E> newArrayList(
+  public static <E extends @Nullable @Readonly Object> ArrayList<E> newArrayList(
       Iterator<? extends E> elements) {
     ArrayList<E> list = newArrayList();
     Iterators.addAll(list, elements);
@@ -179,10 +180,10 @@ public final class Lists {
    * @throws IllegalArgumentException if {@code initialArraySize} is negative
    */
   @GwtCompatible(serializable = true)
-  public static <E extends @Nullable @Readonly Object> @Mutable ArrayList<E> newArrayListWithCapacity(
+  public static <E extends @Nullable @Readonly Object> ArrayList<E> newArrayListWithCapacity(
       int initialArraySize) {
     checkNonnegative(initialArraySize, "initialArraySize"); // for GWT.
-    return new @Mutable ArrayList<>(initialArraySize);
+    return new ArrayList<>(initialArraySize);
   }
 
   /**
@@ -199,7 +200,7 @@ public final class Lists {
    * @throws IllegalArgumentException if {@code estimatedSize} is negative
    */
   @GwtCompatible(serializable = true)
-  public static <E extends @Nullable @Readonly Object> @Mutable ArrayList<E> newArrayListWithExpectedSize(
+  public static <E extends @Nullable @Readonly Object> ArrayList<E> newArrayListWithExpectedSize(
       int estimatedSize) {
     return new ArrayList<>(computeArrayListCapacity(estimatedSize));
   }
@@ -242,7 +243,7 @@ public final class Lists {
    * taking advantage of <a href="http://goo.gl/iz2Wi">"diamond" syntax</a>.
    */
   @GwtCompatible(serializable = true)
-  public static <E extends @Nullable @Readonly Object> @Mutable LinkedList<E> newLinkedList(
+  public static <E extends @Nullable @Readonly Object> LinkedList<E> newLinkedList(
       Iterable<? extends E> elements) {
     LinkedList<E> list = newLinkedList();
     Iterables.addAll(list, elements);
@@ -322,6 +323,7 @@ public final class Lists {
   }
 
   /** @see Lists#asList(Object, Object[]) */
+  @ReceiverDependentMutable
   private static class OnePlusArrayList<E extends @Nullable @Readonly Object> extends AbstractList<E>
       implements Serializable, RandomAccess {
     @ParametricNullness final E first;
@@ -350,6 +352,7 @@ public final class Lists {
   }
 
   /** @see Lists#asList(Object, Object, Object[]) */
+  @ReceiverDependentMutable
   private static class TwoPlusArrayList<E extends @Nullable @Readonly Object> extends AbstractList<E>
       implements Serializable, RandomAccess {
     @ParametricNullness final E first;
@@ -547,13 +550,14 @@ public final class Lists {
    *
    * @see Lists#transform
    */
+  @ReceiverDependentMutable
   private static class TransformingSequentialList<
           F extends @Nullable @Readonly Object, T extends @Nullable @Readonly Object>
       extends AbstractSequentialList<T> implements Serializable {
-    final @Mutable List<F> fromList;
+    final List<F> fromList;
     final Function<? super F, ? extends T> function;
 
-    TransformingSequentialList(List<F> fromList, Function<? super F, ? extends T> function) {
+    TransformingSequentialList(@ReceiverDependentMutable List<F> fromList, Function<? super F, ? extends T> function) {
       this.fromList = checkNotNull(fromList);
       this.function = checkNotNull(function);
     }
@@ -600,13 +604,14 @@ public final class Lists {
    *
    * @see Lists#transform
    */
+  @ReceiverDependentMutable
   private static class TransformingRandomAccessList<
           F extends @Nullable @Readonly Object, T extends @Nullable @Readonly Object>
       extends AbstractList<T> implements RandomAccess, Serializable {
-    final @Mutable List<F> fromList;
+    final List<F> fromList;
     final Function<? super F, ? extends T> function;
 
-    TransformingRandomAccessList(List<F> fromList, Function<? super F, ? extends T> function) {
+    TransformingRandomAccessList(@ReceiverDependentMutable List<F> fromList, Function<? super F, ? extends T> function) {
       this.fromList = checkNotNull(fromList);
       this.function = checkNotNull(function);
     }
@@ -687,11 +692,12 @@ public final class Lists {
         : new Partition<>(list, size);
   }
 
+  @ReceiverDependentMutable
   private static class Partition<T extends @Nullable @Readonly Object> extends AbstractList<List<T>> {
     final List<T> list;
     final int size;
 
-    Partition(List<T> list, int size) {
+    Partition(@ReceiverDependentMutable List<T> list, int size) {
       this.list = list;
       this.size = size;
     }
@@ -717,6 +723,7 @@ public final class Lists {
     }
   }
 
+  @ReceiverDependentMutable
   private static class RandomAccessPartition<T extends @Nullable @Readonly Object> extends Partition<T>
       implements RandomAccess {
     RandomAccessPartition(List<T> list, int size) {
@@ -748,6 +755,7 @@ public final class Lists {
   }
 
   @SuppressWarnings("serial") // serialized using ImmutableList serialization
+  @Immutable
   private static final class StringAsImmutableList extends ImmutableList<Character> {
 
     private final String string;
@@ -789,6 +797,7 @@ public final class Lists {
     }
   }
 
+  @ReceiverDependentMutable
   private static final class CharSequenceAsList extends AbstractList<Character> {
     private final CharSequence sequence;
 
@@ -835,6 +844,7 @@ public final class Lists {
     }
   }
 
+  @ReceiverDependentMutable
   private static class ReverseList<T extends @Nullable @Readonly Object> extends AbstractList<T> {
     private final List<T> forwardList;
 
@@ -978,6 +988,7 @@ public final class Lists {
     }
   }
 
+  @ReceiverDependentMutable
   private static class RandomAccessReverseList<T extends @Nullable @Readonly Object> extends ReverseList<T>
       implements RandomAccess {
     RandomAccessReverseList(List<T> forwardList) {
@@ -986,7 +997,7 @@ public final class Lists {
   }
 
   /** An implementation of {@link List#hashCode()}. */
-  static int hashCodeImpl(List<?> list) {
+  static int hashCodeImpl(@Readonly List<?> list) {
     // TODO(lowasser): worth optimizing for RandomAccess?
     int hashCode = 1;
     for (Object o : list) {
@@ -1037,7 +1048,7 @@ public final class Lists {
   }
 
   /** An implementation of {@link List#indexOf(Object)}. */
-  static int indexOfImpl(List<?> list, @CheckForNull @UnknownSignedness Object element) {
+  static int indexOfImpl(@Readonly List<?> list, @CheckForNull @UnknownSignedness @Readonly Object element) {
     if (list instanceof RandomAccess) {
       return indexOfRandomAccess(list, element);
     } else {
@@ -1051,7 +1062,7 @@ public final class Lists {
     }
   }
 
-  private static int indexOfRandomAccess(List<?> list, @CheckForNull Object element) {
+  private static int indexOfRandomAccess(@Readonly List<?> list, @CheckForNull @Readonly Object element) {
     int size = list.size();
     if (element == null) {
       for (int i = 0; i < size; i++) {
@@ -1070,7 +1081,7 @@ public final class Lists {
   }
 
   /** An implementation of {@link List#lastIndexOf(Object)}. */
-  static int lastIndexOfImpl(List<?> list, @CheckForNull @UnknownSignedness Object element) {
+  static int lastIndexOfImpl(@Readonly List<?> list, @CheckForNull @UnknownSignedness @Readonly Object element) {
     if (list instanceof RandomAccess) {
       return lastIndexOfRandomAccess(list, element);
     } else {
@@ -1084,7 +1095,7 @@ public final class Lists {
     }
   }
 
-  private static int lastIndexOfRandomAccess(List<?> list, @CheckForNull Object element) {
+  private static int lastIndexOfRandomAccess(@Readonly List<?> list, @CheckForNull @Readonly Object element) {
     if (element == null) {
       for (int i = list.size() - 1; i >= 0; i--) {
         if (list.get(i) == null) {
@@ -1134,10 +1145,11 @@ public final class Lists {
     return wrapper.subList(fromIndex, toIndex);
   }
 
+  @ReceiverDependentMutable
   private static class AbstractListWrapper<E extends @Nullable @Readonly Object> extends AbstractList<E> {
-    final @Mutable List<E> backingList;
+    final List<E> backingList;
 
-    AbstractListWrapper(List<E> backingList) {
+    AbstractListWrapper(@ReceiverDependentMutable List<E> backingList) {
       this.backingList = checkNotNull(backingList);
     }
 
@@ -1170,7 +1182,7 @@ public final class Lists {
     }
 
     @Override
-    public boolean contains(@CheckForNull @UnknownSignedness Object o) {
+    public boolean contains(@CheckForNull @UnknownSignedness @Readonly Object o) {
       return backingList.contains(o);
     }
 
@@ -1180,9 +1192,10 @@ public final class Lists {
     }
   }
 
+  @ReceiverDependentMutable
   private static class RandomAccessListWrapper<E extends @Nullable @Readonly Object>
       extends AbstractListWrapper<E> implements RandomAccess {
-    RandomAccessListWrapper(List<E> backingList) {
+    RandomAccessListWrapper(@ReceiverDependentMutable List<E> backingList) {
       super(backingList);
     }
   }

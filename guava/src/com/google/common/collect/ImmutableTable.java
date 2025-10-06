@@ -50,6 +50,7 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
  */
 @GwtCompatible
 @ElementTypesAreNonnullByDefault
+@Immutable
 public abstract class ImmutableTable<R extends @Immutable Object, C extends @Immutable Object, V> extends AbstractTable<R, C, V>
     implements Serializable {
 
@@ -482,7 +483,7 @@ public abstract class ImmutableTable<R extends @Immutable Object, C extends @Imm
           cellColumnIndices);
     }
 
-    Object readResolve() {
+    @Immutable Object readResolve() {
       if (cellValues.length == 0) {
         return of();
       }

@@ -593,7 +593,7 @@ public @ReceiverDependentMutable final class TreeMultiset<E extends @Readonly @N
     }
   }
 
-  private static final class AvlNode<E extends @Readonly @Nullable Object> {
+  private @ReceiverDependentMutable static final class AvlNode<E extends @Readonly @Nullable Object> {
     /*
      * For "normal" nodes, the type of this field is `E`, not `@Nullable E` (though note that E is a
      * type that can include null, as in a TreeMultiset<@Nullable String>).
@@ -609,9 +609,9 @@ public @ReceiverDependentMutable final class TreeMultiset<E extends @Readonly @N
     // elemCount is 0 iff this node has been deleted.
     private @Assignable int elemCount;
 
-    private int distinctElements;
-    private long totalCount;
-    private int height;
+    private @Assignable int distinctElements;
+    private @Assignable long totalCount;
+    private @Assignable int height;
     @CheckForNull private AvlNode<E> left;
     @CheckForNull private AvlNode<E> right;
     /*

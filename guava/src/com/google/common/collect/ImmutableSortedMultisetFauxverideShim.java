@@ -20,6 +20,7 @@ import java.util.function.Function;
 import java.util.function.ToIntFunction;
 import java.util.stream.Collector;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.checkerframework.checker.pico.qual.Immutable;
 
 /**
  * "Overrides" the {@link ImmutableMultiset} static methods that lack {@link
@@ -40,6 +41,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  */
 @GwtIncompatible
 @ElementTypesAreNonnullByDefault
+@Immutable
 abstract class ImmutableSortedMultisetFauxverideShim<E> extends ImmutableMultiset<E> {
   /**
    * Not supported. Use {@link ImmutableSortedMultiset#toImmutableSortedMultiset} instead. This

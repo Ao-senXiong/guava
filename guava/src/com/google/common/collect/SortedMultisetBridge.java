@@ -31,7 +31,8 @@ import org.checkerframework.checker.pico.qual.ReceiverDependentMutable;
  */
 @GwtIncompatible
 @ElementTypesAreNonnullByDefault
-@ReceiverDependentMutable interface SortedMultisetBridge<E extends @Nullable @Readonly Object> extends Multiset<E> {
+@ReceiverDependentMutable
+interface SortedMultisetBridge<E extends @Nullable @Readonly Object> extends Multiset<E> {
   @Override
   SortedSet<E> elementSet();
 }

@@ -31,6 +31,7 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
 @GwtCompatible
 //@Immutable(containerOf = {"R", "C", "V"})
 @ElementTypesAreNonnullByDefault
+@Immutable
 final class DenseImmutableTable<R extends @Immutable Object, C extends @Immutable Object, V> extends RegularImmutableTable<R, C, V> {
   private final ImmutableMap<R, Integer> rowKeyToIndex;
   private final ImmutableMap<C, Integer> columnKeyToIndex;

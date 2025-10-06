@@ -28,7 +28,9 @@ import javax.annotation.CheckForNull;
 import org.checkerframework.checker.index.qual.NonNegative;
 import org.checkerframework.checker.nullness.qual.KeyFor;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.checkerframework.checker.pico.qual.Immutable;
 import org.checkerframework.checker.pico.qual.Mutable;
+import org.checkerframework.checker.pico.qual.PolyMutable;
 import org.checkerframework.checker.pico.qual.Readonly;
 import org.checkerframework.checker.pico.qual.ReceiverDependentMutable;
 import org.checkerframework.checker.signedness.qual.UnknownSignedness;
@@ -67,12 +69,13 @@ import org.checkerframework.framework.qual.AnnotatedFor;
 @AnnotatedFor({"nullness"})
 @GwtCompatible
 @ElementTypesAreNonnullByDefault
-public @ReceiverDependentMutable abstract class ForwardingMap<K extends @Nullable Object, V extends @Nullable @Readonly Object>
+@ReceiverDependentMutable
+public abstract class ForwardingMap<K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object>
     extends ForwardingObject implements Map<K, V> {
   // TODO(lowasser): identify places where thread safety is actually lost
 
   /** Constructor for use by subclasses. */
-  protected @ReceiverDependentMutable ForwardingMap() {}
+  protected ForwardingMap() {}
 
   @Override
   protected abstract @ReceiverDependentMutable Map<K, V> delegate(@ReceiverDependentMutable ForwardingMap<K, V> this);
@@ -80,13 +83,13 @@ public @ReceiverDependentMutable abstract class ForwardingMap<K extends @Nullabl
   @Pure
   @Override
   @SuppressWarnings("index:overriding.return")
-  public @NonNegative int size(@ReceiverDependentMutable ForwardingMap<K, V> this) {
+  public @NonNegative int size(@Readonly ForwardingMap<K, V> this) {
     return delegate().size();
   }
 
   @Pure
   @Override
-  public boolean isEmpty(@ReceiverDependentMutable ForwardingMap<K, V> this) {
+  public boolean isEmpty(@Readonly ForwardingMap<K, V> this) {
     return delegate().isEmpty();
   }
 
@@ -94,7 +97,7 @@ public @ReceiverDependentMutable abstract class ForwardingMap<K extends @Nullabl
   @Override
   @SuppressWarnings("nullness:argument") // Suppressed due to annotations on remove in Java.Map
   @CheckForNull
-  public V remove(@Mutable ForwardingMap<K, V> this, @CheckForNull @UnknownSignedness Object key) {
+  public V remove(@Mutable ForwardingMap<K, V> this, @CheckForNull @UnknownSignedness @Readonly Object key) {
     return delegate().remove(key);
   }
 
@@ -106,21 +109,21 @@ public @ReceiverDependentMutable abstract class ForwardingMap<K extends @Nullabl
   @Pure
   @Override
   @SuppressWarnings("nullness:argument") // Suppressed due to annotations on containsKey in Java.Map
-  public boolean containsKey(@ReceiverDependentMutable ForwardingMap<K, V> this, @CheckForNull @UnknownSignedness @Readonly Object key) {
+  public boolean containsKey(@Readonly ForwardingMap<K, V> this, @CheckForNull @UnknownSignedness @Readonly Object key) {
     return delegate().containsKey(key);
   }
 
   @Pure
   @Override
   @SuppressWarnings("nullness:argument") // Suppressed due to annotations on containsValue in Java.Map
-  public boolean containsValue(@ReceiverDependentMutable ForwardingMap<K, V> this, @CheckForNull @UnknownSignedness @Readonly Object value) {
+  public boolean containsValue(@Readonly ForwardingMap<K, V> this, @CheckForNull @UnknownSignedness @Readonly Object value) {
     return delegate().containsValue(value);
   }
 
   @Override
   @SuppressWarnings("nullness:argument") // Suppressed due to annotations on get in Java.Map
   @CheckForNull
-  public V get(@ReceiverDependentMutable ForwardingMap<K, V> this, @CheckForNull @UnknownSignedness @Readonly Object key) {
+  public V get(@Readonly ForwardingMap<K, V> this, @CheckForNull @UnknownSignedness @Readonly Object key) {
     return delegate().get(key);
   }
 
@@ -132,31 +135,31 @@ public @ReceiverDependentMutable abstract class ForwardingMap<K extends @Nullabl
   }
 
   @Override
-  public void putAll(@Mutable ForwardingMap<K, V> this, Map<? extends K, ? extends V> map) {
+  public void putAll(@Mutable ForwardingMap<K, V> this, @Readonly Map<? extends K, ? extends V> map) {
     delegate().putAll(map);
   }
 
   @SideEffectFree
   @Override
-  public Set<@KeyFor({"this"}) K> keySet(@ReceiverDependentMutable ForwardingMap<K, V> this) {
+  public @PolyMutable Set<@KeyFor({"this"}) K> keySet(@PolyMutable ForwardingMap<K, V> this) {
     return delegate().keySet();
   }
 
   @SideEffectFree
   @Override
-  public Collection<V> values(@ReceiverDependentMutable ForwardingMap<K, V> this) {
+  public @PolyMutable Collection<V> values(@PolyMutable ForwardingMap<K, V> this) {
     return delegate().values();
   }
 
   @SideEffectFree
   @Override
-  public Set<Entry<@KeyFor({"this"}) K, V>> entrySet(@ReceiverDependentMutable ForwardingMap<K, V> this) {
+  public @PolyMutable Set<Entry<@KeyFor({"this"}) K, V>> entrySet(@PolyMutable ForwardingMap<K, V> this) {
     return delegate().entrySet();
   }
 
   @Pure
   @Override
-  public boolean equals(@Readonly ForwardingMap<K, V> this, @CheckForNull Object object) {
+  public boolean equals(@Readonly ForwardingMap<K, V> this, @CheckForNull @Readonly Object object) {
     return object == this || delegate().equals(object);
   }
 
@@ -223,9 +226,10 @@ public @ReceiverDependentMutable abstract class ForwardingMap<K extends @Nullabl
    * @since 10.0
    */
   @Beta
-  protected @ReceiverDependentMutable class StandardKeySet extends Maps.KeySet<K, V> {
+  @ReceiverDependentMutable
+  protected class StandardKeySet extends Maps.KeySet<K, V> {
     /** Constructor for use by subclasses. */
-    public @ReceiverDependentMutable StandardKeySet() {
+    public StandardKeySet() {
       super(ForwardingMap.this);
     }
   }
@@ -252,9 +256,10 @@ public @ReceiverDependentMutable abstract class ForwardingMap<K extends @Nullabl
    * @since 10.0
    */
   @Beta
-  protected @ReceiverDependentMutable class StandardValues extends Maps.Values<K, V> {
+  @ReceiverDependentMutable
+  protected class StandardValues extends Maps.Values<K, V> {
     /** Constructor for use by subclasses. */
-    public @ReceiverDependentMutable StandardValues() {
+    public StandardValues() {
       super(ForwardingMap.this);
     }
   }
@@ -280,7 +285,8 @@ public @ReceiverDependentMutable abstract class ForwardingMap<K extends @Nullabl
    * @since 10.0
    */
   @Beta
-  protected @ReceiverDependentMutable abstract class StandardEntrySet extends Maps.EntrySet<K, V> {
+  @ReceiverDependentMutable
+  protected abstract class StandardEntrySet extends Maps.EntrySet<K, V> {
     /** Constructor for use by subclasses. */
     public StandardEntrySet() {}
 

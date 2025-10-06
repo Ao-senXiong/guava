@@ -24,6 +24,7 @@ import java.util.Map.Entry;
 import javax.annotation.CheckForNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.checker.signedness.qual.UnknownSignedness;
+import org.checkerframework.checker.pico.qual.Immutable;
 import org.checkerframework.checker.pico.qual.Mutable;
 import org.checkerframework.checker.pico.qual.Readonly;
 import org.checkerframework.checker.pico.qual.ReceiverDependentMutable;
@@ -56,7 +57,8 @@ import org.checkerframework.framework.qual.AnnotatedFor;
 @AnnotatedFor({"nullness"})
 @GwtCompatible
 @ElementTypesAreNonnullByDefault
-public @ReceiverDependentMutable abstract class ForwardingMapEntry<K extends @Nullable Object, V extends @Nullable @Readonly Object>
+@ReceiverDependentMutable
+public abstract class ForwardingMapEntry<K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object>
     extends ForwardingObject implements Map.Entry<K, V> {
   // TODO(lowasser): identify places where thread safety is actually lost
 

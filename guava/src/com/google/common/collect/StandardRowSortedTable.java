@@ -29,6 +29,7 @@ import java.util.SortedSet;
 import javax.annotation.CheckForNull;
 import org.checkerframework.checker.nullness.qual.KeyFor;
 import org.checkerframework.checker.pico.qual.Immutable;
+import org.checkerframework.checker.pico.qual.ReceiverDependentMutable;
 
 /**
  * Implementation of {@code Table} whose iteration ordering across row keys is sorted by their
@@ -49,6 +50,7 @@ import org.checkerframework.checker.pico.qual.Immutable;
  */
 @GwtCompatible
 @ElementTypesAreNonnullByDefault
+@ReceiverDependentMutable
 class StandardRowSortedTable<R extends @Immutable Object, C extends @Immutable Object, V> extends StandardTable<R, C, V>
     implements RowSortedTable<R, C, V> {
   /*

@@ -24,6 +24,8 @@ import java.util.NoSuchElementException;
 import org.checkerframework.checker.index.qual.NonNegative;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.checker.pico.qual.Readonly;
+import org.checkerframework.checker.pico.qual.ReceiverDependentMutable;
+import org.checkerframework.framework.qual.CFComment;
 
 /**
  * This class provides a skeletal implementation of the {@link ListIterator} interface across a
@@ -34,6 +36,8 @@ import org.checkerframework.checker.pico.qual.Readonly;
  */
 @GwtCompatible
 @ElementTypesAreNonnullByDefault
+@CFComment("AOSEN: Is this a design issue?")
+@ReceiverDependentMutable
 abstract class AbstractIndexedListIterator<E extends @Nullable @Readonly Object>
     extends UnmodifiableListIterator<E> {
   private final int size;

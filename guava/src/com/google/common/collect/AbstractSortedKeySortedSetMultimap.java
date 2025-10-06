@@ -23,6 +23,8 @@ import java.util.SortedMap;
 import java.util.SortedSet;
 import org.checkerframework.checker.nullness.qual.KeyFor;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.checkerframework.checker.pico.qual.Immutable;
+import org.checkerframework.checker.pico.qual.ReceiverDependentMutable;
 
 /**
  * Basic implementation of a {@link SortedSetMultimap} with a sorted key set.
@@ -34,8 +36,9 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  */
 @GwtCompatible
 @ElementTypesAreNonnullByDefault
+@ReceiverDependentMutable
 abstract class AbstractSortedKeySortedSetMultimap<
-        K extends @Nullable Object, V extends @Nullable Object>
+        K extends @Nullable @Immutable Object, V extends @Nullable Object>
     extends AbstractSortedSetMultimap<K, V> {
 
   AbstractSortedKeySortedSetMultimap(SortedMap<K, Collection<V>> map) {

@@ -29,6 +29,7 @@ import java.util.function.BiFunction;
 import javax.annotation.CheckForNull;
 import org.checkerframework.checker.nullness.qual.KeyFor;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.checkerframework.checker.pico.qual.Immutable;
 
 /**
  * A navigable map which forwards all its method calls to another navigable map. Subclasses should
@@ -58,7 +59,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  */
 @GwtIncompatible
 @ElementTypesAreNonnullByDefault
-public abstract class ForwardingNavigableMap<K extends @Nullable Object, V extends @Nullable Object>
+public abstract class ForwardingNavigableMap<K extends @Nullable @Immutable Object, V extends @Nullable Object>
     extends ForwardingSortedMap<K, V> implements NavigableMap<K, V> {
 
   /** Constructor for use by subclasses. */

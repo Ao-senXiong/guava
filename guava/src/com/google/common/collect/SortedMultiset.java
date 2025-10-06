@@ -46,7 +46,8 @@ import org.checkerframework.checker.pico.qual.ReceiverDependentMutable;
  */
 @GwtCompatible(emulated = true)
 @ElementTypesAreNonnullByDefault
-public @ReceiverDependentMutable interface SortedMultiset<E extends @Nullable @Readonly Object>
+@ReceiverDependentMutable
+public interface SortedMultiset<E extends @Nullable @Readonly Object>
     extends SortedMultisetBridge<E>, SortedIterable<E> {
   /**
    * Returns the comparator that orders this multiset, or {@link Ordering#natural()} if the natural

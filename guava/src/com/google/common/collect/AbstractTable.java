@@ -29,10 +29,13 @@ import javax.annotation.CheckForNull;
 import org.checkerframework.checker.index.qual.NonNegative;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.checker.pico.qual.Assignable;
+import org.checkerframework.checker.pico.qual.Immutable;
 import org.checkerframework.checker.pico.qual.Mutable;
+import org.checkerframework.checker.pico.qual.PolyMutable;
 import org.checkerframework.checker.pico.qual.Readonly;
 import org.checkerframework.checker.pico.qual.ReceiverDependentMutable;
 import org.checkerframework.checker.signedness.qual.UnknownSignedness;
+import org.checkerframework.framework.qual.CFComment;
 
 /**
  * Skeletal, implementation-agnostic implementation of the {@link Table} interface.
@@ -41,17 +44,18 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
  */
 @GwtCompatible
 @ElementTypesAreNonnullByDefault
-@ReceiverDependentMutable abstract class AbstractTable<
-        R extends @Nullable Object, C extends @Nullable Object, V extends @Readonly @Nullable Object>
+@ReceiverDependentMutable
+abstract class AbstractTable<
+        R extends @Nullable @Immutable Object, C extends @Nullable @Immutable Object, V extends @Readonly @Nullable Object>
     implements Table<R, C, V> {
 
   @Override
-  public boolean containsRow(@CheckForNull Object rowKey) {
+  public boolean containsRow(@Readonly AbstractTable<R, C, V> this, @CheckForNull @Readonly Object rowKey) {
     return Maps.safeContainsKey(rowMap(), rowKey);
   }
 
   @Override
-  public boolean containsColumn(@CheckForNull Object columnKey) {
+  public boolean containsColumn(@Readonly AbstractTable<R, C, V> this, @CheckForNull @Readonly Object columnKey) {
     return Maps.safeContainsKey(columnMap(), columnKey);
   }
 
@@ -66,7 +70,7 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
   }
 
   @Override
-  public boolean containsValue(@CheckForNull @UnknownSignedness Object value) {
+  public boolean containsValue(@Readonly AbstractTable<R, C, V> this, @CheckForNull @UnknownSignedness @Readonly Object value) {
     for (Map<C, V> row : rowMap().values()) {
       if (row.containsValue(value)) {
         return true;
@@ -76,32 +80,32 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
   }
 
   @Override
-  public boolean contains(@CheckForNull Object rowKey, @CheckForNull Object columnKey) {
+  public boolean contains(@Readonly AbstractTable<R, C, V> this, @CheckForNull @Readonly Object rowKey, @CheckForNull @Readonly Object columnKey) {
     Map<C, V> row = Maps.safeGet(rowMap(), rowKey);
     return row != null && Maps.safeContainsKey(row, columnKey);
   }
 
   @Override
   @CheckForNull
-  public V get(@CheckForNull Object rowKey, @CheckForNull Object columnKey) {
+  public V get(@Readonly AbstractTable<R, C, V> this, @CheckForNull @Readonly Object rowKey, @CheckForNull @Readonly Object columnKey) {
     Map<C, V> row = Maps.safeGet(rowMap(), rowKey);
     return (row == null) ? null : Maps.safeGet(row, columnKey);
   }
 
   @Override
-  public boolean isEmpty() {
+  public boolean isEmpty(@Readonly AbstractTable<R, C, V> this) {
     return size() == 0;
   }
 
   @Override
-  public void clear() {
+  public void clear(@Mutable AbstractTable<R, C, V> this) {
     Iterators.clear(cellSet().iterator());
   }
 
   @CanIgnoreReturnValue
   @Override
   @CheckForNull
-  public V remove(@Mutable AbstractTable<R, C, V> this, @CheckForNull Object rowKey, @CheckForNull Object columnKey) {
+  public V remove(@Mutable AbstractTable<R, C, V> this, @CheckForNull @Readonly Object rowKey, @CheckForNull @Readonly Object columnKey) {
     Map<C, V> row = Maps.safeGet(rowMap(), rowKey);
     return (row == null) ? null : Maps.safeRemove(row, columnKey);
   }
@@ -120,11 +124,11 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
       put(cell.getRowKey(), cell.getColumnKey(), cell.getValue());
     }
   }
-
+  @CFComment("Change to @LazyFinal later")
   @LazyInit @CheckForNull private transient @Assignable Set<Cell<R, C, V>> cellSet;
 
   @Override
-  public Set<Cell<R, C, V>> cellSet() {
+  public @PolyMutable Set<Cell<R, C, V>> cellSet(@PolyMutable AbstractTable<R, C, V> this) {
     Set<Cell<R, C, V>> result = cellSet;
     return (result == null) ? cellSet = createCellSet() : result;
   }
@@ -138,9 +142,10 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
   abstract @ReceiverDependentMutable Spliterator<Table.Cell<R, C, V>> cellSpliterator();
 
   @WeakOuter
-  @ReceiverDependentMutable class CellSet extends AbstractSet<Cell<R, C, V>> {
+  @ReceiverDependentMutable 
+  class CellSet extends AbstractSet<Cell<R, C, V>> {
     @Override
-    public boolean contains(@CheckForNull @UnknownSignedness Object o) {
+    public boolean contains(@Readonly CellSet this, @CheckForNull @UnknownSignedness @Readonly Object o) {
       if (o instanceof Cell) {
         Cell<?, ?, ?> cell = (Cell<?, ?, ?>) o;
         Map<C, V> row = Maps.safeGet(rowMap(), cell.getRowKey());
@@ -152,7 +157,7 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
     }
 
     @Override
-    public boolean remove(@CheckForNull @UnknownSignedness Object o) {
+    public boolean remove(@Mutable CellSet this, @CheckForNull @UnknownSignedness @Readonly Object o) {
       if (o instanceof Cell) {
         Cell<?, ?, ?> cell = (Cell<?, ?, ?>) o;
         Map<C, V> row = Maps.safeGet(rowMap(), cell.getRowKey());
@@ -179,11 +184,12 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
     }
 
     @Override
-    public @NonNegative int size() {
+    public @NonNegative int size(@Readonly CellSet this) {
       return AbstractTable.this.size();
     }
   }
 
+  @CFComment("Change to @LazyFinal later")
   @LazyInit @CheckForNull private transient @Assignable Collection<V> values;
 
   @Override
@@ -211,7 +217,8 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
   }
 
   @WeakOuter
-  @ReceiverDependentMutable class Values extends AbstractCollection<V> {
+  @ReceiverDependentMutable
+  class Values extends AbstractCollection<V> {
     @Override
     public @ReceiverDependentMutable Iterator<V> iterator() {
       return valuesIterator();
@@ -223,7 +230,7 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
     }
 
     @Override
-    public boolean contains(@CheckForNull @UnknownSignedness @Readonly Object o) {
+    public boolean contains(@Readonly Values this, @CheckForNull @UnknownSignedness @Readonly Object o) {
       return containsValue(o);
     }
 
@@ -233,24 +240,24 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
     }
 
     @Override
-    public @NonNegative int size() {
+    public @NonNegative int size(@Readonly Values this) {
       return AbstractTable.this.size();
     }
   }
 
   @Override
-  public boolean equals(@CheckForNull Object obj) {
+  public boolean equals(@Readonly AbstractTable<R, C, V> this, @CheckForNull @Readonly Object obj) {
     return Tables.equalsImpl(this, obj);
   }
 
   @Override
-  public int hashCode(@UnknownSignedness AbstractTable<R, C, V> this) {
+  public int hashCode(@UnknownSignedness @Readonly AbstractTable<R, C, V> this) {
     return cellSet().hashCode();
   }
 
   /** Returns the string representation {@code rowMap().toString()}. */
   @Override
-  public String toString() {
+  public String toString(@Readonly AbstractTable<R, C, V> this) {
     return rowMap().toString();
   }
 }

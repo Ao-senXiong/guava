@@ -22,7 +22,9 @@ import java.util.Map;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.checkerframework.checker.pico.qual.Immutable;
 import org.checkerframework.checker.pico.qual.Mutable;
+import org.checkerframework.checker.pico.qual.PolyMutable;
 import org.checkerframework.checker.pico.qual.Readonly;
 import org.checkerframework.checker.pico.qual.ReceiverDependentMutable;
 import org.checkerframework.framework.qual.AnnotatedFor;
@@ -43,7 +45,8 @@ import org.checkerframework.framework.qual.CFComment;
 @AnnotatedFor({"nullness"})
 @ElementTypesAreNonnullByDefault
 @CFComment("BiMap both key and value type are immutable")
-public @ReceiverDependentMutable interface BiMap<K extends @Nullable Object, V extends @Nullable Object> extends Map<K, V> {
+@ReceiverDependentMutable
+public interface BiMap<K extends @Nullable @Immutable Object, V extends @Nullable @Immutable Object> extends Map<K, V> {
   // Modification Operations
 
   /**
@@ -92,7 +95,7 @@ public @ReceiverDependentMutable interface BiMap<K extends @Nullable Object, V e
    *     map entries may have been added to the bimap before the exception was thrown.
    */
   @Override
-  void putAll(@Mutable BiMap<K,V> this, Map<? extends K, ? extends V> map);
+  void putAll(@Mutable BiMap<K,V> this, @Readonly Map<? extends K, ? extends V> map);
 
   // Views
 
@@ -103,7 +106,7 @@ public @ReceiverDependentMutable interface BiMap<K extends @Nullable Object, V e
    * java.util.Collection} specified in the {@link Map} interface.
    */
   @Override
-  Set<V> values(@Readonly BiMap<K,V> this);
+  Set<V> values(@PolyMutable BiMap<K,V> this);
 
   /**
    * Returns the inverse view of this bimap, which maps each of this bimap's values to its
@@ -115,5 +118,5 @@ public @ReceiverDependentMutable interface BiMap<K extends @Nullable Object, V e
    *
    * @return the inverse view of this bimap
    */
-  BiMap<V, K> inverse(@Readonly BiMap<K,V> this);
+  @PolyMutable BiMap<V, K> inverse(@PolyMutable BiMap<K,V> this);
 }

@@ -36,6 +36,7 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
  */
 @GwtCompatible(emulated = true)
 @ElementTypesAreNonnullByDefault
+@Immutable
 final class ImmutableMapKeySet<K extends @Immutable Object, V> extends IndexedImmutableSet<K> {
   private final ImmutableMap<K, V> map;
 

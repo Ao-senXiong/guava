@@ -48,6 +48,7 @@ import javax.annotation.CheckForNull;
 import org.checkerframework.checker.index.qual.NonNegative;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.checker.pico.qual.Assignable;
+import org.checkerframework.checker.pico.qual.Immutable;
 import org.checkerframework.checker.pico.qual.Mutable;
 import org.checkerframework.checker.pico.qual.Readonly;
 import org.checkerframework.checker.pico.qual.ReceiverDependentMutable;
@@ -173,7 +174,7 @@ public final class Multisets {
     }
 
     @Override
-    public Iterator<E> iterator() {
+    public @Immutable Iterator<E> iterator() {
       return Iterators.<E>unmodifiableIterator(delegate.iterator());
     }
 
@@ -889,7 +890,7 @@ public final class Multisets {
   }
 
   /** An implementation of {@link Multiset#equals}. */
-  static boolean equalsImpl(Multiset<?> multiset, @CheckForNull @UnknownSignedness Object object) {
+  static boolean equalsImpl(@Readonly Multiset<?> multiset, @CheckForNull @UnknownSignedness @Readonly Object object) {
     if (object == multiset) {
       return true;
     }
@@ -930,7 +931,7 @@ public final class Multisets {
 
   /** A specialization of {@code addAllImpl} for when {@code elements} is itself a Multiset. */
   private static <E extends @Nullable @Readonly Object> boolean addAllImpl(
-      @Mutable Multiset<E> self, Multiset<? extends E> elements) {
+      @Mutable Multiset<E> self, @Readonly Multiset<? extends E> elements) {
     if (elements.isEmpty()) {
       return false;
     }
@@ -939,7 +940,7 @@ public final class Multisets {
   }
 
   /** An implementation of {@link Multiset#removeAll}. */
-  static boolean removeAllImpl(@Mutable Multiset<?> self, Collection<?> elementsToRemove) {
+  static boolean removeAllImpl(@Mutable Multiset<?> self, @Readonly Collection<?> elementsToRemove) {
     Collection<?> collection =
         (elementsToRemove instanceof Multiset)
             ? ((Multiset<?>) elementsToRemove).elementSet()
@@ -949,7 +950,7 @@ public final class Multisets {
   }
 
   /** An implementation of {@link Multiset#retainAll}. */
-  static boolean retainAllImpl(@Mutable Multiset<?> self, Collection<?> elementsToRetain) {
+  static boolean retainAllImpl(@Mutable Multiset<?> self, @Readonly Collection<?> elementsToRetain) {
     checkNotNull(elementsToRetain);
     Collection<?> collection =
         (elementsToRetain instanceof Multiset)
@@ -1160,7 +1161,7 @@ public final class Multisets {
   }
 
   /** An implementation of {@link Multiset#size}. */
-  static int linearTimeSizeImpl(Multiset<?> multiset) {
+  static int linearTimeSizeImpl(@Readonly Multiset<?> multiset) {
     long size = 0;
     for (Entry<?> entry : multiset.entrySet()) {
       size += entry.getCount();

@@ -99,7 +99,8 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
 @Beta
 @GwtCompatible(emulated = true)
 @ElementTypesAreNonnullByDefault
-public final @ReceiverDependentMutable class ArrayTable<R extends @Immutable Object, C extends @Immutable Object, V> extends AbstractTable<R, C, @Nullable V>
+@ReceiverDependentMutable
+public final class ArrayTable<R extends @Immutable Object, C extends @Immutable Object, V> extends AbstractTable<R, C, @Nullable V>
     implements Serializable {
 
   /**
@@ -111,9 +112,9 @@ public final @ReceiverDependentMutable class ArrayTable<R extends @Immutable Obj
    * @throws IllegalArgumentException if {@code rowKeys} or {@code columnKeys} contains duplicates
    *     or if exactly one of {@code rowKeys} or {@code columnKeys} is empty.
    */
-  public static <R extends @Immutable Object, C extends @Immutable Object, V> @Mutable ArrayTable<R, C, V> create(
+  public static <R extends @Immutable Object, C extends @Immutable Object, V> ArrayTable<R, C, V> create(
       Iterable<? extends R> rowKeys, Iterable<? extends C> columnKeys) {
-    return new @Mutable ArrayTable<>(rowKeys, columnKeys);
+    return new ArrayTable<>(rowKeys, columnKeys);
   }
 
   /*
@@ -140,10 +141,10 @@ public final @ReceiverDependentMutable class ArrayTable<R extends @Immutable Obj
    *
    * @throws NullPointerException if {@code table} has a null key
    */
-  public static <R extends @Immutable Object, C extends @Immutable Object, V> @Mutable ArrayTable<R, C, V> create(Table<R, C, ? extends @Nullable V> table) {
+  public static <R extends @Immutable Object, C extends @Immutable Object, V> ArrayTable<R, C, V> create(Table<R, C, ? extends @Nullable V> table) {
     return (table instanceof ArrayTable)
-        ? new @Mutable ArrayTable<R, C, V>((ArrayTable<R, C, V>) table)
-        : new @Mutable ArrayTable<R, C, V>(table);
+        ? new ArrayTable<R, C, V>((ArrayTable<R, C, V>) table)
+        : new ArrayTable<R, C, V>(table);
   }
 
   private final ImmutableList<R> rowList;
@@ -195,7 +196,7 @@ public final @ReceiverDependentMutable class ArrayTable<R extends @Immutable Obj
     }
   }
 
-  private @Mutable abstract static class ArrayMap<K extends @Immutable Object, V extends @Nullable @Readonly Object>
+  private abstract static class ArrayMap<K extends @Immutable Object, V extends @Nullable @Readonly Object>
       extends IteratorBasedAbstractMap<K, V> {
     private final ImmutableMap<K, Integer> keyIndex;
 

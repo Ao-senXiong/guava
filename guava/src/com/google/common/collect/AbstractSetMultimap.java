@@ -27,6 +27,7 @@ import javax.annotation.CheckForNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.checker.pico.qual.Immutable;
 import org.checkerframework.checker.pico.qual.Readonly;
+import org.checkerframework.checker.pico.qual.ReceiverDependentMutable;
 import org.checkerframework.dataflow.qual.Pure;
 import org.checkerframework.dataflow.qual.SideEffectFree;
 import org.checkerframework.framework.qual.AnnotatedFor;
@@ -41,6 +42,7 @@ import org.checkerframework.framework.qual.AnnotatedFor;
 @AnnotatedFor({"nullness"})
 @GwtCompatible
 @ElementTypesAreNonnullByDefault
+@ReceiverDependentMutable
 abstract class AbstractSetMultimap<K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object>
     extends AbstractMapBasedMultimap<K, V> implements SetMultimap<K, V> {
   /**

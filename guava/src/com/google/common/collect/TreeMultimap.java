@@ -33,6 +33,8 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import org.checkerframework.checker.nullness.qual.KeyFor;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.checkerframework.checker.pico.qual.Immutable;
+import org.checkerframework.checker.pico.qual.Readonly;
 import org.checkerframework.dataflow.qual.Pure;
 import org.checkerframework.dataflow.qual.SideEffectFree;
 import org.checkerframework.framework.qual.AnnotatedFor;
@@ -77,7 +79,7 @@ import org.checkerframework.framework.qual.AnnotatedFor;
 @AnnotatedFor({"nullness"})
 @GwtCompatible(serializable = true, emulated = true)
 @ElementTypesAreNonnullByDefault
-public class TreeMultimap<K extends @Nullable Object, V extends @Nullable Object>
+public class TreeMultimap<K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object>
     extends AbstractSortedKeySortedSetMultimap<K, V> {
   private transient Comparator<? super K> keyComparator;
   private transient Comparator<? super V> valueComparator;
@@ -85,7 +87,7 @@ public class TreeMultimap<K extends @Nullable Object, V extends @Nullable Object
   /**
    * Creates an empty {@code TreeMultimap} ordered by the natural ordering of its keys and values.
    */
-  public static <K extends Comparable, V extends Comparable> TreeMultimap<K, V> create() {
+  public static <K extends @Immutable Comparable, V extends @Readonly Comparable> TreeMultimap<K, V> create() {
     return new TreeMultimap<>(Ordering.natural(), Ordering.natural());
   }
 
@@ -96,7 +98,7 @@ public class TreeMultimap<K extends @Nullable Object, V extends @Nullable Object
    * @param keyComparator the comparator that determines the key ordering
    * @param valueComparator the comparator that determines the value ordering
    */
-  public static <K extends @Nullable Object, V extends @Nullable Object> TreeMultimap<K, V> create(
+  public static <K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object> TreeMultimap<K, V> create(
       Comparator<? super K> keyComparator, Comparator<? super V> valueComparator) {
     return new TreeMultimap<>(checkNotNull(keyComparator), checkNotNull(valueComparator));
   }
@@ -107,7 +109,7 @@ public class TreeMultimap<K extends @Nullable Object, V extends @Nullable Object
    *
    * @param multimap the multimap whose contents are copied to this multimap
    */
-  public static <K extends Comparable, V extends Comparable> TreeMultimap<K, V> create(
+  public static <K extends @Immutable Comparable, V extends @Readonly Comparable> TreeMultimap<K, V> create(
       Multimap<? extends K, ? extends V> multimap) {
     return new TreeMultimap<>(Ordering.natural(), Ordering.natural(), multimap);
   }

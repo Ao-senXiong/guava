@@ -39,6 +39,7 @@ import java.util.Set;
 import java.util.stream.Collector;
 import javax.annotation.CheckForNull;
 import org.checkerframework.checker.index.qual.NonNegative;
+import org.checkerframework.checker.pico.qual.Immutable;
 import org.checkerframework.checker.pico.qual.Mutable;
 import org.checkerframework.checker.signedness.qual.UnknownSignedness;
 
@@ -52,6 +53,7 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
 @Beta
 @GwtIncompatible
 @ElementTypesAreNonnullByDefault
+@Immutable
 public final class ImmutableRangeSet<C extends Comparable> extends AbstractRangeSet<C>
     implements Serializable {
 
@@ -317,6 +319,7 @@ public final class ImmutableRangeSet<C extends Comparable> extends AbstractRange
 
   @LazyInit @CheckForNull private transient ImmutableRangeSet<C> complement;
 
+  @Immutable
   private final class ComplementRanges extends ImmutableList<Range<C>> {
     // True if the "positive" range set is empty or bounded below.
     private final boolean positiveBoundedBelow;
@@ -549,6 +552,7 @@ public final class ImmutableRangeSet<C extends Comparable> extends AbstractRange
     return new AsSet(domain);
   }
 
+  @Immutable
   private final class AsSet extends ImmutableSortedSet<C> {
     private final DiscreteDomain<C> domain;
 

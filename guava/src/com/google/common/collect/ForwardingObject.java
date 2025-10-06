@@ -50,7 +50,8 @@ import org.checkerframework.framework.qual.AnnotatedFor;
 @AnnotatedFor({"nullness"})
 @GwtCompatible
 @ElementTypesAreNonnullByDefault
-public @ReceiverDependentMutable abstract class ForwardingObject {
+@ReceiverDependentMutable
+public abstract class ForwardingObject {
 
   /** Constructor for use by subclasses. */
   protected ForwardingObject() {}

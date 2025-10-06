@@ -27,6 +27,8 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
 import javax.annotation.CheckForNull;
 
+import org.checkerframework.checker.pico.qual.Immutable;
+
 /**
  * A semi-persistent mapping from keys to values. Cache entries are manually added using {@link
  * #get(Object, Callable)} or {@link #put(Object, Object)}, and are stored in the cache until either
@@ -43,7 +45,7 @@ import javax.annotation.CheckForNull;
 @DoNotMock("Use CacheBuilder.newBuilder().build()")
 @GwtCompatible
 @ElementTypesAreNonnullByDefault
-public interface Cache<K, V> {
+public interface Cache<K extends @Immutable Object, V> {
 
   /**
    * Returns the value associated with {@code key} in this cache, or {@code null} if there is no

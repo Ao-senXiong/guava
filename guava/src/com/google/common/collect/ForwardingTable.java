@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.checkerframework.checker.pico.qual.Immutable;
 import org.checkerframework.checker.pico.qual.Mutable;
 import org.checkerframework.checker.pico.qual.Readonly;
 import org.checkerframework.checker.pico.qual.ReceiverDependentMutable;
@@ -38,8 +39,9 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
  */
 @GwtCompatible
 @ElementTypesAreNonnullByDefault
-public @ReceiverDependentMutable abstract class ForwardingTable<
-        R extends @Nullable Object, C extends @Nullable Object, V extends @Nullable @Readonly Object>
+@ReceiverDependentMutable
+public abstract class ForwardingTable<
+        R extends @Nullable @Immutable Object, C extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object>
     extends ForwardingObject implements Table<R, C, V> {
   /** Constructor for use by subclasses. */
   protected ForwardingTable() {}

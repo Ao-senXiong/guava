@@ -24,6 +24,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.checkerframework.checker.pico.qual.Immutable;
 import org.checkerframework.checker.pico.qual.Readonly;
 import org.checkerframework.checker.pico.qual.ReceiverDependentMutable;
 import org.checkerframework.dataflow.qual.Pure;
@@ -58,7 +59,8 @@ import org.checkerframework.framework.qual.AnnotatedFor;
 @GwtCompatible
 @AnnotatedFor({"nullness"})
 @ElementTypesAreNonnullByDefault
-public @ReceiverDependentMutable interface SetMultimap<K extends @Nullable Object, V extends @Readonly @Nullable Object>
+@ReceiverDependentMutable
+public interface SetMultimap<K extends @Nullable @Immutable Object, V extends @Readonly @Nullable Object>
     extends Multimap<K, V> {
   /**
    * {@inheritDoc}
@@ -79,7 +81,7 @@ public @ReceiverDependentMutable interface SetMultimap<K extends @Nullable Objec
    */
   @CanIgnoreReturnValue
   @Override
-  Set<V> removeAll(@CheckForNull Object key);
+  Set<V> removeAll(@CheckForNull @Readonly Object key);
 
   /**
    * {@inheritDoc}
@@ -125,5 +127,5 @@ public @ReceiverDependentMutable interface SetMultimap<K extends @Nullable Objec
    */
   @Pure
   @Override
-  boolean equals(@CheckForNull Object obj);
+  boolean equals(@CheckForNull @Readonly Object obj);
 }

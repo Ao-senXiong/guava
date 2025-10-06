@@ -32,7 +32,8 @@ import org.checkerframework.checker.pico.qual.ReceiverDependentMutable;
  * <p>TODO(cpovirk): Consider applying this subclass approach to our other types.
  */
 @GwtCompatible(emulated = true)
-@ReceiverDependentMutable abstract class ArrayListMultimapGwtSerializationDependencies<K extends @Immutable Object, V>
+@ReceiverDependentMutable
+abstract class ArrayListMultimapGwtSerializationDependencies<K extends @Immutable Object, V>
     extends AbstractListMultimap<K, V> {
   ArrayListMultimapGwtSerializationDependencies(@ReceiverDependentMutable Map<K, Collection<V>> map) {
     super(map);

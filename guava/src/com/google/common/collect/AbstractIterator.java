@@ -24,8 +24,11 @@ import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.util.NoSuchElementException;
 import javax.annotation.CheckForNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.checkerframework.checker.pico.qual.Mutable;
 import org.checkerframework.checker.pico.qual.Readonly;
+import org.checkerframework.checker.pico.qual.ReceiverDependentMutable;
 import org.checkerframework.framework.qual.AnnotatedFor;
+import org.checkerframework.framework.qual.CFComment;
 
 /**
  * This class provides a skeletal implementation of the {@code Iterator} interface, to make this
@@ -67,6 +70,8 @@ import org.checkerframework.framework.qual.AnnotatedFor;
 @AnnotatedFor({"nullness"})
 @GwtCompatible
 @ElementTypesAreNonnullByDefault
+@CFComment("AOSEN: Is this a design issue?")
+@ReceiverDependentMutable
 public abstract class AbstractIterator<T extends @Nullable @Readonly Object> extends UnmodifiableIterator<T> {
   private State state = State.NOT_READY;
 
@@ -125,7 +130,7 @@ public abstract class AbstractIterator<T extends @Nullable @Readonly Object> ext
    */
   @CanIgnoreReturnValue
   @CheckForNull
-  protected final T endOfData() {
+  protected final T endOfData(@Mutable AbstractIterator<T> this) {
     state = State.DONE;
     return null;
   }
@@ -144,7 +149,7 @@ public abstract class AbstractIterator<T extends @Nullable @Readonly Object> ext
     return tryToComputeNext();
   }
 
-  private boolean tryToComputeNext() {
+  private boolean tryToComputeNext(@Mutable AbstractIterator<T> this) {
     state = State.FAILED; // temporary pessimism
     next = computeNext();
     if (state != State.DONE) {
@@ -157,7 +162,7 @@ public abstract class AbstractIterator<T extends @Nullable @Readonly Object> ext
   @CanIgnoreReturnValue // TODO(kak): Should we remove this?
   @Override
   @ParametricNullness
-  public final T next() {
+  public final T next(@Mutable AbstractIterator<T> this) {
     if (!hasNext()) {
       throw new NoSuchElementException();
     }

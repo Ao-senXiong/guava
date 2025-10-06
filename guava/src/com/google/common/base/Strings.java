@@ -28,6 +28,7 @@ import org.checkerframework.checker.index.qual.IndexOrHigh;
 import org.checkerframework.checker.index.qual.NonNegative;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.checkerframework.checker.pico.qual.Readonly;
 import org.checkerframework.framework.qual.EnsuresQualifierIf;
 
 /**
@@ -271,7 +272,7 @@ public final class Strings {
    */
   // TODO(diamondm) consider using Arrays.toString() for array parameters
   public static String lenientFormat(
-      @CheckForNull String template, @CheckForNull @Nullable Object... args) {
+      @CheckForNull String template, @CheckForNull @Nullable @Readonly Object... args) {
     template = String.valueOf(template); // null -> "null"
 
     if (args == null) {

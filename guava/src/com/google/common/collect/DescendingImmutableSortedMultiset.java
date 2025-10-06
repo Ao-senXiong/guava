@@ -17,6 +17,7 @@ package com.google.common.collect;
 import com.google.common.annotations.GwtIncompatible;
 import javax.annotation.CheckForNull;
 import org.checkerframework.checker.index.qual.NonNegative;
+import org.checkerframework.checker.pico.qual.Immutable;
 import org.checkerframework.checker.signedness.qual.UnknownSignedness;
 
 /**
@@ -27,7 +28,7 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
 @SuppressWarnings("serial") // uses writeReplace, not default serialization
 @GwtIncompatible
 @ElementTypesAreNonnullByDefault
-final class DescendingImmutableSortedMultiset<E> extends ImmutableSortedMultiset<E> {
+@Immutable final class DescendingImmutableSortedMultiset<E> extends ImmutableSortedMultiset<E> {
   private final transient ImmutableSortedMultiset<E> forward;
 
   DescendingImmutableSortedMultiset(ImmutableSortedMultiset<E> forward) {

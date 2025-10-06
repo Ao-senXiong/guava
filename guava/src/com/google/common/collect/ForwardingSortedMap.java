@@ -26,6 +26,7 @@ import java.util.SortedMap;
 import javax.annotation.CheckForNull;
 import org.checkerframework.checker.nullness.qual.KeyFor;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.checkerframework.checker.pico.qual.Immutable;
 import org.checkerframework.checker.pico.qual.Readonly;
 import org.checkerframework.dataflow.qual.SideEffectFree;
 import org.checkerframework.framework.qual.AnnotatedFor;
@@ -58,7 +59,7 @@ import org.checkerframework.framework.qual.AnnotatedFor;
 @AnnotatedFor({"nullness"})
 @GwtCompatible
 @ElementTypesAreNonnullByDefault
-public abstract class ForwardingSortedMap<K extends @Nullable Object, V extends @Nullable @Readonly Object>
+public abstract class ForwardingSortedMap<K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object>
     extends ForwardingMap<K, V> implements SortedMap<K, V> {
   // TODO(lowasser): identify places where thread safety is actually lost
 
@@ -120,7 +121,7 @@ public abstract class ForwardingSortedMap<K extends @Nullable Object, V extends 
   // unsafe, but worst case is a CCE or NPE is thrown, which callers will be expecting
   @SuppressWarnings({"unchecked", "nullness"})
   static int unsafeCompare(
-      @CheckForNull Comparator<?> comparator, @CheckForNull Object o1, @CheckForNull Object o2) {
+      @CheckForNull Comparator<?> comparator, @CheckForNull @Readonly Object o1, @CheckForNull @Readonly Object o2) {
     if (comparator == null) {
       return ((Comparable<@Nullable Object>) o1).compareTo(o2);
     } else {

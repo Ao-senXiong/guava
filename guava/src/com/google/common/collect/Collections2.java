@@ -42,8 +42,9 @@ import javax.annotation.CheckForNull;
 import org.checkerframework.checker.index.qual.NonNegative;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.checker.nullness.qual.PolyNull;
-import org.checkerframework.checker.pico.qual.Readonly;
 import org.checkerframework.checker.pico.qual.Mutable;
+import org.checkerframework.checker.pico.qual.Readonly;
+import org.checkerframework.checker.pico.qual.ReceiverDependentMutable;
 import org.checkerframework.checker.signedness.qual.PolySigned;
 import org.checkerframework.checker.signedness.qual.Signed;
 import org.checkerframework.checker.signedness.qual.UnknownSignedness;
@@ -133,7 +134,7 @@ public final class Collections2 {
     }
   }
 
-  static class FilteredCollection<E extends @Nullable @Readonly Object> extends AbstractCollection<E> {
+  @ReceiverDependentMutable static class FilteredCollection<E extends @Nullable @Readonly Object> extends AbstractCollection<E> {
     final Collection<E> unfiltered;
     final Predicate<? super E> predicate;
 

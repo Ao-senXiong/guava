@@ -56,6 +56,7 @@ import org.checkerframework.checker.nullness.qual.KeyFor;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.checker.nullness.qual.PolyNull;
 import org.checkerframework.checker.pico.qual.Assignable;
+import org.checkerframework.checker.pico.qual.Immutable;
 import org.checkerframework.checker.pico.qual.Mutable;
 import org.checkerframework.checker.pico.qual.Readonly;
 import org.checkerframework.checker.pico.qual.ReceiverDependentMutable;
@@ -90,7 +91,8 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
  */
 @GwtIncompatible // not worth using in GWT for now
 @ElementTypesAreNonnullByDefault
-@ReceiverDependentMutable class CompactHashMap<K extends @Nullable Object, V extends @Nullable @Readonly Object>
+@ReceiverDependentMutable
+class CompactHashMap<K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object>
     extends AbstractMap<K, V> implements Serializable {
   /*
    * TODO: Make this a drop-in replacement for j.u. versions, actually drop them in, and test the
@@ -102,8 +104,8 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
 
   /** Creates an empty {@code CompactHashMap} instance. */
   public static <K extends @Nullable Object, V extends @Nullable @Readonly Object>
-  @Mutable CompactHashMap<K, V> create() {
-    return new @Mutable CompactHashMap<>();
+  CompactHashMap<K, V> create() {
+    return new CompactHashMap<>();
   }
 
   /**
@@ -116,8 +118,8 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
    * @throws IllegalArgumentException if {@code expectedSize} is negative
    */
   public static <K extends @Nullable Object, V extends @Nullable @Readonly Object>
-  @Mutable CompactHashMap<K, V> createWithExpectedSize(int expectedSize) {
-    return new @Mutable CompactHashMap<>(expectedSize);
+  CompactHashMap<K, V> createWithExpectedSize(int expectedSize) {
+    return new CompactHashMap<>(expectedSize);
   }
 
   private static final Object NOT_FOUND = new Object();
@@ -536,7 +538,7 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
   @SuppressWarnings("unchecked") // known to be a V
   @Override
   @CheckForNull
-  public V remove(@Mutable CompactHashMap<K, V> this, @CheckForNull @UnknownSignedness Object key) {
+  public V remove(@Mutable CompactHashMap<K, V> this, @CheckForNull @UnknownSignedness @Readonly Object key) {
     Map<K, V> delegate = delegateOrNull();
     if (delegate != null) {
       return delegate.remove(key);

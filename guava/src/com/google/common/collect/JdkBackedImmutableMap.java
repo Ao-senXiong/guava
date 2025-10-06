@@ -29,6 +29,7 @@ import org.checkerframework.checker.index.qual.NonNegative;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.checker.pico.qual.Immutable;
 import org.checkerframework.checker.pico.qual.Mutable;
+import org.checkerframework.checker.pico.qual.Readonly;
 import org.checkerframework.checker.signedness.qual.UnknownSignedness;
 
 /**
@@ -37,6 +38,7 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
  */
 @GwtCompatible(emulated = true)
 @ElementTypesAreNonnullByDefault
+@Immutable
 final class JdkBackedImmutableMap<K extends @Immutable Object, V> extends ImmutableMap<K, V> {
   /**
    * Creates an {@code ImmutableMap} backed by a JDK HashMap. Used when probable hash flooding is
@@ -90,10 +92,10 @@ final class JdkBackedImmutableMap<K extends @Immutable Object, V> extends Immuta
     return new JdkBackedImmutableMap<>(delegateMap, ImmutableList.asImmutableList(entryArray, n));
   }
 
-  private final transient @Mutable Map<K, V> delegateMap;
+  private final transient Map<K, V> delegateMap;
   private final transient ImmutableList<Entry<K, V>> entries;
 
-  JdkBackedImmutableMap(@Mutable Map<K, V> delegateMap, ImmutableList<Entry<K, V>> entries) {
+  JdkBackedImmutableMap(Map<K, V> delegateMap, ImmutableList<Entry<K, V>> entries) {
     this.delegateMap = delegateMap;
     this.entries = entries;
   }
@@ -105,7 +107,7 @@ final class JdkBackedImmutableMap<K extends @Immutable Object, V> extends Immuta
 
   @Override
   @CheckForNull
-  public V get(@CheckForNull @UnknownSignedness Object key) {
+  public V get(@CheckForNull @UnknownSignedness @Readonly Object key) {
     return delegateMap.get(key);
   }
 

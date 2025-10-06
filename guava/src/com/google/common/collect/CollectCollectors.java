@@ -136,7 +136,7 @@ final class CollectCollectors {
 
   @GwtIncompatible
   @SuppressWarnings({"rawtypes", "unchecked"})
-  static <E extends Comparable<? super E>>
+  static <E extends @Readonly Comparable<? super E>>
       Collector<Range<E>, ?, ImmutableRangeSet<E>> toImmutableRangeSet() {
     return (Collector) TO_IMMUTABLE_RANGE_SET;
   }
@@ -238,7 +238,7 @@ final class CollectCollectors {
         ImmutableSortedMap::copyOfSorted);
   }
 
-  static <T extends @Nullable @Readonly Object, K extends @Immutable Object, V extends @Immutable Object> Collector<T, ?, ImmutableBiMap<K, V>> toImmutableBiMap(
+  static <T extends @Nullable @Readonly Object, K extends @Immutable Object, V extends Object> Collector<T, ?, ImmutableBiMap<K, V>> toImmutableBiMap(
       Function<? super T, ? extends K> keyFunction,
       Function<? super T, ? extends V> valueFunction) {
     checkNotNull(keyFunction);
@@ -337,7 +337,7 @@ final class CollectCollectors {
   }
 
   @GwtIncompatible
-  static <T extends @Nullable Object, K extends Comparable<? super K>, V>
+  static <T extends @Nullable @Readonly Object, K extends @Immutable Comparable<? super K>, V>
       Collector<T, ?, ImmutableRangeMap<K, V>> toImmutableRangeMap(
           Function<? super T, Range<K>> keyFunction,
           Function<? super T, ? extends V> valueFunction) {
@@ -352,7 +352,7 @@ final class CollectCollectors {
 
   // Multimaps
 
-  static <T extends @Nullable Object, K extends @Immutable Object, V extends @Immutable Object>
+  static <T extends @Nullable @Readonly Object, K extends @Immutable Object, V extends @Readonly Object>
       Collector<T, ?, ImmutableListMultimap<K, V>> toImmutableListMultimap(
           Function<? super T, ? extends K> keyFunction,
           Function<? super T, ? extends V> valueFunction) {
@@ -365,7 +365,7 @@ final class CollectCollectors {
         ImmutableListMultimap.Builder::build);
   }
 
-  static <T extends @Nullable Object, K extends @Immutable Object, V extends @Immutable Object>
+  static <T extends @Nullable Object, K extends @Immutable Object, V extends @Readonly Object>
       Collector<T, ?, ImmutableListMultimap<K, V>> flatteningToImmutableListMultimap(
           Function<? super T, ? extends K> keyFunction,
           Function<? super T, ? extends Stream<? extends V>> valuesFunction) {
@@ -379,7 +379,7 @@ final class CollectCollectors {
         ImmutableListMultimap::copyOf);
   }
 
-  static <T extends @Nullable Object, K extends @Immutable Object, V extends @Immutable Object>
+  static <T extends @Nullable Object, K extends @Immutable Object, V extends @Readonly Object>
       Collector<T, ?, ImmutableSetMultimap<K, V>> toImmutableSetMultimap(
           Function<? super T, ? extends K> keyFunction,
           Function<? super T, ? extends V> valueFunction) {
@@ -392,7 +392,7 @@ final class CollectCollectors {
         ImmutableSetMultimap.Builder::build);
   }
 
-  static <T extends @Nullable Object, K extends @Immutable Object, V extends @Immutable Object>
+  static <T extends @Nullable @Readonly Object, K extends @Immutable Object, V extends @Readonly Object>
       Collector<T, ?, ImmutableSetMultimap<K, V>> flatteningToImmutableSetMultimap(
           Function<? super T, ? extends K> keyFunction,
           Function<? super T, ? extends Stream<? extends V>> valuesFunction) {
@@ -407,9 +407,9 @@ final class CollectCollectors {
   }
 
   static <
-          T extends @Nullable Object,
-          K extends @Nullable Object,
-          V extends @Nullable Object,
+          T extends @Nullable @Readonly Object,
+          K extends @Nullable @Immutable Object,
+          V extends @Nullable @Readonly Object,
           M extends Multimap<K, V>>
       Collector<T, ?, M> toMultimap(
           Function<? super T, ? extends K> keyFunction,
@@ -428,9 +428,9 @@ final class CollectCollectors {
   }
 
   static <
-          T extends @Nullable Object,
-          K extends @Nullable Object,
-          V extends @Nullable Object,
+          T extends @Nullable @Readonly Object,
+          K extends @Nullable @Immutable Object,
+          V extends @Nullable @Readonly Object,
           M extends Multimap<K, V>>
       Collector<T, ?, M> flatteningToMultimap(
           Function<? super T, ? extends K> keyFunction,

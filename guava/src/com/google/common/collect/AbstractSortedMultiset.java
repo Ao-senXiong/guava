@@ -37,7 +37,8 @@ import org.checkerframework.checker.pico.qual.ReceiverDependentMutable;
  */
 @GwtCompatible(emulated = true)
 @ElementTypesAreNonnullByDefault
-@ReceiverDependentMutable abstract class AbstractSortedMultiset<E extends @Nullable @Readonly Object> extends AbstractMultiset<E>
+@ReceiverDependentMutable
+abstract class AbstractSortedMultiset<E extends @Nullable @Readonly Object> extends AbstractMultiset<E>
     implements SortedMultiset<E> {
   @GwtTransient final Comparator<? super E> comparator;
 

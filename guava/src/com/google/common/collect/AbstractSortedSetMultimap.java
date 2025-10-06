@@ -25,6 +25,9 @@ import java.util.NavigableSet;
 import java.util.SortedSet;
 import javax.annotation.CheckForNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.checkerframework.checker.pico.qual.Immutable;
+import org.checkerframework.checker.pico.qual.Readonly;
+import org.checkerframework.checker.pico.qual.ReceiverDependentMutable;
 import org.checkerframework.dataflow.qual.SideEffectFree;
 import org.checkerframework.framework.qual.AnnotatedFor;
 
@@ -38,7 +41,8 @@ import org.checkerframework.framework.qual.AnnotatedFor;
 @AnnotatedFor({"nullness"})
 @GwtCompatible
 @ElementTypesAreNonnullByDefault
-abstract class AbstractSortedSetMultimap<K extends @Nullable Object, V extends @Nullable Object>
+@ReceiverDependentMutable
+abstract class AbstractSortedSetMultimap<K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object>
     extends AbstractSetMultimap<K, V> implements SortedSetMultimap<K, V> {
   /**
    * Creates a new multimap that uses the provided map.
@@ -58,7 +62,7 @@ abstract class AbstractSortedSetMultimap<K extends @Nullable Object, V extends @
   }
 
   @Override
-  <E extends @Nullable Object> SortedSet<E> unmodifiableCollectionSubclass(
+  <E extends @Nullable @Readonly Object> @Immutable SortedSet<E> unmodifiableCollectionSubclass(
       Collection<E> collection) {
     if (collection instanceof NavigableSet) {
       return Sets.unmodifiableNavigableSet((NavigableSet<E>) collection);

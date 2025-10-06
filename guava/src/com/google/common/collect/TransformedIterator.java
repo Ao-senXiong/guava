@@ -21,7 +21,9 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.annotations.GwtCompatible;
 import java.util.Iterator;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.checkerframework.checker.pico.qual.Mutable;
 import org.checkerframework.checker.pico.qual.Readonly;
+import org.checkerframework.checker.pico.qual.ReceiverDependentMutable;
 
 /**
  * An iterator that transforms a backing iterator; for internal use. This avoids the object overhead
@@ -31,11 +33,12 @@ import org.checkerframework.checker.pico.qual.Readonly;
  */
 @GwtCompatible
 @ElementTypesAreNonnullByDefault
+@ReceiverDependentMutable
 abstract class TransformedIterator<F extends @Nullable @Readonly Object, T extends @Nullable @Readonly Object>
     implements Iterator<T> {
   final Iterator<? extends F> backingIterator;
 
-  TransformedIterator(Iterator<? extends F> backingIterator) {
+  TransformedIterator(@ReceiverDependentMutable Iterator<? extends F> backingIterator) {
     this.backingIterator = checkNotNull(backingIterator);
   }
 
@@ -43,18 +46,18 @@ abstract class TransformedIterator<F extends @Nullable @Readonly Object, T exten
   abstract T transform(@ParametricNullness F from);
 
   @Override
-  public final boolean hasNext() {
+  public final boolean hasNext(@Readonly TransformedIterator<F, T> this) {
     return backingIterator.hasNext();
   }
 
   @Override
   @ParametricNullness
-  public final T next() {
+  public final T next(@Mutable TransformedIterator<F, T> this) {
     return transform(backingIterator.next());
   }
 
   @Override
-  public final void remove() {
+  public final void remove(@Mutable TransformedIterator<F, T> this) {
     backingIterator.remove();
   }
 }

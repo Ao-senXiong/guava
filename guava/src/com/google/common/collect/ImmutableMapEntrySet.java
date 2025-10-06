@@ -36,7 +36,9 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
  */
 @GwtCompatible(emulated = true)
 @ElementTypesAreNonnullByDefault
+@Immutable
 abstract class ImmutableMapEntrySet<K extends @Immutable Object, V> extends ImmutableSet.CachingAsList<Entry<K, V>> {
+  @Immutable
   static final class RegularEntrySet<K extends @Immutable Object, V> extends ImmutableMapEntrySet<K, V> {
     private final transient ImmutableMap<K, V> map;
     private final transient ImmutableList<Entry<K, V>> entries;

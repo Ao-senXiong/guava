@@ -20,6 +20,7 @@ import com.google.errorprone.annotations.DoNotMock;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import javax.annotation.CheckForNull;
+import org.checkerframework.checker.pico.qual.Readonly;
 import org.checkerframework.checker.pico.qual.ReceiverDependentMutable;
 import org.checkerframework.checker.signedness.qual.UnknownSignedness;
 
@@ -55,13 +56,14 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
 @DoNotMock("Use ImmutableRangeSet or TreeRangeSet")
 @GwtIncompatible
 @ElementTypesAreNonnullByDefault
-public @ReceiverDependentMutable interface RangeSet<C extends Comparable> {
+@ReceiverDependentMutable
+public interface RangeSet<C extends Comparable> {
   // TODO(lowasser): consider adding default implementations of some of these methods
 
   // Query methods
 
   /** Determines whether any of this range set's member ranges contains {@code value}. */
-  boolean contains(C value);
+  boolean contains(@Readonly RangeSet<C> this, C value);
 
   /**
    * Returns the unique range from this range set that {@linkplain Range#contains contains} {@code
@@ -116,7 +118,7 @@ public @ReceiverDependentMutable interface RangeSet<C extends Comparable> {
   }
 
   /** Returns {@code true} if this range set contains no ranges. */
-  boolean isEmpty();
+  boolean isEmpty(@Readonly RangeSet<C> this);
 
   /**
    * Returns the minimal range which {@linkplain Range#encloses(Range) encloses} all ranges in this
@@ -266,11 +268,11 @@ public @ReceiverDependentMutable interface RangeSet<C extends Comparable> {
    * according to {@link Range#equals(Object)}.
    */
   @Override
-  boolean equals(@CheckForNull Object obj);
+  boolean equals(@CheckForNull @Readonly Object obj);
 
   /** Returns {@code asRanges().hashCode()}. */
   @Override
-  int hashCode(@UnknownSignedness RangeSet<C> this);
+  int hashCode(@UnknownSignedness @Readonly RangeSet<C> this);
 
   /**
    * Returns a readable string representation of this range set. For example, if this {@code
@@ -278,5 +280,5 @@ public @ReceiverDependentMutable interface RangeSet<C extends Comparable> {
    * return {@code " [1..3](4..+∞)}"}.
    */
   @Override
-  String toString();
+  String toString(@Readonly RangeSet<C> this);
 }

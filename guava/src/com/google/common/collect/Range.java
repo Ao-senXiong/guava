@@ -121,7 +121,8 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
 @GwtCompatible
 @SuppressWarnings("rawtypes")
 @ElementTypesAreNonnullByDefault
-public @ReceiverDependentMutable final class Range<C extends Comparable> extends RangeGwtSerializationDependencies
+@ReceiverDependentMutable
+public final class Range<C extends Comparable> extends RangeGwtSerializationDependencies
     implements Predicate<C>, Serializable {
 
   static class LowerBoundFn implements Function<Range, Cut> {

@@ -22,6 +22,7 @@ import java.util.concurrent.ConcurrentMap;
 import javax.annotation.CheckForNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.checker.pico.qual.Immutable;
+import org.checkerframework.checker.pico.qual.ReceiverDependentMutable;
 import org.checkerframework.checker.signedness.qual.UnknownSignedness;
 import org.checkerframework.framework.qual.AnnotatedFor;
 
@@ -43,6 +44,7 @@ import org.checkerframework.framework.qual.AnnotatedFor;
 @AnnotatedFor({"nullness"})
 @GwtCompatible
 @ElementTypesAreNonnullByDefault
+@ReceiverDependentMutable
 public abstract class ForwardingConcurrentMap<K extends @Immutable Object, V> extends ForwardingMap<K, V>
     implements ConcurrentMap<K, V> {
 

@@ -25,6 +25,8 @@ import java.util.List;
 import java.util.ListIterator;
 import javax.annotation.CheckForNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.checkerframework.checker.pico.qual.Readonly;
+import org.checkerframework.checker.pico.qual.ReceiverDependentMutable;
 import org.checkerframework.checker.signedness.qual.UnknownSignedness;
 import org.checkerframework.dataflow.qual.Pure;
 import org.checkerframework.dataflow.qual.SideEffectFree;
@@ -58,7 +60,8 @@ import org.checkerframework.framework.qual.AnnotatedFor;
 @AnnotatedFor({"nullness"})
 @GwtCompatible
 @ElementTypesAreNonnullByDefault
-public abstract class ForwardingList<E extends @Nullable Object> extends ForwardingCollection<E>
+@ReceiverDependentMutable
+public abstract class ForwardingList<E extends @Nullable @Readonly Object> extends ForwardingCollection<E>
     implements List<E> {
   // TODO(lowasser): identify places where thread safety is actually lost
 

@@ -1087,7 +1087,7 @@ public final class Iterators {
     return new ArrayItr<>(array, offset, length, index);
   }
 
-  private static final class ArrayItr<T extends @Nullable Object>
+  private static final class ArrayItr<T extends @Nullable @Readonly Object>
       extends AbstractIndexedListIterator<T> {
     static final UnmodifiableListIterator<Object> EMPTY = new ArrayItr<>(new Object[0], 0, 0, 0);
 

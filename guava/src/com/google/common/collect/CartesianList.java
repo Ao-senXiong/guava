@@ -24,6 +24,7 @@ import java.util.ListIterator;
 import java.util.RandomAccess;
 import javax.annotation.CheckForNull;
 import org.checkerframework.checker.index.qual.NonNegative;
+import org.checkerframework.checker.pico.qual.ReceiverDependentMutable;
 import org.checkerframework.checker.signedness.qual.UnknownSignedness;
 
 /**
@@ -33,6 +34,7 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
  */
 @GwtCompatible
 @ElementTypesAreNonnullByDefault
+@ReceiverDependentMutable
 final class CartesianList<E> extends AbstractList<List<E>> implements RandomAccess {
 
   private final transient ImmutableList<List<E>> axes;

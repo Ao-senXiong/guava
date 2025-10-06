@@ -49,6 +49,7 @@ import javax.annotation.CheckForNull;
 import org.checkerframework.checker.index.qual.NonNegative;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.checker.nullness.qual.PolyNull;
+import org.checkerframework.checker.pico.qual.ReceiverDependentMutable;
 import org.checkerframework.checker.signedness.qual.PolySigned;
 import org.checkerframework.checker.signedness.qual.UnknownSignedness;
 
@@ -81,6 +82,7 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
  */
 @GwtIncompatible // not worth using in GWT for now
 @ElementTypesAreNonnullByDefault
+@ReceiverDependentMutable
 class CompactHashSet<E extends @Nullable Object> extends AbstractSet<E> implements Serializable {
   // TODO(user): cache all field accesses in local vars
 

@@ -17,6 +17,7 @@
 package com.google.common.collect;
 
 import com.google.common.annotations.GwtCompatible;
+import org.checkerframework.checker.pico.qual.Immutable;
 
 /**
  * Unused stub class, unreferenced under Java and manually emulated under GWT.
@@ -25,6 +26,7 @@ import com.google.common.annotations.GwtCompatible;
  */
 @GwtCompatible(emulated = true)
 @ElementTypesAreNonnullByDefault
-abstract class ForwardingImmutableMap<K, V> {
+@Immutable
+abstract class ForwardingImmutableMap<K extends @Immutable Object, V> {
   private ForwardingImmutableMap() {}
 }

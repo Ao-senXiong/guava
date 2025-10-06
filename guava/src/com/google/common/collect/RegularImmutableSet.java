@@ -23,6 +23,7 @@ import java.util.Spliterators;
 import javax.annotation.CheckForNull;
 import org.checkerframework.checker.index.qual.NonNegative;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.checkerframework.checker.pico.qual.Immutable;
 import org.checkerframework.checker.pico.qual.Readonly;
 import org.checkerframework.checker.signedness.qual.UnknownSignedness;
 import org.checkerframework.dataflow.qual.Pure;
@@ -37,6 +38,7 @@ import org.checkerframework.framework.qual.AnnotatedFor;
 @GwtCompatible(serializable = true, emulated = true)
 @SuppressWarnings("serial") // uses writeReplace(), not default serialization
 @ElementTypesAreNonnullByDefault
+@Immutable
 final class RegularImmutableSet<E> extends ImmutableSet.CachingAsList<E> {
   private static final Object[] EMPTY_ARRAY = new Object[0];
   static final RegularImmutableSet<Object> EMPTY =

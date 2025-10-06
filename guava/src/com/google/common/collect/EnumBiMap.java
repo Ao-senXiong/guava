@@ -27,6 +27,7 @@ import java.io.ObjectOutputStream;
 import java.util.EnumMap;
 import java.util.Map;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.checkerframework.checker.pico.qual.Immutable;
 import org.checkerframework.checker.signedness.qual.UnknownSignedness;
 import org.checkerframework.dataflow.qual.Pure;
 import org.checkerframework.framework.qual.AnnotatedFor;
@@ -44,7 +45,7 @@ import org.checkerframework.framework.qual.AnnotatedFor;
 @AnnotatedFor({"nullness"})
 @GwtCompatible(emulated = true)
 @ElementTypesAreNonnullByDefault
-public final class EnumBiMap<K extends Enum<K>, V extends Enum<V>> extends AbstractBiMap<K, V> {
+public final class EnumBiMap<K extends @Immutable Enum<K>, V extends @Immutable Enum<V>> extends AbstractBiMap<K, V> {
   private transient Class<K> keyType;
   private transient Class<V> valueType;
 

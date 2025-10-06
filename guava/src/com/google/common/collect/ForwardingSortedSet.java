@@ -140,7 +140,7 @@ public @ReceiverDependentMutable abstract class ForwardingSortedSet<E extends @N
    */
   @Override
   @Beta
-  protected boolean standardRemove(@Mutable ForwardingSortedSet<E> this, @CheckForNull Object object) {
+  protected boolean standardRemove(@Mutable ForwardingSortedSet<E> this, @CheckForNull @Readonly Object object) {
     try {
       // any ClassCastExceptions and NullPointerExceptions are caught
       @SuppressWarnings({"unchecked", "nullness"})

@@ -44,6 +44,8 @@ import java.util.function.Consumer;
 import javax.annotation.CheckForNull;
 import org.checkerframework.checker.index.qual.NonNegative;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.checkerframework.checker.pico.qual.Assignable;
+import org.checkerframework.checker.pico.qual.Immutable;
 import org.checkerframework.checker.pico.qual.Mutable;
 import org.checkerframework.checker.pico.qual.Readonly;
 import org.checkerframework.checker.pico.qual.ReceiverDependentMutable;
@@ -106,7 +108,8 @@ import org.checkerframework.framework.qual.AnnotatedFor;
 @AnnotatedFor({"nullness"})
 @GwtCompatible(serializable = true, emulated = true)
 @ElementTypesAreNonnullByDefault
-public @ReceiverDependentMutable class LinkedListMultimap<K extends @Nullable Object, V extends @Nullable Object>
+@ReceiverDependentMutable
+public class LinkedListMultimap<K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object>
     extends AbstractMultimap<K, V> implements ListMultimap<K, V>, Serializable {
   /*
    * Order is maintained using a linked list containing all key-value pairs. In
@@ -115,7 +118,8 @@ public @ReceiverDependentMutable class LinkedListMultimap<K extends @Nullable Ob
    * ValueForKeyIterator} in constant time.
    */
 
-  private static final class Node<K extends @Nullable Object, V extends @Nullable Object>
+  @ReceiverDependentMutable
+  private static final class Node<K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object>
       extends AbstractMapEntry<K, V> {
     @ParametricNullness final K key;
     @ParametricNullness V value;
@@ -150,7 +154,7 @@ public @ReceiverDependentMutable class LinkedListMultimap<K extends @Nullable Ob
     }
   }
 
-  private static class KeyList<K extends @Nullable Object, V extends @Nullable Object> {
+  @ReceiverDependentMutable private static class KeyList<K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object> {
     Node<K, V> head;
     Node<K, V> tail;
     int count;
@@ -177,7 +181,7 @@ public @ReceiverDependentMutable class LinkedListMultimap<K extends @Nullable Ob
   private transient int modCount;
 
   /** Creates a new, empty {@code LinkedListMultimap} with the default initial capacity. */
-  public static <K extends @Nullable Object, V extends @Nullable Object>
+  public static <K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object>
       LinkedListMultimap<K, V> create() {
     return new LinkedListMultimap<>();
   }
@@ -189,7 +193,7 @@ public @ReceiverDependentMutable class LinkedListMultimap<K extends @Nullable Ob
    * @param expectedKeys the expected number of distinct keys
    * @throws IllegalArgumentException if {@code expectedKeys} is negative
    */
-  public static <K extends @Nullable Object, V extends @Nullable Object>
+  public static <K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object>
       LinkedListMultimap<K, V> create(int expectedKeys) {
     return new LinkedListMultimap<>(expectedKeys);
   }
@@ -201,7 +205,7 @@ public @ReceiverDependentMutable class LinkedListMultimap<K extends @Nullable Ob
    *
    * @param multimap the multimap whose contents are copied to this multimap
    */
-  public static <K extends @Nullable Object, V extends @Nullable Object>
+  public static <K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object>
       LinkedListMultimap<K, V> create(Multimap<? extends K, ? extends V> multimap) {
     return new LinkedListMultimap<>(multimap);
   }
@@ -332,11 +336,11 @@ public @ReceiverDependentMutable class LinkedListMultimap<K extends @Nullable Ob
   }
 
   /** An {@code Iterator} over all nodes. */
-  private class NodeIterator implements ListIterator<Entry<K, V>> {
+  @ReceiverDependentMutable private class NodeIterator implements ListIterator<Entry<K, V>> {
     int nextIndex;
-    @CheckForNull Node<K, V> next;
-    @CheckForNull Node<K, V> current;
-    @CheckForNull Node<K, V> previous;
+    @CheckForNull @Assignable Node<K, V> next;
+    @CheckForNull @Assignable Node<K, V> current;
+    @CheckForNull @Assignable Node<K, V> previous;
     int expectedModCount = modCount;
 
     NodeIterator(int index) {
@@ -383,7 +387,7 @@ public @ReceiverDependentMutable class LinkedListMultimap<K extends @Nullable Ob
     }
 
     @Override
-    public void remove() {
+    public void remove(@Mutable NodeIterator this) {
       checkForConcurrentModification();
       checkState(current != null, "no calls to next() since the last call to remove()");
       if (current != next) { // after call to next()
@@ -427,12 +431,12 @@ public @ReceiverDependentMutable class LinkedListMultimap<K extends @Nullable Ob
     }
 
     @Override
-    public void set(Entry<K, V> e) {
+    public void set(@Mutable NodeIterator this, Entry<K, V> e) {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public void add(Entry<K, V> e) {
+    public void add(@Mutable NodeIterator this, Entry<K, V> e) {
       throw new UnsupportedOperationException();
     }
 
@@ -443,10 +447,10 @@ public @ReceiverDependentMutable class LinkedListMultimap<K extends @Nullable Ob
   }
 
   /** An {@code Iterator} over distinct keys in key head order. */
-  private class DistinctKeyIterator implements Iterator<K> {
+  @ReceiverDependentMutable private class DistinctKeyIterator implements Iterator<K> {
     final Set<K> seenKeys = Sets.<K>newHashSetWithExpectedSize(keySet().size());
-    @CheckForNull Node<K, V> next = head;
-    @CheckForNull Node<K, V> current;
+    @CheckForNull @Assignable Node<K, V> next = head;
+    @CheckForNull @Assignable Node<K, V> current;
     int expectedModCount = modCount;
 
     private void checkForConcurrentModification() {
@@ -490,9 +494,9 @@ public @ReceiverDependentMutable class LinkedListMultimap<K extends @Nullable Ob
   private class ValueForKeyIterator implements ListIterator<V> {
     @ParametricNullness final K key;
     int nextIndex;
-    @CheckForNull Node<K, V> next;
-    @CheckForNull Node<K, V> current;
-    @CheckForNull Node<K, V> previous;
+    @CheckForNull @Assignable Node<K, V> next;
+    @CheckForNull @Assignable Node<K, V> current;
+    @CheckForNull @Assignable Node<K, V> previous;
 
     /** Constructs a new iterator over all values for the specified key. */
     ValueForKeyIterator(@ParametricNullness K key) {
@@ -919,5 +923,5 @@ public boolean equals(@Nullable Object arg0) { return super.equals(arg0); }
 public boolean remove(@Mutable LinkedListMultimap<K,V> this, @Nullable @Readonly Object arg0, @Nullable @Readonly Object arg1) { return super.remove(arg0, arg1); }
 
 @Override
-public Map<K, Collection<V>> asMap() { return super.asMap(); }
+public @ReceiverDependentMutable Map<K, Collection<V>> asMap() { return super.asMap(); }
 }

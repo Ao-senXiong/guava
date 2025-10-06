@@ -21,6 +21,7 @@ import com.google.common.annotations.GwtIncompatible;
 import java.util.function.Consumer;
 import javax.annotation.CheckForNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.checkerframework.checker.pico.qual.Immutable;
 import org.checkerframework.checker.pico.qual.Readonly;
 
 /**
@@ -32,6 +33,7 @@ import org.checkerframework.checker.pico.qual.Readonly;
 @GwtCompatible(emulated = true)
 @SuppressWarnings("serial") // uses writeReplace, not default serialization
 @ElementTypesAreNonnullByDefault
+@Immutable
 class RegularImmutableAsList<E> extends ImmutableAsList<E> {
   private final ImmutableCollection<E> delegate;
   private final ImmutableList<? extends E> delegateList;

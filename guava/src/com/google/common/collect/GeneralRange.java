@@ -239,7 +239,7 @@ final class GeneralRange<T extends @Nullable @Readonly Object> implements Serial
   }
 
   @Override
-  public boolean equals(@CheckForNull Object obj) {
+  public boolean equals(@CheckForNull @Readonly Object obj) {
     if (obj instanceof GeneralRange) {
       GeneralRange<?> r = (GeneralRange<?>) obj;
       return comparator.equals(r.comparator)

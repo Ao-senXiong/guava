@@ -51,7 +51,8 @@ import org.checkerframework.framework.qual.AnnotatedFor;
 @AnnotatedFor({"nullness"})
 @GwtCompatible
 @ElementTypesAreNonnullByDefault
-abstract @ReceiverDependentMutable class AbstractMultimap<K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object>
+@ReceiverDependentMutable
+abstract class AbstractMultimap<K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object>
     implements Multimap<K, V> {
   @Pure
   @Override
@@ -261,7 +262,7 @@ abstract @ReceiverDependentMutable class AbstractMultimap<K extends @Nullable @I
 
   @Pure
   @Override
-  public boolean equals(@CheckForNull Object object) {
+  public boolean equals(@CheckForNull @Readonly Object object) {
     return Multimaps.equalsImpl(this, object);
   }
 

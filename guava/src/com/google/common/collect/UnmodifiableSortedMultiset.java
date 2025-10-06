@@ -22,6 +22,7 @@ import java.util.Comparator;
 import java.util.NavigableSet;
 import javax.annotation.CheckForNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.checkerframework.checker.pico.qual.Immutable;
 import org.checkerframework.checker.pico.qual.Readonly;
 
 /**
@@ -33,6 +34,7 @@ import org.checkerframework.checker.pico.qual.Readonly;
  */
 @GwtCompatible(emulated = true)
 @ElementTypesAreNonnullByDefault
+@Immutable
 final class UnmodifiableSortedMultiset<E extends @Nullable @Readonly Object> extends UnmodifiableMultiset<E>
     implements SortedMultiset<E> {
   UnmodifiableSortedMultiset(SortedMultiset<E> delegate) {

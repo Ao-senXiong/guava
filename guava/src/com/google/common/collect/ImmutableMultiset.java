@@ -65,6 +65,7 @@ import org.checkerframework.framework.qual.CFComment;
 @GwtCompatible(serializable = true, emulated = true)
 @SuppressWarnings("serial") // we're overriding default serialization
 @ElementTypesAreNonnullByDefault
+@Immutable
 public abstract class ImmutableMultiset<E> extends ImmutableMultisetGwtSerializationDependencies<E>
     implements Multiset<E> {
 
@@ -381,6 +382,7 @@ public abstract class ImmutableMultiset<E> extends ImmutableMultisetGwtSerializa
   abstract Entry<E> getEntry(int index);
 
   @WeakOuter
+  @Immutable
   private final class EntrySet extends IndexedImmutableSet<Entry<E>> {
     @Override
     boolean isPartialView() {
@@ -601,6 +603,7 @@ public abstract class ImmutableMultiset<E> extends ImmutableMultisetGwtSerializa
     }
   }
 
+  @Immutable
   static final class ElementSet<E> extends ImmutableSet.Indexed<E> {
     private final List<Entry<E>> entries;
     // TODO(cpovirk): @Weak?

@@ -23,6 +23,8 @@ import java.util.List;
 import java.util.Map;
 import javax.annotation.CheckForNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.checkerframework.checker.pico.qual.Immutable;
+import org.checkerframework.checker.pico.qual.Mutable;
 import org.checkerframework.checker.pico.qual.Readonly;
 import org.checkerframework.checker.pico.qual.ReceiverDependentMutable;
 import org.checkerframework.dataflow.qual.Pure;
@@ -46,7 +48,8 @@ import org.checkerframework.framework.qual.AnnotatedFor;
 @GwtCompatible
 @AnnotatedFor({"nullness"})
 @ElementTypesAreNonnullByDefault
-public @ReceiverDependentMutable interface ListMultimap<K extends @Nullable Object, V extends @Nullable @Readonly Object>
+@ReceiverDependentMutable
+public interface ListMultimap<K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object>
     extends Multimap<K, V> {
   /**
    * {@inheritDoc}
@@ -56,7 +59,7 @@ public @ReceiverDependentMutable interface ListMultimap<K extends @Nullable Obje
    * the {@link Multimap} interface.
    */
   @Override
-  @ReceiverDependentMutable List<V> get(@ParametricNullness K key);
+  @ReceiverDependentMutable List<V> get(@Readonly ListMultimap<K,V> this, @ParametricNullness K key);
 
   /**
    * {@inheritDoc}
@@ -67,7 +70,7 @@ public @ReceiverDependentMutable interface ListMultimap<K extends @Nullable Obje
    */
   @CanIgnoreReturnValue
   @Override
-  @ReceiverDependentMutable List<V> removeAll(@CheckForNull Object key);
+  @ReceiverDependentMutable List<V> removeAll(@Mutable ListMultimap<K,V> this, @CheckForNull @Readonly Object key);
 
   /**
    * {@inheritDoc}
@@ -78,7 +81,7 @@ public @ReceiverDependentMutable interface ListMultimap<K extends @Nullable Obje
    */
   @CanIgnoreReturnValue
   @Override
-  @ReceiverDependentMutable List<V> replaceValues(@ParametricNullness K key, Iterable<? extends V> values);
+  @ReceiverDependentMutable List<V> replaceValues(@Mutable ListMultimap<K,V> this, @ParametricNullness K key, Iterable<? extends V> values);
 
   /**
    * {@inheritDoc}
@@ -101,5 +104,5 @@ public @ReceiverDependentMutable interface ListMultimap<K extends @Nullable Obje
    */
   @Pure
   @Override
-  boolean equals(@CheckForNull Object obj);
+  boolean equals(@Readonly ListMultimap<K,V> this, @CheckForNull @Readonly Object obj);
 }

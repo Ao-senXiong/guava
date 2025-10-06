@@ -45,6 +45,7 @@ import javax.annotation.CheckForNull;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.checker.pico.qual.Assignable;
+import org.checkerframework.checker.pico.qual.Immutable;
 import org.checkerframework.checker.pico.qual.Mutable;
 import org.checkerframework.checker.pico.qual.Readonly;
 import org.checkerframework.checker.signedness.qual.UnknownSignedness;
@@ -61,6 +62,7 @@ import org.checkerframework.framework.qual.AnnotatedFor;
 @GwtCompatible(serializable = true, emulated = true)
 @SuppressWarnings("serial") // we're overriding default serialization
 @ElementTypesAreNonnullByDefault
+@Immutable
 public abstract class ImmutableSet<E> extends ImmutableCollection<E> implements Set<E> {
   static final int SPLITERATOR_CHARACTERISTICS =
       ImmutableCollection.SPLITERATOR_CHARACTERISTICS | Spliterator.DISTINCT;
@@ -322,7 +324,7 @@ public abstract class ImmutableSet<E> extends ImmutableCollection<E> implements 
 
   @Pure
   @Override
-  public boolean equals(@CheckForNull @UnknownSignedness Object object) {
+  public boolean equals(@CheckForNull @UnknownSignedness @Readonly Object object) {
     if (object == this) {
       return true;
     }
@@ -347,6 +349,7 @@ public abstract class ImmutableSet<E> extends ImmutableCollection<E> implements 
   public abstract UnmodifiableIterator<E> iterator();
 
   @GwtCompatible
+  @Immutable
   abstract static class CachingAsList<E> extends ImmutableSet<E> {
     @LazyInit @RetainedWith @CheckForNull private transient @Assignable ImmutableList<E> asList;
 
@@ -365,6 +368,7 @@ public abstract class ImmutableSet<E> extends ImmutableCollection<E> implements 
     }
   }
 
+  @Immutable
   abstract static class Indexed<E> extends CachingAsList<E> {
     abstract E get(int index);
 

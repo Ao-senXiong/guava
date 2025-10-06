@@ -89,6 +89,7 @@ import org.checkerframework.checker.index.qual.NonNegative;
 import org.checkerframework.checker.nullness.qual.KeyFor;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.checker.nullness.qual.PolyNull;
+import org.checkerframework.checker.pico.qual.Immutable;
 import org.checkerframework.checker.signedness.qual.PolySigned;
 import org.checkerframework.checker.signedness.qual.UnknownSignedness;
 
@@ -108,7 +109,7 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
 })
 @GwtCompatible(emulated = true)
 // TODO(cpovirk): Annotate for nullness.
-class LocalCache<K, V> extends AbstractMap<K, V> implements ConcurrentMap<K, V> {
+class LocalCache<K extends @Immutable Object, V> extends AbstractMap<K, V> implements ConcurrentMap<K, V> {
 
   /*
    * The basic strategy is to subdivide the table among Segments, each of which itself is a

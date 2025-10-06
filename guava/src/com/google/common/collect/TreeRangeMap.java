@@ -43,7 +43,10 @@ import javax.annotation.CheckForNull;
 import org.checkerframework.checker.index.qual.NonNegative;
 import org.checkerframework.checker.nullness.qual.KeyFor;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.checkerframework.checker.pico.qual.Immutable;
 import org.checkerframework.checker.pico.qual.Mutable;
+import org.checkerframework.checker.pico.qual.Readonly;
+import org.checkerframework.checker.pico.qual.ReceiverDependentMutable;
 import org.checkerframework.checker.signedness.qual.UnknownSignedness;
 
 /**
@@ -58,11 +61,12 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
 @Beta
 @GwtIncompatible // NavigableMap
 @ElementTypesAreNonnullByDefault
-public final class TreeRangeMap<K extends Comparable, V> implements RangeMap<K, V> {
+@ReceiverDependentMutable
+public final class TreeRangeMap<K extends @Immutable Comparable, V> implements RangeMap<K, V> {
 
-  private final @Mutable NavigableMap<Cut<K>, RangeMapEntry<K, V>> entriesByLowerBound;
+  private final NavigableMap<@Immutable Cut<K>, RangeMapEntry<K, V>> entriesByLowerBound;
 
-  public static <K extends Comparable, V> TreeRangeMap<K, V> create() {
+  public static <K extends @Immutable Comparable, V> TreeRangeMap<K, V> create() {
     return new TreeRangeMap<>();
   }
 
@@ -70,7 +74,7 @@ public final class TreeRangeMap<K extends Comparable, V> implements RangeMap<K, 
     this.entriesByLowerBound = Maps.newTreeMap();
   }
 
-  private static final class RangeMapEntry<K extends Comparable, V>
+  private static final class RangeMapEntry<K extends @Immutable Comparable, V>
       extends AbstractMapEntry<Range<K>, V> {
     private final Range<K> range;
     private final V value;
@@ -116,8 +120,8 @@ public final class TreeRangeMap<K extends Comparable, V> implements RangeMap<K, 
 
   @Override
   @CheckForNull
-  public Entry<Range<K>, V> getEntry(K key) {
-    Entry<Cut<K>, RangeMapEntry<K, V>> mapEntry =
+  public Entry<@Immutable Range<K>, V> getEntry(K key) {
+    Entry<@Immutable Cut<K>, RangeMapEntry<K, V>> mapEntry =
         entriesByLowerBound.floorEntry(Cut.belowValue(key));
     if (mapEntry != null && mapEntry.getValue().contains(key)) {
       return mapEntry.getValue();
@@ -162,8 +166,8 @@ public final class TreeRangeMap<K extends Comparable, V> implements RangeMap<K, 
   }
 
   /** Returns the range that spans the given range and entry, if the entry can be coalesced. */
-  private static <K extends Comparable, V> Range<K> coalesce(
-      Range<K> range, V value, @CheckForNull Entry<Cut<K>, RangeMapEntry<K, V>> entry) {
+  private static <K extends @Immutable Comparable, V> Range<K> coalesce(
+      Range<K> range, V value, @CheckForNull Entry<@Immutable Cut<K>, RangeMapEntry<K, V>> entry) {
     if (entry != null
         && entry.getValue().getKey().isConnected(range)
         && entry.getValue().getValue().equals(value)) {
@@ -174,7 +178,7 @@ public final class TreeRangeMap<K extends Comparable, V> implements RangeMap<K, 
 
   @Override
   public void putAll(RangeMap<K, V> rangeMap) {
-    for (Entry<Range<K>, V> entry : rangeMap.asMapOfRanges().entrySet()) {
+    for (Entry<@Immutable Range<K>, V> entry : rangeMap.asMapOfRanges().entrySet()) {
       put(entry.getKey(), entry.getValue());
     }
   }
@@ -186,8 +190,8 @@ public final class TreeRangeMap<K extends Comparable, V> implements RangeMap<K, 
 
   @Override
   public Range<K> span() {
-    Entry<Cut<K>, RangeMapEntry<K, V>> firstEntry = entriesByLowerBound.firstEntry();
-    Entry<Cut<K>, RangeMapEntry<K, V>> lastEntry = entriesByLowerBound.lastEntry();
+    Entry<@Immutable Cut<K>, RangeMapEntry<K, V>> firstEntry = entriesByLowerBound.firstEntry();
+    Entry<@Immutable Cut<K>, RangeMapEntry<K, V>> lastEntry = entriesByLowerBound.lastEntry();
     // Either both are null or neither is, but we check both to satisfy the nullness checker.
     if (firstEntry == null || lastEntry == null) {
       throw new NoSuchElementException();
@@ -387,6 +391,7 @@ public final class TreeRangeMap<K extends Comparable, V> implements RangeMap<K, 
   }
 
   @SuppressWarnings("ConstantCaseForConstants") // This RangeMap is immutable.
+  @Immutable
   private static final RangeMap<Comparable<?>, Object> EMPTY_SUB_RANGE_MAP =
       new RangeMap<Comparable<?>, Object>() {
         @Override
@@ -493,7 +498,7 @@ public final class TreeRangeMap<K extends Comparable, V> implements RangeMap<K, 
     @Override
     public Range<K> span() {
       Cut<K> lowerBound;
-      Entry<Cut<K>, RangeMapEntry<K, V>> lowerEntry =
+      Entry<@Immutable Cut<K>, RangeMapEntry<K, V>> lowerEntry =
           entriesByLowerBound.floorEntry(subRange.lowerBound);
       if (lowerEntry != null
           && lowerEntry.getValue().getUpperBound().compareTo(subRange.lowerBound) > 0) {
@@ -506,7 +511,7 @@ public final class TreeRangeMap<K extends Comparable, V> implements RangeMap<K, 
       }
 
       Cut<K> upperBound;
-      Entry<Cut<K>, RangeMapEntry<K, V>> upperEntry =
+      Entry<@Immutable Cut<K>, RangeMapEntry<K, V>> upperEntry =
           entriesByLowerBound.lowerEntry(subRange.upperBound);
       if (upperEntry == null) {
         throw new NoSuchElementException();
@@ -652,7 +657,7 @@ public final class TreeRangeMap<K extends Comparable, V> implements RangeMap<K, 
 
       @Override
       @CheckForNull
-      public V get(@CheckForNull @UnknownSignedness Object key) {
+      public V get(@CheckForNull @UnknownSignedness @Readonly Object key) {
         try {
           if (key instanceof Range) {
             @SuppressWarnings("unchecked") // we catch ClassCastExceptions
@@ -663,7 +668,7 @@ public final class TreeRangeMap<K extends Comparable, V> implements RangeMap<K, 
             RangeMapEntry<K, V> candidate = null;
             if (r.lowerBound.compareTo(subRange.lowerBound) == 0) {
               // r could be truncated on the left
-              Entry<Cut<K>, RangeMapEntry<K, V>> entry =
+              Entry<@Immutable Cut<K>, RangeMapEntry<K, V>> entry =
                   entriesByLowerBound.floorEntry(r.lowerBound);
               if (entry != null) {
                 candidate = entry.getValue();

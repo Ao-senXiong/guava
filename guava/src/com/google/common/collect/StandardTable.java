@@ -49,6 +49,7 @@ import org.checkerframework.checker.index.qual.NonNegative;
 import org.checkerframework.checker.nullness.qual.KeyFor;
 import org.checkerframework.checker.pico.qual.Immutable;
 import org.checkerframework.checker.pico.qual.Mutable;
+import org.checkerframework.checker.pico.qual.Readonly;
 import org.checkerframework.checker.pico.qual.ReceiverDependentMutable;
 import org.checkerframework.checker.signedness.qual.UnknownSignedness;
 
@@ -73,11 +74,12 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
  */
 @GwtCompatible
 @ElementTypesAreNonnullByDefault
-@ReceiverDependentMutable class StandardTable<R extends @Immutable Object, C extends @Immutable Object, V> extends AbstractTable<R, C, V> implements Serializable {
-  @GwtTransient final @Mutable Map<R, Map<C, V>> backingMap;
+@ReceiverDependentMutable
+class StandardTable<R extends @Immutable Object, C extends @Immutable Object, V> extends AbstractTable<R, C, V> implements Serializable {
+  @GwtTransient final Map<R, Map<C, V>> backingMap;
   @GwtTransient final Supplier<? extends Map<C, V>> factory;
 
-  StandardTable(Map<R, Map<C, V>> backingMap, Supplier<? extends Map<C, V>> factory) {
+  StandardTable(@ReceiverDependentMutable  Map<R, Map<C, V>> backingMap, @ReceiverDependentMutable Supplier<? extends Map<C, V>> factory) {
     this.backingMap = backingMap;
     this.factory = factory;
   }
@@ -85,12 +87,12 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
   // Accessors
 
   @Override
-  public boolean contains(@CheckForNull Object rowKey, @CheckForNull Object columnKey) {
+  public boolean contains(@CheckForNull @Readonly Object rowKey, @CheckForNull @Readonly Object columnKey) {
     return rowKey != null && columnKey != null && super.contains(rowKey, columnKey);
   }
 
   @Override
-  public boolean containsColumn(@CheckForNull Object columnKey) {
+  public boolean containsColumn(@CheckForNull @Readonly Object columnKey) {
     if (columnKey == null) {
       return false;
     }
@@ -103,18 +105,18 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
   }
 
   @Override
-  public boolean containsRow(@CheckForNull Object rowKey) {
+  public boolean containsRow(@CheckForNull @Readonly Object rowKey) {
     return rowKey != null && safeContainsKey(backingMap, rowKey);
   }
 
   @Override
-  public boolean containsValue(@CheckForNull @UnknownSignedness Object value) {
+  public boolean containsValue(@CheckForNull @UnknownSignedness @Readonly Object value) {
     return value != null && super.containsValue(value);
   }
 
   @Override
   @CheckForNull
-  public V get(@CheckForNull Object rowKey, @CheckForNull Object columnKey) {
+  public V get(@CheckForNull @Readonly Object rowKey, @CheckForNull @Readonly Object columnKey) {
     return (rowKey == null || columnKey == null) ? null : super.get(rowKey, columnKey);
   }
 
@@ -161,7 +163,7 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
   @CanIgnoreReturnValue
   @Override
   @CheckForNull
-  public V remove(@Mutable StandardTable<R, C, V> this, @CheckForNull Object rowKey, @CheckForNull Object columnKey) {
+  public V remove(@Mutable StandardTable<R, C, V> this, @CheckForNull @Readonly Object rowKey, @CheckForNull @Readonly Object columnKey) {
     if ((rowKey == null) || (columnKey == null)) {
       return null;
     }
@@ -177,7 +179,7 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
   }
 
   @CanIgnoreReturnValue
-  private Map<R, V> removeColumn(@Mutable StandardTable<R, C, V> this, @CheckForNull Object column) {
+  private Map<R, V> removeColumn(@Mutable StandardTable<R, C, V> this, @CheckForNull @Readonly Object column) {
     Map<R, V> output = new LinkedHashMap<>();
     Iterator<Entry<R, Map<C, V>>> iterator = backingMap.entrySet().iterator();
     while (iterator.hasNext()) {
@@ -194,13 +196,13 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
   }
 
   private boolean containsMapping(
-      @CheckForNull Object rowKey, @CheckForNull Object columnKey, @CheckForNull Object value) {
+      @CheckForNull @Readonly Object rowKey, @CheckForNull @Readonly Object columnKey, @CheckForNull @Readonly Object value) {
     return value != null && value.equals(get(rowKey, columnKey));
   }
 
   /** Remove a row key / column key / value mapping, if present. */
   private boolean removeMapping(@Mutable StandardTable<R, C, V> this,
-      @CheckForNull Object rowKey, @CheckForNull Object columnKey, @CheckForNull Object value) {
+      @CheckForNull @Readonly Object rowKey, @CheckForNull @Readonly Object columnKey, @CheckForNull @Readonly Object value) {
     if (containsMapping(rowKey, columnKey, value)) {
       remove(rowKey, columnKey);
       return true;
@@ -215,7 +217,8 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
    * clear()} clears all table mappings.
    */
   @WeakOuter
-  private @ReceiverDependentMutable abstract class TableSet<T> extends ImprovedAbstractSet<T> {
+  @ReceiverDependentMutable
+  private abstract class TableSet<T> extends ImprovedAbstractSet<T> {
     @Override
     public boolean isEmpty() {
       return backingMap.isEmpty();
@@ -246,7 +249,8 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
     return new CellIterator();
   }
 
-  private @ReceiverDependentMutable class CellIterator implements Iterator<Cell<R, C, V>> {
+  @ReceiverDependentMutable
+  private class CellIterator implements Iterator<Cell<R, C, V>> {
     final Iterator<Entry<R, Map<C, V>>> rowIterator = backingMap.entrySet().iterator();
     @CheckForNull Entry<R, Map<C, V>> rowEntry;
     Iterator<Entry<C, V>> columnIterator = Iterators.emptyModifiableIterator();
@@ -281,7 +285,7 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
     }
 
     @Override
-    public void remove() {
+    public void remove(@Mutable CellIterator this) {
       columnIterator.remove();
       /*
        * requireNonNull is safe because:
@@ -319,7 +323,8 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
     return new Row(rowKey);
   }
 
-  @ReceiverDependentMutable class Row extends IteratorBasedAbstractMap<C, V> {
+  @ReceiverDependentMutable
+  class Row extends IteratorBasedAbstractMap<C, V> {
     final R rowKey;
 
     Row(R rowKey) {
@@ -349,14 +354,14 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
     }
 
     @Override
-    public boolean containsKey(@CheckForNull @UnknownSignedness Object key) {
+    public boolean containsKey(@CheckForNull @UnknownSignedness @Readonly Object key) {
       updateBackingRowMapField();
       return (key != null && backingRowMap != null) && Maps.safeContainsKey(backingRowMap, key);
     }
 
     @Override
     @CheckForNull
-    public V get(@CheckForNull @UnknownSignedness Object key) {
+    public V get(@CheckForNull @UnknownSignedness @Readonly Object key) {
       updateBackingRowMapField();
       return (key != null && backingRowMap != null) ? Maps.safeGet(backingRowMap, key) : null;
     }
@@ -374,7 +379,7 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
 
     @Override
     @CheckForNull
-    public V remove(@CheckForNull @UnknownSignedness Object key) {
+    public V remove(@CheckForNull @UnknownSignedness @Readonly Object key) {
       updateBackingRowMapField();
       if (backingRowMap == null) {
         return null;
@@ -465,7 +470,8 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
     return new Column(columnKey);
   }
 
-  private @ReceiverDependentMutable class Column extends ViewCachingAbstractMap<R, V> {
+  @ReceiverDependentMutable
+  private class Column extends ViewCachingAbstractMap<R, V> {
     final C columnKey;
 
     Column(C columnKey) {
@@ -480,18 +486,18 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
 
     @Override
     @CheckForNull
-    public V get(@CheckForNull @UnknownSignedness Object key) {
+    public V get(@CheckForNull @UnknownSignedness @Readonly Object key) {
       return StandardTable.this.get(key, columnKey);
     }
 
     @Override
-    public boolean containsKey(@CheckForNull @UnknownSignedness Object key) {
+    public boolean containsKey(@CheckForNull @UnknownSignedness @Readonly Object key) {
       return StandardTable.this.contains(key, columnKey);
     }
 
     @Override
     @CheckForNull
-    public V remove(@CheckForNull @UnknownSignedness Object key) {
+    public V remove(@Mutable Column this, @CheckForNull @UnknownSignedness @Readonly Object key) {
       return StandardTable.this.remove(key, columnKey);
     }
 
@@ -549,7 +555,7 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
       }
 
       @Override
-      public boolean contains(@CheckForNull @UnknownSignedness Object o) {
+      public boolean contains(@CheckForNull @UnknownSignedness @Readonly Object o) {
         if (o instanceof Entry) {
           Entry<?, ?> entry = (Entry<?, ?>) o;
           return containsMapping(entry.getKey(), columnKey, entry.getValue());
@@ -558,7 +564,7 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
       }
 
       @Override
-      public boolean remove(@CheckForNull @UnknownSignedness Object obj) {
+      public boolean remove(@CheckForNull @UnknownSignedness @Readonly Object obj) {
         if (obj instanceof Entry) {
           Entry<?, ?> entry = (Entry<?, ?>) obj;
           return removeMapping(entry.getKey(), columnKey, entry.getValue());
@@ -632,12 +638,12 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
       }
 
       @Override
-      public boolean contains(@CheckForNull @UnknownSignedness Object obj) {
+      public boolean contains(@CheckForNull @UnknownSignedness @Readonly Object obj) {
         return StandardTable.this.contains(obj, columnKey);
       }
 
       @Override
-      public boolean remove(@CheckForNull @UnknownSignedness Object obj) {
+      public boolean remove(@CheckForNull @UnknownSignedness @Readonly Object obj) {
         return StandardTable.this.remove(obj, columnKey) != null;
       }
 
@@ -659,7 +665,7 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
       }
 
       @Override
-      public boolean remove(@CheckForNull @UnknownSignedness Object obj) {
+      public boolean remove(@CheckForNull @UnknownSignedness @Readonly Object obj) {
         return obj != null && removeFromColumnIf(Maps.<V>valuePredicateOnEntries(equalTo(obj)));
       }
 
@@ -709,7 +715,7 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
     }
 
     @Override
-    public boolean remove(@CheckForNull @UnknownSignedness Object obj) {
+    public boolean remove(@CheckForNull @UnknownSignedness @Readonly Object obj) {
       if (obj == null) {
         return false;
       }
@@ -764,7 +770,7 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
     }
 
     @Override
-    public boolean contains(@CheckForNull @UnknownSignedness Object obj) {
+    public boolean contains(@CheckForNull @UnknownSignedness @Readonly Object obj) {
       return containsColumn(obj);
     }
   }
@@ -824,9 +830,10 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
   }
 
   @WeakOuter
-  @ReceiverDependentMutable class RowMap extends ViewCachingAbstractMap<R, Map<C, V>> {
+  @ReceiverDependentMutable
+  class RowMap extends ViewCachingAbstractMap<R, Map<C, V>> {
     @Override
-    public boolean containsKey(@CheckForNull @UnknownSignedness Object key) {
+    public boolean containsKey(@CheckForNull @UnknownSignedness @Readonly Object key) {
       return containsRow(key);
     }
 
@@ -834,14 +841,14 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
     @SuppressWarnings("unchecked")
     @Override
     @CheckForNull
-    public Map<C, V> get(@CheckForNull @UnknownSignedness Object key) {
+    public Map<C, V> get(@CheckForNull @UnknownSignedness @Readonly Object key) {
       // requireNonNull is safe because of the containsRow check.
       return containsRow(key) ? row((R) requireNonNull(key)) : null;
     }
 
     @Override
     @CheckForNull
-    public Map<C, V> remove(@CheckForNull @UnknownSignedness Object key) {
+    public Map<C, V> remove(@CheckForNull @UnknownSignedness @Readonly Object key) {
       return (key == null) ? null : backingMap.remove(key);
     }
 
@@ -870,7 +877,7 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
       }
 
       @Override
-      public boolean contains(@CheckForNull @UnknownSignedness Object obj) {
+      public boolean contains(@CheckForNull @UnknownSignedness @Readonly Object obj) {
         if (obj instanceof Entry) {
           Entry<?, ?> entry = (Entry<?, ?>) obj;
           return entry.getKey() != null
@@ -881,7 +888,7 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
       }
 
       @Override
-      public boolean remove(@CheckForNull @UnknownSignedness Object obj) {
+      public boolean remove(@CheckForNull @UnknownSignedness @Readonly Object obj) {
         if (obj instanceof Entry) {
           Entry<?, ?> entry = (Entry<?, ?>) obj;
           return entry.getKey() != null
@@ -908,19 +915,19 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
     @SuppressWarnings("unchecked")
     @Override
     @CheckForNull
-    public Map<R, V> get(@CheckForNull @UnknownSignedness Object key) {
+    public Map<R, V> get(@CheckForNull @UnknownSignedness @Readonly Object key) {
       // requireNonNull is safe because of the containsColumn check.
       return containsColumn(key) ? column((C) requireNonNull(key)) : null;
     }
 
     @Override
-    public boolean containsKey(@CheckForNull @UnknownSignedness Object key) {
+    public boolean containsKey(@CheckForNull @UnknownSignedness @Readonly Object key) {
       return containsColumn(key);
     }
 
     @Override
     @CheckForNull
-    public Map<R, V> remove(@CheckForNull @UnknownSignedness Object key) {
+    public Map<R, V> remove(@CheckForNull @UnknownSignedness @Readonly Object key) {
       return containsColumn(key) ? removeColumn(key) : null;
     }
 
@@ -971,7 +978,7 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
       }
 
       @Override
-      public boolean remove(@CheckForNull @UnknownSignedness Object obj) {
+      public boolean remove(@CheckForNull @UnknownSignedness @Readonly Object obj) {
         /*
          * `o instanceof Entry` is guaranteed by `contains`, but we check it here to satisfy our
          * nullness checker.
@@ -1017,7 +1024,7 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
       }
 
       @Override
-      public boolean remove(@CheckForNull @UnknownSignedness Object obj) {
+      public boolean remove(@CheckForNull @UnknownSignedness @Readonly Object obj) {
         for (Entry<C, Map<R, V>> entry : ColumnMap.this.entrySet()) {
           if (entry.getValue().equals(obj)) {
             removeColumn(entry.getKey());

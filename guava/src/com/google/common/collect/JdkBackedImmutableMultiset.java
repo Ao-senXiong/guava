@@ -34,7 +34,8 @@ import org.checkerframework.framework.qual.CFComment;
  */
 @GwtCompatible
 @ElementTypesAreNonnullByDefault
-@CFComment("This E is used as Map key, ")
+@CFComment("This E is used as Map key")
+@Immutable
 final class JdkBackedImmutableMultiset<E extends @Immutable Object> extends ImmutableMultiset<E> {
   private final Map<E, Integer> delegateMap;
   private final ImmutableList<Entry<E>> entries;

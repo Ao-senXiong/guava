@@ -230,7 +230,7 @@ public @ReceiverDependentMutable abstract class ForwardingMultiset<E extends @Nu
    *
    * @since 7.0
    */
-  protected int standardSetCount(@ParametricNullness E element, int count) {
+  protected int standardSetCount(@Mutable ForwardingMultiset<E> this, @ParametricNullness E element, int count) {
     return Multisets.setCountImpl(this, element, count);
   }
 
@@ -241,7 +241,7 @@ public @ReceiverDependentMutable abstract class ForwardingMultiset<E extends @Nu
    *
    * @since 7.0
    */
-  protected boolean standardSetCount(@ParametricNullness E element, int oldCount, int newCount) {
+  protected boolean standardSetCount(@Mutable ForwardingMultiset<E> this, @ParametricNullness E element, int oldCount, int newCount) {
     return Multisets.setCountImpl(this, element, oldCount, newCount);
   }
 
@@ -257,7 +257,7 @@ public @ReceiverDependentMutable abstract class ForwardingMultiset<E extends @Nu
    * @since 10.0
    */
   @Beta
-  protected @ReceiverDependentMutable class StandardElementSet extends Multisets.ElementSet<E> {
+  @ReceiverDependentMutable protected class StandardElementSet extends Multisets.ElementSet<E> {
     /** Constructor for use by subclasses. */
     public StandardElementSet() {}
 
@@ -301,7 +301,7 @@ public @ReceiverDependentMutable abstract class ForwardingMultiset<E extends @Nu
    *
    * @since 7.0
    */
-  protected boolean standardEquals(@CheckForNull Object object) {
+  protected boolean standardEquals(@CheckForNull @Readonly Object object) {
     return Multisets.equalsImpl(this, object);
   }
 

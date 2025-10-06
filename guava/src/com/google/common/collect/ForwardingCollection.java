@@ -59,18 +59,19 @@ import org.checkerframework.framework.qual.AnnotatedFor;
 @AnnotatedFor({"nullness"})
 @GwtCompatible
 @ElementTypesAreNonnullByDefault
-public @ReceiverDependentMutable abstract class ForwardingCollection<E extends @Nullable @Readonly Object> extends ForwardingObject
+@ReceiverDependentMutable
+public abstract class ForwardingCollection<E extends @Nullable @Readonly Object> extends ForwardingObject
     implements Collection<E> {
   // TODO(lowasser): identify places where thread safety is actually lost
 
   /** Constructor for use by subclasses. */
-  protected @ReceiverDependentMutable ForwardingCollection() {}
+  protected ForwardingCollection() {}
 
   @Override
-  protected abstract @ReceiverDependentMutable Collection<E> delegate();
+  protected abstract Collection<E> delegate();
 
   @Override
-  public @ReceiverDependentMutable Iterator<E> iterator() {
+  public Iterator<E> iterator() {
     return delegate().iterator();
   }
 

@@ -87,14 +87,15 @@ public final class Sets {
    * {@link AbstractSet} substitute without the potentially-quadratic {@code removeAll}
    * implementation.
    */
-  @ReceiverDependentMutable abstract static class ImprovedAbstractSet<E extends @Nullable @Readonly Object> extends AbstractSet<E> {
+  @ReceiverDependentMutable
+  abstract static class ImprovedAbstractSet<E extends @Nullable @Readonly Object> extends AbstractSet<E> {
     @Override
-    public boolean removeAll(@Mutable ImprovedAbstractSet<E> this, Collection<?> c) {
+    public boolean removeAll(@Mutable ImprovedAbstractSet<E> this, @Readonly Collection<?> c) {
       return removeAllImpl(this, c);
     }
 
     @Override
-    public boolean retainAll(@Mutable ImprovedAbstractSet<E> this, Collection<?> c) {
+    public boolean retainAll(@Mutable ImprovedAbstractSet<E> this, @Readonly Collection<?> c) {
       return super.retainAll(checkNotNull(c)); // GWT compatibility
     }
   }
@@ -205,7 +206,7 @@ public final class Sets {
    * asList}{@code (...))}, or for creating an empty set then calling {@link Collections#addAll}.
    * This method is not actually very useful and will likely be deprecated in the future.
    */
-  public static <E extends @Nullable Object> HashSet<E> newHashSet(E... elements) {
+  public static <E extends @Nullable @Immutable Object> HashSet<E> newHashSet(E... elements) {
     HashSet<E> set = newHashSetWithExpectedSize(elements.length);
     Collections.addAll(set, elements);
     return set;
@@ -229,7 +230,7 @@ public final class Sets {
    *
    * <p>Overall, this method is not very useful and will likely be deprecated in the future.
    */
-  public static <E extends @Nullable Object> HashSet<E> newHashSet(Iterable<? extends E> elements) {
+  public static <E extends @Nullable @Readonly Object> HashSet<E> newHashSet(Iterable<? extends E> elements) {
     return (elements instanceof Collection)
         ? new HashSet<E>((Collection<? extends E>) elements)
         : newHashSet(elements.iterator());
@@ -247,7 +248,7 @@ public final class Sets {
    *
    * <p>Overall, this method is not very useful and will likely be deprecated in the future.
    */
-  public static <E extends @Nullable Object> HashSet<E> newHashSet(Iterator<? extends E> elements) {
+  public static <E extends @Nullable @Readonly Object> HashSet<E> newHashSet(Iterator<? extends E> elements) {
     HashSet<E> set = newHashSet();
     Iterators.addAll(set, elements);
     return set;
@@ -265,9 +266,9 @@ public final class Sets {
    *     without resizing
    * @throws IllegalArgumentException if {@code expectedSize} is negative
    */
-  public static <E extends @Nullable @Readonly Object> @Mutable HashSet<E> newHashSetWithExpectedSize(
+  public static <E extends @Nullable @Immutable Object> HashSet<E> newHashSetWithExpectedSize(
       int expectedSize) {
-    return new @Mutable HashSet<E>(Maps.capacity(expectedSize));
+    return new HashSet<E>(Maps.capacity(expectedSize));
   }
 
   /**
@@ -316,7 +317,7 @@ public final class Sets {
    *
    * @return a new, empty {@code LinkedHashSet}
    */
-  public static <E extends @Nullable @Readonly Object> LinkedHashSet<E> newLinkedHashSet() {
+  public static <E extends @Nullable @Immutable Object> LinkedHashSet<E> newLinkedHashSet() {
     return new LinkedHashSet<E>();
   }
 
@@ -335,7 +336,7 @@ public final class Sets {
    * @param elements the elements that the set should contain, in order
    * @return a new {@code LinkedHashSet} containing those elements (minus duplicates)
    */
-  public static <E extends @Nullable Object> LinkedHashSet<E> newLinkedHashSet(
+  public static <E extends @Nullable @Immutable Object> LinkedHashSet<E> newLinkedHashSet(
       Iterable<? extends E> elements) {
     if (elements instanceof Collection) {
       return new LinkedHashSet<E>((Collection<? extends E>) elements);
@@ -357,7 +358,7 @@ public final class Sets {
    * @throws IllegalArgumentException if {@code expectedSize} is negative
    * @since 11.0
    */
-  public static <E extends @Nullable @Readonly Object> LinkedHashSet<E> newLinkedHashSetWithExpectedSize(
+  public static <E extends @Nullable @Immutable Object> LinkedHashSet<E> newLinkedHashSetWithExpectedSize(
       int expectedSize) {
     return new LinkedHashSet<E>(Maps.capacity(expectedSize));
   }
@@ -376,7 +377,7 @@ public final class Sets {
    *
    * @return a new, empty {@code TreeSet}
    */
-  public static <E extends @Nullable Comparable> TreeSet<E> newTreeSet() {
+  public static <E extends @Nullable @Immutable Comparable> TreeSet<E> newTreeSet() {
     return new TreeSet<E>();
   }
 
@@ -401,7 +402,7 @@ public final class Sets {
    * @param elements the elements that the set should contain
    * @return a new {@code TreeSet} containing those elements (minus duplicates)
    */
-  public static <E extends @Nullable Comparable> TreeSet<E> newTreeSet(Iterable<? extends E> elements) {
+  public static <E extends @Nullable @Immutable Comparable> TreeSet<E> newTreeSet(Iterable<? extends E> elements) {
     TreeSet<E> set = newTreeSet();
     Iterables.addAll(set, elements);
     return set;
@@ -423,7 +424,7 @@ public final class Sets {
    * @return a new, empty {@code TreeSet}
    * @throws NullPointerException if {@code comparator} is null
    */
-  public static <E extends @Nullable Object> TreeSet<E> newTreeSet(
+  public static <E extends @Nullable @Immutable Object> TreeSet<E> newTreeSet(
       Comparator<? super E> comparator) {
     return new TreeSet<E>(checkNotNull(comparator));
   }
@@ -437,7 +438,7 @@ public final class Sets {
    *
    * @since 8.0
    */
-  public static <E extends @Nullable Object> Set<E> newIdentityHashSet() {
+  public static <E extends @Nullable @Immutable Object> Set<E> newIdentityHashSet() {
     return Collections.newSetFromMap(Maps.<E, Boolean>newIdentityHashMap());
   }
 
@@ -451,7 +452,7 @@ public final class Sets {
    * @since 12.0
    */
   @GwtIncompatible // CopyOnWriteArraySet
-  public static <E extends @Nullable Object> CopyOnWriteArraySet<E> newCopyOnWriteArraySet() {
+  public static <E extends @Nullable @Readonly Object> CopyOnWriteArraySet<E> newCopyOnWriteArraySet() {
     return new CopyOnWriteArraySet<E>();
   }
 
@@ -463,7 +464,7 @@ public final class Sets {
    * @since 12.0
    */
   @GwtIncompatible // CopyOnWriteArraySet
-  public static <E extends @Nullable Object> CopyOnWriteArraySet<E> newCopyOnWriteArraySet(
+  public static <E extends @Nullable @Readonly Object> CopyOnWriteArraySet<E> newCopyOnWriteArraySet(
       Iterable<? extends E> elements) {
     // We copy elements to an ArrayList first, rather than incurring the
     // quadratic cost of adding them to the COWAS directly.
@@ -566,7 +567,7 @@ public final class Sets {
    *
    * @since 2.0
    */
-  public abstract static class SetView<E extends @Nullable Object> extends AbstractSet<E> {
+  public abstract static class SetView<E extends @Nullable @Readonly Object> extends AbstractSet<E> {
     private SetView() {} // no subclasses but our own
 
     /**
@@ -1612,7 +1613,7 @@ public final class Sets {
     }
 
     @Override
-    public boolean equals(@CheckForNull @UnknownSignedness Object obj) {
+    public boolean equals(@CheckForNull @UnknownSignedness @Readonly Object obj) {
       if (obj instanceof PowerSet) {
         PowerSet<?> that = (PowerSet<?>) obj;
         return inputSet.keySet().equals(that.inputSet.keySet());
@@ -1661,7 +1662,7 @@ public final class Sets {
    * @since 23.0
    */
   @Beta
-  public static <E extends @Immutable Object> Set<Set<E>> combinations(Set<E> set, final int size) {
+  public static <E extends @Immutable Object> @Immutable Set<Set<E>> combinations(Set<E> set, final int size) {
     final ImmutableMap<E, Integer> index = Maps.indexMap(set);
     checkNonnegative(size, "size");
     checkArgument(size <= index.size(), "size (%s) must be <= set.size() (%s)", size, index.size());
@@ -1775,7 +1776,7 @@ public final class Sets {
   }
 
   /** An implementation for {@link Set#equals(Object)}. */
-  static boolean equalsImpl(@Readonly Set<?> s, @CheckForNull @UnknownSignedness Object object) {
+  static boolean equalsImpl(@Readonly Set<?> s, @CheckForNull @UnknownSignedness @Readonly Object object) {
     if (s == object) {
       return true;
     }

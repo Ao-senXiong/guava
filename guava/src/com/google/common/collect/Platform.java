@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.checkerframework.checker.pico.qual.Immutable;
 import org.checkerframework.checker.pico.qual.Mutable;
 import org.checkerframework.checker.pico.qual.Readonly;
 import org.checkerframework.framework.qual.AnnotatedFor;
@@ -40,7 +41,7 @@ final class Platform {
       java.util.logging.Logger.getLogger(Platform.class.getName());
 
   /** Returns the platform preferred implementation of a map based on a hash table. */
-  static <K extends @Nullable Object, V extends @Nullable @Readonly Object>
+  static <K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object>
       Map<K, V> newHashMapWithExpectedSize(int expectedSize) {
     return Maps.newHashMapWithExpectedSize(expectedSize);
   }
@@ -49,7 +50,7 @@ final class Platform {
    * Returns the platform preferred implementation of an insertion ordered map based on a hash
    * table.
    */
-  static <K extends @Nullable Object, V extends @Nullable @Readonly Object>
+  static <K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object>
       Map<K, V> newLinkedHashMapWithExpectedSize(int expectedSize) {
     return Maps.newLinkedHashMapWithExpectedSize(expectedSize);
   }
@@ -76,7 +77,7 @@ final class Platform {
    * Returns the platform preferred map implementation that preserves insertion order when used only
    * for insertions.
    */
-  static <K extends @Nullable Object, V extends @Nullable @Readonly Object>
+  static <K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object>
       Map<K, V> preservesInsertionOrderOnPutsMap() {
     return Maps.newLinkedHashMap();
   }

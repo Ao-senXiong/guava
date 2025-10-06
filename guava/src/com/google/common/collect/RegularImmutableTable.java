@@ -38,6 +38,7 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
  */
 @GwtCompatible
 @ElementTypesAreNonnullByDefault
+@Immutable
 abstract class RegularImmutableTable<R extends @Immutable Object, C extends @Immutable Object, V> extends ImmutableTable<R, C, V> {
   RegularImmutableTable() {}
 
@@ -49,6 +50,7 @@ abstract class RegularImmutableTable<R extends @Immutable Object, C extends @Imm
   }
 
   @WeakOuter
+  @Immutable
   private final class CellSet extends IndexedImmutableSet<Cell<R, C, V>> {
     @Override
     public @NonNegative int size() {
@@ -84,6 +86,7 @@ abstract class RegularImmutableTable<R extends @Immutable Object, C extends @Imm
   }
 
   @WeakOuter
+  @Immutable
   private final class Values extends ImmutableList<V> {
     @Override
     public @NonNegative int size() {
@@ -140,8 +143,8 @@ abstract class RegularImmutableTable<R extends @Immutable Object, C extends @Imm
       Iterable<Cell<R, C, V>> cells,
       @CheckForNull Comparator<? super R> rowComparator,
       @CheckForNull Comparator<? super C> columnComparator) {
-    Set<R> rowSpaceBuilder = new @Mutable LinkedHashSet<>();
-    Set<C> columnSpaceBuilder = new @Mutable LinkedHashSet<>();
+    Set<R> rowSpaceBuilder = new LinkedHashSet<>();
+    Set<C> columnSpaceBuilder = new LinkedHashSet<>();
     ImmutableList<Cell<R, C, V>> cellList = ImmutableList.copyOf(cells);
     for (Cell<R, C, V> cell : cells) {
       rowSpaceBuilder.add(cell.getRowKey());

@@ -22,6 +22,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.checkerframework.checker.pico.qual.Immutable;
 
 /**
  * Implementation of {@link Multimaps#filterEntries(SetMultimap, Predicate)}.
@@ -30,7 +31,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  */
 @GwtCompatible
 @ElementTypesAreNonnullByDefault
-final class FilteredEntrySetMultimap<K extends @Nullable Object, V extends @Nullable Object>
+final class FilteredEntrySetMultimap<K extends @Nullable @Immutable Object, V extends @Nullable Object>
     extends FilteredEntryMultimap<K, V> implements FilteredSetMultimap<K, V> {
 
   FilteredEntrySetMultimap(SetMultimap<K, V> unfiltered, Predicate<? super Entry<K, V>> predicate) {

@@ -37,7 +37,8 @@ import java.util.stream.Collector;
 import javax.annotation.CheckForNull;
 import org.checkerframework.checker.index.qual.NonNegative;
 import org.checkerframework.checker.nullness.qual.Nullable;
-import org.checkerframework.checker.pico.qual.Mutable;
+import org.checkerframework.checker.pico.qual.Immutable;
+import org.checkerframework.checker.pico.qual.Readonly;
 import org.checkerframework.checker.signedness.qual.UnknownSignedness;
 
 /**
@@ -50,7 +51,8 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
 @Beta
 @GwtIncompatible // NavigableMap
 @ElementTypesAreNonnullByDefault
-public class ImmutableRangeMap<K extends Comparable<?>, V> implements RangeMap<K, V>, Serializable {
+@Immutable
+public class ImmutableRangeMap<K extends @Immutable Comparable<?>, V> implements RangeMap<K, V>, Serializable {
 
   private static final ImmutableRangeMap<Comparable<?>, Object> EMPTY =
       new ImmutableRangeMap<>(ImmutableList.<Range<Comparable<?>>>of(), ImmutableList.of());
@@ -61,7 +63,7 @@ public class ImmutableRangeMap<K extends Comparable<?>, V> implements RangeMap<K
    *
    * @since 23.1
    */
-  public static <T extends @Nullable Object, K extends Comparable<? super K>, V>
+  public static <T extends @Nullable @Readonly Object, K extends @Immutable Comparable<? super K>, V>
       Collector<T, ?, ImmutableRangeMap<K, V>> toImmutableRangeMap(
           Function<? super T, Range<K>> keyFunction,
           Function<? super T, ? extends V> valueFunction) {
@@ -74,17 +76,17 @@ public class ImmutableRangeMap<K extends Comparable<?>, V> implements RangeMap<K
    * <p><b>Performance note:</b> the instance returned is a singleton.
    */
   @SuppressWarnings("unchecked")
-  public static <K extends Comparable<?>, V> ImmutableRangeMap<K, V> of() {
+  public static <K extends @Immutable Comparable<?>, V> ImmutableRangeMap<K, V> of() {
     return (ImmutableRangeMap<K, V>) EMPTY;
   }
 
   /** Returns an immutable range map mapping a single range to a single value. */
-  public static <K extends Comparable<?>, V> ImmutableRangeMap<K, V> of(Range<K> range, V value) {
+  public static <K extends @Immutable Comparable<?>, V> ImmutableRangeMap<K, V> of(Range<K> range, V value) {
     return new ImmutableRangeMap<>(ImmutableList.of(range), ImmutableList.of(value));
   }
 
   @SuppressWarnings("unchecked")
-  public static <K extends Comparable<?>, V> ImmutableRangeMap<K, V> copyOf(
+  public static <K extends @Immutable Comparable<?>, V> ImmutableRangeMap<K, V> copyOf(
       RangeMap<K, ? extends V> rangeMap) {
     if (rangeMap instanceof ImmutableRangeMap) {
       return (ImmutableRangeMap<K, V>) rangeMap;
@@ -100,7 +102,7 @@ public class ImmutableRangeMap<K extends Comparable<?>, V> implements RangeMap<K
   }
 
   /** Returns a new builder for an immutable range map. */
-  public static <K extends Comparable<?>, V> Builder<K, V> builder() {
+  public static <K extends @Immutable Comparable<?>, V> Builder<K, V> builder() {
     return new Builder<>();
   }
 
@@ -110,7 +112,7 @@ public class ImmutableRangeMap<K extends Comparable<?>, V> implements RangeMap<K
    * @since 14.0
    */
   @DoNotMock
-  public static final @Mutable class Builder<K extends Comparable<?>, V> {
+  public static final class Builder<K extends @Immutable Comparable<?>, V> {
     private final List<Entry<Range<K>, V>> entries;
 
     public Builder() {
@@ -389,12 +391,12 @@ public class ImmutableRangeMap<K extends Comparable<?>, V> implements RangeMap<K
   }
 
   @Override
-  public int hashCode(@UnknownSignedness ImmutableRangeMap<K, V> this) {
+  public int hashCode(@UnknownSignedness @Readonly ImmutableRangeMap<K, V> this) {
     return asMapOfRanges().hashCode();
   }
 
   @Override
-  public boolean equals(@CheckForNull Object o) {
+  public boolean equals(@CheckForNull @Readonly Object o) {
     if (o instanceof RangeMap) {
       RangeMap<?, ?> rangeMap = (RangeMap<?, ?>) o;
       return asMapOfRanges().equals(rangeMap.asMapOfRanges());

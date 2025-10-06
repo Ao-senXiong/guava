@@ -21,6 +21,7 @@ import com.google.common.base.Predicate;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.checkerframework.checker.pico.qual.Immutable;
 import org.checkerframework.checker.pico.qual.Readonly;
 
 /**
@@ -30,7 +31,7 @@ import org.checkerframework.checker.pico.qual.Readonly;
  */
 @GwtCompatible
 @ElementTypesAreNonnullByDefault
-final class FilteredKeyListMultimap<K extends @Nullable Object, V extends @Nullable @Readonly Object>
+final class FilteredKeyListMultimap<K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object>
     extends FilteredKeyMultimap<K, V> implements ListMultimap<K, V> {
   FilteredKeyListMultimap(ListMultimap<K, V> unfiltered, Predicate<? super K> keyPredicate) {
     super(unfiltered, keyPredicate);

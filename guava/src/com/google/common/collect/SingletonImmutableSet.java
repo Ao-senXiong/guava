@@ -26,6 +26,7 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
 import org.checkerframework.dataflow.qual.Pure;
 import org.checkerframework.framework.qual.AnnotatedFor;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.checkerframework.checker.pico.qual.Immutable;
 
 /**
  * Implementation of {@link ImmutableSet} with exactly one element.
@@ -37,6 +38,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 @GwtCompatible(serializable = true, emulated = true)
 @SuppressWarnings("serial") // uses writeReplace(), not default serialization
 @ElementTypesAreNonnullByDefault
+@Immutable
 final class SingletonImmutableSet<E> extends ImmutableSet<E> {
   // We deliberately avoid caching the asList and hashCode here, to ensure that with
   // compressed oops, a SingletonImmutableSet packs all the way down to the optimal 16 bytes.

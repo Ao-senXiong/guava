@@ -22,6 +22,8 @@ import com.google.common.util.concurrent.UncheckedExecutionException;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
 
+import org.checkerframework.checker.pico.qual.Immutable;
+
 /**
  * A semi-persistent mapping from keys to values. Values are automatically loaded by the cache, and
  * are stored in the cache until either evicted or manually invalidated. The common way to build
@@ -40,7 +42,7 @@ import java.util.concurrent.ExecutionException;
  */
 @GwtCompatible
 @ElementTypesAreNonnullByDefault
-public interface LoadingCache<K, V> extends Cache<K, V>, Function<K, V> {
+public interface LoadingCache<K extends @Immutable Object, V> extends Cache<K, V>, Function<K, V> {
 
   /**
    * Returns the value associated with {@code key} in this cache, first loading that value if

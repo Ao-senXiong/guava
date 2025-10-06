@@ -33,6 +33,7 @@ import org.checkerframework.checker.pico.qual.Immutable;
  */
 @GwtIncompatible
 @ElementTypesAreNonnullByDefault
+@Immutable
 abstract class ImmutableSortedMapFauxverideShim<K extends @Immutable Object, V> extends ImmutableMap<K, V> {
   /**
    * Not supported. Use {@link ImmutableSortedMap#toImmutableSortedMap}, which offers better

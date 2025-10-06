@@ -42,6 +42,7 @@ import org.checkerframework.framework.qual.AnnotatedFor;
 //@Immutable(containerOf = "B")
 @GwtIncompatible
 @ElementTypesAreNonnullByDefault
+@Immutable
 public final class ImmutableClassToInstanceMap<B> extends ForwardingMap<Class<? extends B>, B>
     implements ClassToInstanceMap<B>, Serializable {
 
@@ -65,8 +66,8 @@ public final class ImmutableClassToInstanceMap<B> extends ForwardingMap<Class<? 
    *
    * @since 19.0
    */
-  public static <B extends @Immutable Object, T extends B> ImmutableClassToInstanceMap<B> of(Class<T> type, T value) {
-    ImmutableMap<Class<? extends B>, B> map = ImmutableMap.<Class<? extends B>, B>of(type, value);
+  public static <B extends @Immutable Object, T extends B> ImmutableClassToInstanceMap<B> of(@Immutable Class<T> type, T value) {
+    ImmutableMap<@Immutable Class<? extends B>, B> map = ImmutableMap.<@Immutable Class<? extends B>, B>of(type, value);
     return new ImmutableClassToInstanceMap<>(map);
   }
 

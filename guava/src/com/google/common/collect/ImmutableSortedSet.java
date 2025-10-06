@@ -41,7 +41,9 @@ import java.util.function.Consumer;
 import java.util.stream.Collector;
 import javax.annotation.CheckForNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.checkerframework.checker.pico.qual.Immutable;
 import org.checkerframework.checker.pico.qual.Mutable;
+import org.checkerframework.checker.pico.qual.Readonly;
 import org.checkerframework.checker.signedness.qual.UnknownSignedness;
 import org.checkerframework.dataflow.qual.SideEffectFree;
 import org.checkerframework.framework.qual.AnnotatedFor;
@@ -68,6 +70,7 @@ import org.checkerframework.framework.qual.AnnotatedFor;
 @GwtCompatible(serializable = true, emulated = true)
 @SuppressWarnings("serial") // we're overriding default serialization
 @ElementTypesAreNonnullByDefault
+@Immutable
 public abstract class ImmutableSortedSet<E> extends ImmutableSortedSetFauxverideShim<E>
     implements NavigableSet<E>, SortedIterable<E> {
   static final int SPLITERATOR_CHARACTERISTICS =
@@ -582,11 +585,11 @@ public abstract class ImmutableSortedSet<E> extends ImmutableSortedSetFauxveride
     }
   }
 
-  int unsafeCompare(@UnknownSignedness Object a, @CheckForNull @UnknownSignedness Object b) {
+  int unsafeCompare(@UnknownSignedness @Readonly Object a, @CheckForNull @UnknownSignedness @Readonly Object b) {
     return unsafeCompare(comparator, a, b);
   }
 
-  static int unsafeCompare(Comparator<?> comparator, @UnknownSignedness Object a, @CheckForNull @UnknownSignedness Object b) {
+  static int unsafeCompare(Comparator<?> comparator, @UnknownSignedness @Readonly Object a, @CheckForNull @UnknownSignedness @Readonly Object b) {
     // Pretend the comparator can compare anything. If it turns out it can't
     // compare a and b, we should get a CCE or NPE on the subsequent line. Only methods
     // that are spec'd to throw CCE and NPE should call this.
@@ -844,7 +847,7 @@ public abstract class ImmutableSortedSet<E> extends ImmutableSortedSetFauxveride
     }
 
     @SuppressWarnings("unchecked")
-    Object readResolve() {
+    @Immutable Object readResolve() {
       return new Builder<E>(comparator).add((E[]) elements).build();
     }
 

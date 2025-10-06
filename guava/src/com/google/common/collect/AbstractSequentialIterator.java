@@ -20,6 +20,8 @@ import com.google.common.annotations.GwtCompatible;
 import java.util.NoSuchElementException;
 import javax.annotation.CheckForNull;
 
+import org.checkerframework.checker.pico.qual.ReceiverDependentMutable;
+
 /**
  * This class provides a skeletal implementation of the {@code Iterator} interface for sequences
  * whose next element can always be derived from the previous element. Null elements are not
@@ -41,6 +43,7 @@ import javax.annotation.CheckForNull;
  */
 @GwtCompatible
 @ElementTypesAreNonnullByDefault
+@ReceiverDependentMutable
 public abstract class AbstractSequentialIterator<T> extends UnmodifiableIterator<T> {
   @CheckForNull private T nextOrNull;
 

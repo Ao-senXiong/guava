@@ -76,6 +76,7 @@ import javax.annotation.CheckForNull;
 @Beta
 @GwtCompatible
 @ElementTypesAreNonnullByDefault
+@SuppressWarnings("pico")
 public abstract class TreeTraverser<T> {
 
   /**

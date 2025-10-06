@@ -54,7 +54,8 @@ import org.checkerframework.framework.qual.AnnotatedFor;
 @AnnotatedFor({"nullness"})
 @GwtCompatible
 @ElementTypesAreNonnullByDefault
-@ReceiverDependentMutable abstract class AbstractMultiset<E extends @Nullable @Readonly Object> extends AbstractCollection<E>
+@ReceiverDependentMutable
+abstract class AbstractMultiset<E extends @Nullable @Readonly Object> extends AbstractCollection<E>
     implements Multiset<E> {
   // Query Operations
 

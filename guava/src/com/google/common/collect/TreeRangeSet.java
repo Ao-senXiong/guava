@@ -32,6 +32,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import javax.annotation.CheckForNull;
 import org.checkerframework.checker.index.qual.NonNegative;
+import org.checkerframework.checker.pico.qual.Immutable;
 import org.checkerframework.checker.pico.qual.ReceiverDependentMutable;
 import org.checkerframework.checker.signedness.qual.UnknownSignedness;
 
@@ -44,7 +45,8 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
 @Beta
 @GwtIncompatible // uses NavigableMap
 @ElementTypesAreNonnullByDefault
-public @ReceiverDependentMutable class TreeRangeSet<C extends Comparable<?>> extends AbstractRangeSet<C>
+@ReceiverDependentMutable
+public class TreeRangeSet<C extends @Immutable Comparable<?>> extends AbstractRangeSet<C>
     implements Serializable {
 
   @VisibleForTesting final NavigableMap<Cut<C>, Range<C>> rangesByLowerBound;
@@ -137,13 +139,13 @@ public @ReceiverDependentMutable class TreeRangeSet<C extends Comparable<?>> ext
   @Override
   public boolean intersects(Range<C> range) {
     checkNotNull(range);
-    Entry<Cut<C>, Range<C>> ceilingEntry = rangesByLowerBound.ceilingEntry(range.lowerBound);
+    Entry<@Immutable Cut<C>, Range<C>> ceilingEntry = rangesByLowerBound.ceilingEntry(range.lowerBound);
     if (ceilingEntry != null
         && ceilingEntry.getValue().isConnected(range)
         && !ceilingEntry.getValue().intersection(range).isEmpty()) {
       return true;
     }
-    Entry<Cut<C>, Range<C>> priorEntry = rangesByLowerBound.lowerEntry(range.lowerBound);
+    Entry<@Immutable Cut<C>, Range<C>> priorEntry = rangesByLowerBound.lowerEntry(range.lowerBound);
     return priorEntry != null
         && priorEntry.getValue().isConnected(range)
         && !priorEntry.getValue().intersection(range).isEmpty();
@@ -152,14 +154,14 @@ public @ReceiverDependentMutable class TreeRangeSet<C extends Comparable<?>> ext
   @Override
   public boolean encloses(Range<C> range) {
     checkNotNull(range);
-    Entry<Cut<C>, Range<C>> floorEntry = rangesByLowerBound.floorEntry(range.lowerBound);
+    Entry<@Immutable Cut<C>, Range<C>> floorEntry = rangesByLowerBound.floorEntry(range.lowerBound);
     return floorEntry != null && floorEntry.getValue().encloses(range);
   }
 
   @CheckForNull
   private Range<C> rangeEnclosing(Range<C> range) {
     checkNotNull(range);
-    Entry<Cut<C>, Range<C>> floorEntry = rangesByLowerBound.floorEntry(range.lowerBound);
+    Entry<@Immutable Cut<C>, Range<C>> floorEntry = rangesByLowerBound.floorEntry(range.lowerBound);
     return (floorEntry != null && floorEntry.getValue().encloses(range))
         ? floorEntry.getValue()
         : null;
@@ -167,8 +169,8 @@ public @ReceiverDependentMutable class TreeRangeSet<C extends Comparable<?>> ext
 
   @Override
   public Range<C> span() {
-    Entry<Cut<C>, Range<C>> firstEntry = rangesByLowerBound.firstEntry();
-    Entry<Cut<C>, Range<C>> lastEntry = rangesByLowerBound.lastEntry();
+    Entry<@Immutable Cut<C>, Range<C>> firstEntry = rangesByLowerBound.firstEntry();
+    Entry<@Immutable Cut<C>, Range<C>> lastEntry = rangesByLowerBound.lastEntry();
     if (firstEntry == null || lastEntry == null) {
       /*
        * Either both are null or neither is: Either the set is empty, or it's not. But we check both
@@ -192,7 +194,7 @@ public @ReceiverDependentMutable class TreeRangeSet<C extends Comparable<?>> ext
     Cut<C> lbToAdd = rangeToAdd.lowerBound;
     Cut<C> ubToAdd = rangeToAdd.upperBound;
 
-    Entry<Cut<C>, Range<C>> entryBelowLB = rangesByLowerBound.lowerEntry(lbToAdd);
+    Entry<@Immutable Cut<C>, Range<C>> entryBelowLB = rangesByLowerBound.lowerEntry(lbToAdd);
     if (entryBelowLB != null) {
       // { <
       Range<C> rangeBelowLB = entryBelowLB.getValue();
@@ -210,7 +212,7 @@ public @ReceiverDependentMutable class TreeRangeSet<C extends Comparable<?>> ext
       }
     }
 
-    Entry<Cut<C>, Range<C>> entryBelowUB = rangesByLowerBound.floorEntry(ubToAdd);
+    Entry<@Immutable Cut<C>, Range<C>> entryBelowUB = rangesByLowerBound.floorEntry(ubToAdd);
     if (entryBelowUB != null) {
       // { >
       Range<C> rangeBelowUB = entryBelowUB.getValue();
@@ -237,7 +239,7 @@ public @ReceiverDependentMutable class TreeRangeSet<C extends Comparable<?>> ext
     // We will use { } to illustrate ranges currently in the range set, and < >
     // to illustrate rangeToRemove.
 
-    Entry<Cut<C>, Range<C>> entryBelowLB = rangesByLowerBound.lowerEntry(rangeToRemove.lowerBound);
+    Entry<@Immutable Cut<C>, Range<C>> entryBelowLB = rangesByLowerBound.lowerEntry(rangeToRemove.lowerBound);
     if (entryBelowLB != null) {
       // { <
       Range<C> rangeBelowLB = entryBelowLB.getValue();

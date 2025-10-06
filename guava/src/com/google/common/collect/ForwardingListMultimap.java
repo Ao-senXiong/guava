@@ -21,6 +21,7 @@ import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.checkerframework.checker.pico.qual.Immutable;
 
 /**
  * A list multimap which forwards all its method calls to another list multimap. Subclasses should
@@ -36,7 +37,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  */
 @GwtCompatible
 @ElementTypesAreNonnullByDefault
-public abstract class ForwardingListMultimap<K extends @Nullable Object, V extends @Nullable Object>
+public abstract class ForwardingListMultimap<K extends @Nullable @Immutable Object, V extends @Nullable Object>
     extends ForwardingMultimap<K, V> implements ListMultimap<K, V> {
 
   /** Constructor for use by subclasses. */

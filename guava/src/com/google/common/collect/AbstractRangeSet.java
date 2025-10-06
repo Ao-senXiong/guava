@@ -16,6 +16,7 @@ package com.google.common.collect;
 
 import com.google.common.annotations.GwtIncompatible;
 import javax.annotation.CheckForNull;
+import org.checkerframework.checker.pico.qual.Readonly;
 import org.checkerframework.checker.pico.qual.ReceiverDependentMutable;
 import org.checkerframework.checker.signedness.qual.UnknownSignedness;
 
@@ -26,20 +27,21 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
  */
 @GwtIncompatible
 @ElementTypesAreNonnullByDefault
-@ReceiverDependentMutable abstract class AbstractRangeSet<C extends Comparable> implements RangeSet<C> {
+@ReceiverDependentMutable
+abstract class AbstractRangeSet<C extends Comparable> implements RangeSet<C> {
   AbstractRangeSet() {}
 
   @Override
-  public boolean contains(C value) {
+  public boolean contains(@Readonly AbstractRangeSet<C> this, C value) {
     return rangeContaining(value) != null;
   }
 
   @Override
   @CheckForNull
-  public abstract Range<C> rangeContaining(C value);
+  public abstract Range<C> rangeContaining(@Readonly AbstractRangeSet<C> this, C value);
 
   @Override
-  public boolean isEmpty() {
+  public boolean isEmpty(@Readonly AbstractRangeSet<C> this) {
     return asRanges().isEmpty();
   }
 
@@ -82,7 +84,7 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
   public abstract boolean encloses(Range<C> otherRange);
 
   @Override
-  public boolean equals(@CheckForNull Object obj) {
+  public boolean equals(@Readonly AbstractRangeSet<C> this, @CheckForNull @Readonly Object obj) {
     if (obj == this) {
       return true;
     } else if (obj instanceof RangeSet) {
@@ -93,12 +95,12 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
   }
 
   @Override
-  public final int hashCode(@UnknownSignedness AbstractRangeSet<C> this) {
+  public final int hashCode(@UnknownSignedness @Readonly AbstractRangeSet<C> this) {
     return asRanges().hashCode();
   }
 
   @Override
-  public final String toString() {
+  public final String toString(@Readonly AbstractRangeSet<C> this) {
     return asRanges().toString();
   }
 }

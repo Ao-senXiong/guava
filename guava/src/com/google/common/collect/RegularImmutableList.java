@@ -22,6 +22,7 @@ import java.util.Spliterator;
 import java.util.Spliterators;
 import org.checkerframework.checker.index.qual.NonNegative;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.checkerframework.checker.pico.qual.Immutable;
 import org.checkerframework.checker.pico.qual.Readonly;
 import org.checkerframework.checker.signedness.qual.UnknownSignedness;
 import org.checkerframework.dataflow.qual.Pure;
@@ -37,6 +38,7 @@ import org.checkerframework.framework.qual.AnnotatedFor;
 @GwtCompatible(serializable = true, emulated = true)
 @SuppressWarnings("serial") // uses writeReplace(), not default serialization
 @ElementTypesAreNonnullByDefault
+@Immutable
 class RegularImmutableList<E> extends ImmutableList<E> {
   static final ImmutableList<@Readonly Object> EMPTY = new RegularImmutableList<>(new Object[0]);
 

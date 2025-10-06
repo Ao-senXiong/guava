@@ -33,6 +33,7 @@ import java.util.function.ToIntFunction;
 import java.util.stream.Collector;
 import javax.annotation.CheckForNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.checkerframework.checker.pico.qual.Immutable;
 import org.checkerframework.checker.pico.qual.Mutable;
 import org.checkerframework.checker.pico.qual.Readonly;
 
@@ -54,6 +55,7 @@ import org.checkerframework.checker.pico.qual.Readonly;
  */
 @GwtIncompatible // hasn't been tested yet
 @ElementTypesAreNonnullByDefault
+@Immutable
 public abstract class ImmutableSortedMultiset<E> extends ImmutableSortedMultisetFauxverideShim<E>
     implements SortedMultiset<E> {
   // TODO(lowasser): GWT compatibility

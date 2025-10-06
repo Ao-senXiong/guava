@@ -24,6 +24,8 @@ import java.util.List;
 import java.util.Map;
 import javax.annotation.CheckForNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.checkerframework.checker.pico.qual.Immutable;
+import org.checkerframework.checker.pico.qual.Mutable;
 import org.checkerframework.checker.pico.qual.Readonly;
 import org.checkerframework.checker.pico.qual.ReceiverDependentMutable;
 import org.checkerframework.dataflow.qual.Pure;
@@ -40,14 +42,15 @@ import org.checkerframework.framework.qual.AnnotatedFor;
 @AnnotatedFor({"nullness"})
 @GwtCompatible
 @ElementTypesAreNonnullByDefault
-@ReceiverDependentMutable abstract class AbstractListMultimap<K extends @Nullable Object, V extends @Nullable @Readonly Object>
+@ReceiverDependentMutable
+abstract class AbstractListMultimap<K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object>
     extends AbstractMapBasedMultimap<K, V> implements ListMultimap<K, V> {
   /**
    * Creates a new multimap that uses the provided map.
    *
    * @param map place to store the mapping from each key to its corresponding values
    */
-  protected AbstractListMultimap(Map<K, Collection<V>> map) {
+  protected AbstractListMultimap(@ReceiverDependentMutable Map<K, Collection<V>> map) {
     super(map);
   }
 
@@ -55,12 +58,12 @@ import org.checkerframework.framework.qual.AnnotatedFor;
   abstract List<V> createCollection();
 
   @Override
-  List<V> createUnmodifiableEmptyCollection() {
+  @Immutable List<V> createUnmodifiableEmptyCollection() {
     return Collections.emptyList();
   }
 
   @Override
-  <E extends @Nullable Object> Collection<E> unmodifiableCollectionSubclass(
+  <E extends @Nullable @Readonly Object> @Immutable Collection<E> unmodifiableCollectionSubclass(
       Collection<E> collection) {
     return Collections.unmodifiableList((List<E>) collection);
   }
@@ -80,7 +83,7 @@ import org.checkerframework.framework.qual.AnnotatedFor;
    * Multimap} interface.
    */
   @Override
-  public List<V> get(@ParametricNullness K key) {
+  public List<V> get(@Readonly AbstractListMultimap<K,V> this, @ParametricNullness K key) {
     return (List<V>) super.get(key);
   }
 
@@ -93,7 +96,7 @@ import org.checkerframework.framework.qual.AnnotatedFor;
    */
   @CanIgnoreReturnValue
   @Override
-  public List<V> removeAll(@CheckForNull Object key) {
+  public List<V> removeAll(@Mutable AbstractListMultimap<K,V> this, @CheckForNull @Readonly Object key) {
     return (List<V>) super.removeAll(key);
   }
 
@@ -106,7 +109,7 @@ import org.checkerframework.framework.qual.AnnotatedFor;
    */
   @CanIgnoreReturnValue
   @Override
-  public List<V> replaceValues(@ParametricNullness K key, Iterable<? extends V> values) {
+  public List<V> replaceValues(@Mutable AbstractListMultimap<K,V> this, @ParametricNullness K key, Iterable<? extends V> values) {
     return (List<V>) super.replaceValues(key, values);
   }
 
@@ -119,7 +122,7 @@ import org.checkerframework.framework.qual.AnnotatedFor;
    */
   @CanIgnoreReturnValue
   @Override
-  public boolean put(@ParametricNullness K key, @ParametricNullness V value) {
+  public boolean put(@Mutable AbstractListMultimap<K,V> this, @ParametricNullness K key, @ParametricNullness V value) {
     return super.put(key, value);
   }
 
@@ -142,7 +145,7 @@ import org.checkerframework.framework.qual.AnnotatedFor;
    */
   @Pure
   @Override
-  public boolean equals(@CheckForNull Object object) {
+  public boolean equals(@Readonly AbstractListMultimap<K,V> this, @CheckForNull @Readonly Object object) {
     return super.equals(object);
   }
 

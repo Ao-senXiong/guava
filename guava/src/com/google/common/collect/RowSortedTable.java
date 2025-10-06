@@ -22,6 +22,7 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.SortedSet;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.checkerframework.checker.pico.qual.Immutable;
 import org.checkerframework.checker.pico.qual.Readonly;
 import org.checkerframework.checker.pico.qual.ReceiverDependentMutable;
 
@@ -37,8 +38,9 @@ import org.checkerframework.checker.pico.qual.ReceiverDependentMutable;
  */
 @GwtCompatible
 @ElementTypesAreNonnullByDefault
-public @ReceiverDependentMutable interface RowSortedTable<
-        R extends @Nullable Object, C extends @Nullable Object, V extends @Nullable @Readonly Object>
+@ReceiverDependentMutable
+public interface RowSortedTable<
+        R extends @Nullable @Immutable Object, C extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object>
     extends Table<R, C, V> {
   /**
    * {@inheritDoc}

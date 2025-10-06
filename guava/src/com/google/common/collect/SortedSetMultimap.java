@@ -27,7 +27,9 @@ import java.util.SortedSet;
 import javax.annotation.CheckForNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.checker.pico.qual.Immutable;
+import org.checkerframework.checker.pico.qual.Mutable;
 import org.checkerframework.checker.pico.qual.Readonly;
+import org.checkerframework.checker.pico.qual.ReceiverDependentMutable;
 import org.checkerframework.framework.qual.AnnotatedFor;
 
 /**
@@ -54,6 +56,7 @@ import org.checkerframework.framework.qual.AnnotatedFor;
 @GwtCompatible
 @AnnotatedFor({"nullness"})
 @ElementTypesAreNonnullByDefault
+@ReceiverDependentMutable
 public interface SortedSetMultimap<K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object>
     extends SetMultimap<K, V> {
   // Following Javadoc copied from Multimap.
@@ -69,7 +72,7 @@ public interface SortedSetMultimap<K extends @Nullable @Immutable Object, V exte
    * {@link Multimap} interface.
    */
   @Override
-  SortedSet<V> get(@ParametricNullness K key);
+  SortedSet<V> get(@Readonly SortedSetMultimap<K,V> this, @ParametricNullness K key);
 
   /**
    * Removes all values associated with a given key.
@@ -80,7 +83,7 @@ public interface SortedSetMultimap<K extends @Nullable @Immutable Object, V exte
    */
   @CanIgnoreReturnValue
   @Override
-  SortedSet<V> removeAll(@CheckForNull Object key);
+  SortedSet<V> removeAll(@Mutable SortedSetMultimap<K,V> this, @CheckForNull Object key);
 
   /**
    * Stores a collection of values with the same key, replacing any existing values for that key.
@@ -93,7 +96,7 @@ public interface SortedSetMultimap<K extends @Nullable @Immutable Object, V exte
    */
   @CanIgnoreReturnValue
   @Override
-  SortedSet<V> replaceValues(@ParametricNullness K key, Iterable<? extends V> values);
+  SortedSet<V> replaceValues(@Mutable SortedSetMultimap<K,V> this, @ParametricNullness K key, Iterable<? extends V> values);
 
   /**
    * Returns a map view that associates each key with the corresponding values in the multimap.

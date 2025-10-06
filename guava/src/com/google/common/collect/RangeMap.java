@@ -26,6 +26,7 @@ import java.util.NoSuchElementException;
 import java.util.function.BiFunction;
 import javax.annotation.CheckForNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.checkerframework.checker.pico.qual.ReceiverDependentMutable;
 import org.checkerframework.checker.signedness.qual.UnknownSignedness;
 
 /**
@@ -42,6 +43,7 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
 @DoNotMock("Use ImmutableRangeMap or TreeRangeMap")
 @GwtIncompatible
 @ElementTypesAreNonnullByDefault
+@ReceiverDependentMutable
 public interface RangeMap<K extends Comparable, V> {
   /*
    * TODO(cpovirk): These docs sometimes say "map" and sometimes say "range map." Pick one, or at

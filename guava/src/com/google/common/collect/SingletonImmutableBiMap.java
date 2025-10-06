@@ -37,6 +37,7 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
 @GwtCompatible(serializable = true, emulated = true)
 @SuppressWarnings("serial") // uses writeReplace(), not default serialization
 @ElementTypesAreNonnullByDefault
+@Immutable
 final class SingletonImmutableBiMap<K extends @Immutable Object, V extends @Immutable Object> extends ImmutableBiMap<K, V> {
 
   final transient K singleKey;

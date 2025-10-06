@@ -24,6 +24,8 @@ import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.Map;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.checkerframework.checker.pico.qual.Immutable;
+import org.checkerframework.checker.pico.qual.ReceiverDependentMutable;
 import org.checkerframework.checker.pico.qual.Readonly;
 import org.checkerframework.framework.qual.AnnotatedFor;
 
@@ -59,7 +61,7 @@ final class Serialization {
    * <p>The serialized output consists of the number of entries, first key, first value, second key,
    * second value, and so on.
    */
-  static <K extends @Nullable Object, V extends @Nullable @Readonly Object> void writeMap(
+  static <K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object> void writeMap(
       Map<K, V> map, ObjectOutputStream stream) throws IOException {
     stream.writeInt(map.size());
     for (Map.Entry<K, V> entry : map.entrySet()) {
@@ -72,7 +74,7 @@ final class Serialization {
    * Populates a map by reading an input stream, as part of deserialization. See {@link #writeMap}
    * for the data format.
    */
-  static <K extends @Nullable Object, V extends @Nullable @Readonly Object> void populateMap(
+  static <K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object> void populateMap(
       Map<K, V> map, ObjectInputStream stream) throws IOException, ClassNotFoundException {
     int size = stream.readInt();
     populateMap(map, stream, size);
@@ -82,7 +84,7 @@ final class Serialization {
    * Populates a map by reading an input stream, as part of deserialization. See {@link #writeMap}
    * for the data format. The size is determined by a prior call to {@link #readCount}.
    */
-  static <K extends @Nullable Object, V extends @Nullable @Readonly Object> void populateMap(
+  static <K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object> void populateMap(
       Map<K, V> map, ObjectInputStream stream, int size)
       throws IOException, ClassNotFoundException {
     for (int i = 0; i < size; i++) {
@@ -145,7 +147,7 @@ final class Serialization {
    * <p>The serialized output consists of the number of distinct keys, and then for each distinct
    * key: the key, the number of values for that key, and the key's values.
    */
-  static <K extends @Nullable Object, V extends @Nullable @Readonly Object> void writeMultimap(
+  static <K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object> void writeMultimap(
       Multimap<K, V> multimap, ObjectOutputStream stream) throws IOException {
     stream.writeInt(multimap.asMap().size());
     for (Map.Entry<K, Collection<V>> entry : multimap.asMap().entrySet()) {
@@ -161,7 +163,7 @@ final class Serialization {
    * Populates a multimap by reading an input stream, as part of deserialization. See {@link
    * #writeMultimap} for the data format.
    */
-  static <K extends @Nullable Object, V extends @Nullable @Readonly Object> void populateMultimap(
+  static <K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object> void populateMultimap(
       Multimap<K, V> multimap, ObjectInputStream stream)
       throws IOException, ClassNotFoundException {
     int distinctKeys = stream.readInt();
@@ -173,7 +175,7 @@ final class Serialization {
    * #writeMultimap} for the data format. The number of distinct keys is determined by a prior call
    * to {@link #readCount}.
    */
-  static <K extends @Nullable Object, V extends @Nullable @Readonly Object> void populateMultimap(
+  static <K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object> void populateMultimap(
       Multimap<K, V> multimap, ObjectInputStream stream, int distinctKeys)
       throws IOException, ClassNotFoundException {
     for (int i = 0; i < distinctKeys; i++) {
@@ -200,7 +202,7 @@ final class Serialization {
   }
 
   // Secret sauce for setting final fields; don't make it public.
-  static final class FieldSetter<T> {
+  @ReceiverDependentMutable static final class FieldSetter<T> {
     private final Field field;
 
     private FieldSetter(Field field) {

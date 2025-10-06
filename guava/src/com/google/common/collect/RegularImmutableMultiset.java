@@ -28,7 +28,10 @@ import javax.annotation.CheckForNull;
 import org.checkerframework.checker.index.qual.NonNegative;
 import org.checkerframework.checker.index.qual.NonNegative;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.checkerframework.checker.pico.qual.Assignable;
+import org.checkerframework.checker.pico.qual.Immutable;
 import org.checkerframework.checker.signedness.qual.UnknownSignedness;
+import org.checkerframework.framework.qual.CFComment;
 
 /**
  * Implementation of {@link ImmutableMultiset} with zero or more elements.
@@ -39,6 +42,7 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
 @GwtCompatible(emulated = true, serializable = true)
 @SuppressWarnings("serial") // uses writeReplace(), not default serialization
 @ElementTypesAreNonnullByDefault
+@Immutable
 class RegularImmutableMultiset<E> extends ImmutableMultiset<E> {
   private static final ImmutableEntry<?>[] EMPTY_ARRAY = new ImmutableEntry<?>[0];
   static final ImmutableMultiset<Object> EMPTY = create(ImmutableList.<Entry<Object>>of());
@@ -125,7 +129,8 @@ class RegularImmutableMultiset<E> extends ImmutableMultiset<E> {
   private final transient int size;
   private final transient int hashCode;
 
-  @LazyInit @CheckForNull private transient ImmutableSet<E> elementSet;
+  @CFComment("Change to @LazyFinal later")
+  @LazyInit @CheckForNull private transient @Assignable ImmutableSet<E> elementSet;
 
   private RegularImmutableMultiset(
       ImmutableEntry<E>[] entries,
@@ -185,7 +190,7 @@ class RegularImmutableMultiset<E> extends ImmutableMultiset<E> {
   @Override
   public ImmutableSet<E> elementSet() {
     ImmutableSet<E> result = elementSet;
-    return (result == null) ? elementSet = new ElementSet<E>(Arrays.asList(entries), this) : result;
+    return (result == null) ? elementSet = new @Immutable ElementSet<E>(Arrays.asList(entries), this) : result;
   }
 
   @Override

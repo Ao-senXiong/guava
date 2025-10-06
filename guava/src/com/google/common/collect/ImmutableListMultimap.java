@@ -37,8 +37,8 @@ import java.util.stream.Collector;
 import java.util.stream.Stream;
 import javax.annotation.CheckForNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
-import org.checkerframework.checker.pico.qual.Mutable;
 import org.checkerframework.checker.pico.qual.Immutable;
+import org.checkerframework.checker.pico.qual.Mutable;
 import org.checkerframework.framework.qual.AnnotatedFor;
 
 /**
@@ -54,6 +54,7 @@ import org.checkerframework.framework.qual.AnnotatedFor;
 @AnnotatedFor({"nullness"})
 @GwtCompatible(serializable = true, emulated = true)
 @ElementTypesAreNonnullByDefault
+@Immutable
 public class ImmutableListMultimap<K extends @Immutable Object, V extends @Immutable Object> extends ImmutableMultimap<K, V>
     implements ListMultimap<K, V> {
   /**
@@ -474,7 +475,7 @@ public class ImmutableListMultimap<K extends @Immutable Object, V extends @Immut
     if (keyCount < 0) {
       throw new InvalidObjectException("Invalid key count " + keyCount);
     }
-    ImmutableMap.Builder<Object, ImmutableList<Object>> builder = ImmutableMap.builder();
+    ImmutableMap.Builder<@Immutable Object, ImmutableList<Object>> builder = ImmutableMap.builder();
     int tmpSize = 0;
 
     for (int i = 0; i < keyCount; i++) {
@@ -492,7 +493,7 @@ public class ImmutableListMultimap<K extends @Immutable Object, V extends @Immut
       tmpSize += valueCount;
     }
 
-    ImmutableMap<Object, ImmutableList<Object>> tmpMap;
+    ImmutableMap<@Immutable Object, ImmutableList<Object>> tmpMap;
     try {
       tmpMap = builder.buildOrThrow();
     } catch (IllegalArgumentException e) {

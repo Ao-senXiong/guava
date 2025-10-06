@@ -19,6 +19,7 @@ import com.google.common.annotations.GwtIncompatible;
 import java.util.Comparator;
 import java.util.Spliterator;
 import javax.annotation.CheckForNull;
+import org.checkerframework.checker.pico.qual.Immutable;
 import org.checkerframework.checker.signedness.qual.UnknownSignedness;
 
 /**
@@ -30,6 +31,7 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
 @GwtCompatible(emulated = true)
 @SuppressWarnings("serial")
 @ElementTypesAreNonnullByDefault
+@Immutable
 final class ImmutableSortedAsList<E> extends RegularImmutableAsList<E>
     implements SortedIterable<E> {
   ImmutableSortedAsList(ImmutableSortedSet<E> backingSet, ImmutableList<E> backingList) {

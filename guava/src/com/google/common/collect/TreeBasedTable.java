@@ -35,6 +35,7 @@ import javax.annotation.CheckForNull;
 import org.checkerframework.checker.nullness.qual.KeyFor;
 import org.checkerframework.checker.signedness.qual.UnknownSignedness;
 import org.checkerframework.checker.pico.qual.Immutable;
+import org.checkerframework.checker.pico.qual.Readonly;
 import org.checkerframework.checker.pico.qual.ReceiverDependentMutable;
 
 /**
@@ -71,7 +72,8 @@ import org.checkerframework.checker.pico.qual.ReceiverDependentMutable;
  */
 @GwtCompatible(serializable = true)
 @ElementTypesAreNonnullByDefault
-public @ReceiverDependentMutable class TreeBasedTable<R extends @Immutable Object, C extends @Immutable Object, V> extends StandardRowSortedTable<R, C, V> {
+@ReceiverDependentMutable
+public class TreeBasedTable<R extends @Immutable Object, C extends @Immutable Object, V> extends StandardRowSortedTable<R, C, V> {
   private final Comparator<? super C> columnComparator;
 
   private static class Factory<C extends @Immutable Object, V> implements Supplier<TreeMap<C, V>>, Serializable {
@@ -177,7 +179,8 @@ public @ReceiverDependentMutable class TreeBasedTable<R extends @Immutable Objec
     return new TreeRow(rowKey);
   }
 
-  private @ReceiverDependentMutable class TreeRow extends Row implements SortedMap<C, V> {
+  @ReceiverDependentMutable
+  private class TreeRow extends Row implements SortedMap<C, V> {
     @CheckForNull final C lowerBound;
     @CheckForNull final C upperBound;
 
@@ -210,7 +213,7 @@ public @ReceiverDependentMutable class TreeBasedTable<R extends @Immutable Objec
       return cmp.compare(a, b);
     }
 
-    boolean rangeContains(@CheckForNull Object o) {
+    boolean rangeContains(@CheckForNull @Readonly Object o) {
       return o != null
           && (lowerBound == null || compare(lowerBound, o) <= 0)
           && (upperBound == null || compare(upperBound, o) > 0);

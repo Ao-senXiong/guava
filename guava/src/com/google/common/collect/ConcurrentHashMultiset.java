@@ -71,7 +71,8 @@ import org.checkerframework.framework.qual.CFComment;
 @AnnotatedFor({"nullness"})
 @GwtIncompatible
 @ElementTypesAreNonnullByDefault
-public @ReceiverDependentMutable final class ConcurrentHashMultiset<E> extends AbstractMultiset<E> implements Serializable {
+@ReceiverDependentMutable
+public final class ConcurrentHashMultiset<E extends @Immutable Object> extends AbstractMultiset<E> implements Serializable {
 
   /*
    * The ConcurrentHashMultiset's atomic operations are implemented primarily in terms of
@@ -84,7 +85,7 @@ public @ReceiverDependentMutable final class ConcurrentHashMultiset<E> extends A
    */
 
   /** The number of occurrences of each element. */
-  private final transient @Mutable ConcurrentMap<E, AtomicInteger> countMap;
+  private final transient ConcurrentMap<E, AtomicInteger> countMap;
 
   // This constant allows the deserialization code to set a final field. This holder class
   // makes sure it is not initialized unless an instance is deserialized.
@@ -97,11 +98,11 @@ public @ReceiverDependentMutable final class ConcurrentHashMultiset<E> extends A
    * Creates a new, empty {@code ConcurrentHashMultiset} using the default initial capacity, load
    * factor, and concurrency settings.
    */
-  public static <E> @Mutable ConcurrentHashMultiset<E> create() {
+  public static <E> ConcurrentHashMultiset<E> create() {
     // TODO(schmoe): provide a way to use this class with other (possibly arbitrary)
     // ConcurrentMap implementors. One possibility is to extract most of this class into
     // an AbstractConcurrentMapMultiset.
-    return new @Mutable ConcurrentHashMultiset<>(new ConcurrentHashMap<E, AtomicInteger>());
+    return new ConcurrentHashMultiset<>(new ConcurrentHashMap<E, AtomicInteger>());
   }
 
   /**
@@ -112,7 +113,7 @@ public @ReceiverDependentMutable final class ConcurrentHashMultiset<E> extends A
    *
    * @param elements the elements that the multiset should contain
    */
-  public static <E> @Mutable ConcurrentHashMultiset<E> create(Iterable<? extends E> elements) {
+  public static <E extends @Immutable Object> ConcurrentHashMultiset<E> create(Iterable<? extends E> elements) {
     ConcurrentHashMultiset<E> multiset = ConcurrentHashMultiset.create();
     Iterables.addAll(multiset, elements);
     return multiset;
@@ -133,8 +134,8 @@ public @ReceiverDependentMutable final class ConcurrentHashMultiset<E> extends A
    * @since 20.0
    */
   @Beta
-  public static <E extends @Immutable Object> @Mutable ConcurrentHashMultiset<E> create(ConcurrentMap<E, AtomicInteger> countMap) {
-    return new @Mutable ConcurrentHashMultiset<>(countMap);
+  public static <E extends @Immutable Object> ConcurrentHashMultiset<E> create(ConcurrentMap<E, AtomicInteger> countMap) {
+    return new ConcurrentHashMultiset<>(countMap);
   }
 
   @VisibleForTesting
@@ -193,7 +194,7 @@ public @ReceiverDependentMutable final class ConcurrentHashMultiset<E> extends A
    * We'd love to use 'new ArrayList(this)' or 'list.addAll(this)', but
    * either of these would recurse back to us again!
    */
-  private @Mutable List<E> snapshot() {
+  private List<E> snapshot() {
     List<E> list = Lists.newArrayListWithExpectedSize(size());
     for (Multiset.Entry<E> entry : entrySet()) {
       E element = entry.getElement();

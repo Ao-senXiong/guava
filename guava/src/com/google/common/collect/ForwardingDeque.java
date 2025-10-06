@@ -22,7 +22,9 @@ import java.util.Deque;
 import java.util.Iterator;
 import javax.annotation.CheckForNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.checkerframework.checker.pico.qual.Mutable;
 import org.checkerframework.checker.pico.qual.Readonly;
+import org.checkerframework.checker.pico.qual.ReceiverDependentMutable;
 
 /**
  * A deque which forwards all its method calls to another deque. Subclasses should override one or
@@ -43,6 +45,7 @@ import org.checkerframework.checker.pico.qual.Readonly;
  */
 @GwtIncompatible
 @ElementTypesAreNonnullByDefault
+@ReceiverDependentMutable
 public abstract class ForwardingDeque<E extends @Nullable @Readonly Object> extends ForwardingQueue<E>
     implements Deque<E> {
 
@@ -53,12 +56,12 @@ public abstract class ForwardingDeque<E extends @Nullable @Readonly Object> exte
   protected abstract Deque<E> delegate();
 
   @Override
-  public void addFirst(@ParametricNullness E e) {
+  public void addFirst(@Mutable ForwardingDeque<E> this, @ParametricNullness E e) {
     delegate().addFirst(e);
   }
 
   @Override
-  public void addLast(@ParametricNullness E e) {
+  public void addLast(@Mutable ForwardingDeque<E> this, @ParametricNullness E e) {
     delegate().addLast(e);
   }
 
@@ -69,89 +72,89 @@ public abstract class ForwardingDeque<E extends @Nullable @Readonly Object> exte
 
   @Override
   @ParametricNullness
-  public E getFirst() {
+  public E getFirst(@Readonly ForwardingDeque<E> this) {
     return delegate().getFirst();
   }
 
   @Override
   @ParametricNullness
-  public E getLast() {
+  public E getLast(@Readonly ForwardingDeque<E> this) {
     return delegate().getLast();
   }
 
   @CanIgnoreReturnValue // TODO(cpovirk): Consider removing this?
   @Override
-  public boolean offerFirst(@ParametricNullness E e) {
+  public boolean offerFirst(@Mutable ForwardingDeque<E> this, @ParametricNullness E e) {
     return delegate().offerFirst(e);
   }
 
   @CanIgnoreReturnValue // TODO(cpovirk): Consider removing this?
   @Override
-  public boolean offerLast(@ParametricNullness E e) {
+  public boolean offerLast(@Mutable ForwardingDeque<E> this, @ParametricNullness E e) {
     return delegate().offerLast(e);
   }
 
   @Override
   @CheckForNull
-  public E peekFirst() {
+  public E peekFirst(@Readonly ForwardingDeque<E> this) {
     return delegate().peekFirst();
   }
 
   @Override
   @CheckForNull
-  public E peekLast() {
+  public E peekLast(@Readonly ForwardingDeque<E> this) {
     return delegate().peekLast();
   }
 
   @CanIgnoreReturnValue // TODO(cpovirk): Consider removing this?
   @Override
   @CheckForNull
-  public E pollFirst() {
+  public E pollFirst(@Mutable ForwardingDeque<E> this) {
     return delegate().pollFirst();
   }
 
   @CanIgnoreReturnValue // TODO(cpovirk): Consider removing this?
   @Override
   @CheckForNull
-  public E pollLast() {
+  public E pollLast(@Mutable ForwardingDeque<E> this) {
     return delegate().pollLast();
   }
 
   @CanIgnoreReturnValue
   @Override
   @ParametricNullness
-  public E pop() {
+  public E pop(@Mutable ForwardingDeque<E> this) {
     return delegate().pop();
   }
 
   @Override
-  public void push(@ParametricNullness E e) {
+  public void push(@Mutable ForwardingDeque<E> this, @ParametricNullness E e) {
     delegate().push(e);
   }
 
   @CanIgnoreReturnValue
   @Override
   @ParametricNullness
-  public E removeFirst() {
+  public E removeFirst(@Mutable ForwardingDeque<E> this) {
     return delegate().removeFirst();
   }
 
   @CanIgnoreReturnValue
   @Override
   @ParametricNullness
-  public E removeLast() {
+  public E removeLast(@Mutable ForwardingDeque<E> this) {
     return delegate().removeLast();
   }
 
   @CanIgnoreReturnValue
   @Override
-  public boolean removeFirstOccurrence(@CheckForNull Object o) {
+  public boolean removeFirstOccurrence(@Mutable ForwardingDeque<E> this, @CheckForNull @Readonly Object o) {
     return delegate().removeFirstOccurrence(o);
   }
 
   @CanIgnoreReturnValue
   @Override
-  public boolean removeLastOccurrence(@CheckForNull Object o) {
+  public boolean removeLastOccurrence(@Mutable ForwardingDeque<E> this, @CheckForNull @Readonly Object o) {
     return delegate().removeLastOccurrence(o);
   }
 }

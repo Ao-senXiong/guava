@@ -83,7 +83,7 @@ final class RegularImmutableMap<K extends @Immutable Object, V> extends Immutabl
   // 'and' with an int to get a table index
   private final transient int mask;
 
-  static <K extends @Immutable Object , V> ImmutableMap<K, V> fromEntries(Entry<K, V>... entries) {
+  static <K extends @Immutable Object , V> ImmutableMap<K, V> fromEntries(@Immutable Entry<K, V>... entries) {
     return fromEntryArray(entries.length, entries, /* throwIfDuplicateKeys= */ true);
   }
 
@@ -325,6 +325,7 @@ final class RegularImmutableMap<K extends @Immutable Object, V> extends Immutabl
   }
 
   @GwtCompatible(emulated = true)
+  @Immutable
   private static final class KeySet<K extends @Immutable Object> extends IndexedImmutableSet<K> {
     private final RegularImmutableMap<K, ?> map;
 
@@ -376,6 +377,7 @@ final class RegularImmutableMap<K extends @Immutable Object, V> extends Immutabl
   }
 
   @GwtCompatible(emulated = true)
+  @Immutable
   private static final class Values<K extends @Immutable Object, V> extends ImmutableList<V> {
     final RegularImmutableMap<K, V> map;
 

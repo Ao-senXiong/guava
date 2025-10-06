@@ -24,4 +24,5 @@ import org.checkerframework.checker.pico.qual.Immutable;
  */
 @GwtCompatible
 @ElementTypesAreNonnullByDefault
+@Immutable
 abstract class BaseImmutableMultimap<K extends @Immutable Object, V> extends AbstractMultimap<K, V> {}

@@ -26,6 +26,7 @@ import java.util.function.ObjIntConsumer;
 import javax.annotation.CheckForNull;
 import org.checkerframework.checker.index.qual.NonNegative;
 import org.checkerframework.checker.index.qual.NonNegative;
+import org.checkerframework.checker.pico.qual.Immutable;
 import org.checkerframework.checker.signedness.qual.UnknownSignedness;
 
 /**
@@ -36,6 +37,7 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
 @SuppressWarnings("serial") // uses writeReplace, not default serialization
 @GwtIncompatible
 @ElementTypesAreNonnullByDefault
+@Immutable
 final class RegularImmutableSortedMultiset<E> extends ImmutableSortedMultiset<E> {
   private static final long[] ZERO_CUMULATIVE_COUNTS = {0};
 

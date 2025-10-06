@@ -35,6 +35,7 @@ import org.checkerframework.checker.pico.qual.Immutable;
  */
 @GwtIncompatible // unnecessary
 @ElementTypesAreNonnullByDefault
+@Immutable
 class ImmutableMapEntry<K extends @Immutable Object, V> extends ImmutableEntry<K, V> {
   /**
    * Creates an {@code ImmutableMapEntry} array to hold parameterized entries. The result must never

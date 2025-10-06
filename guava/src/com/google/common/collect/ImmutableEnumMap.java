@@ -37,6 +37,7 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
 @GwtCompatible(serializable = true, emulated = true)
 @SuppressWarnings("serial") // we're overriding default serialization
 @ElementTypesAreNonnullByDefault
+@Immutable
 final class ImmutableEnumMap<K extends Enum<K>, V extends @Immutable Object> extends IteratorBasedImmutableMap<K, V> {
   static <K extends Enum<K>, V extends @Immutable Object> ImmutableMap<K, V> asImmutable(EnumMap<K, V> map) {
     switch (map.size()) {
@@ -130,7 +131,7 @@ final class ImmutableEnumMap<K extends Enum<K>, V extends @Immutable Object> ext
       this.delegate = delegate;
     }
 
-    Object readResolve() {
+    @Immutable Object readResolve() {
       return new ImmutableEnumMap<>(delegate);
     }
 

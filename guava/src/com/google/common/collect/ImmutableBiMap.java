@@ -50,6 +50,7 @@ import org.checkerframework.framework.qual.AnnotatedFor;
 @AnnotatedFor({"nullness"})
 @GwtCompatible(serializable = true, emulated = true)
 @ElementTypesAreNonnullByDefault
+@Immutable
 public abstract class ImmutableBiMap<K extends @Immutable Object, V extends @Immutable Object> extends ImmutableBiMapFauxverideShim<K, V>
     implements BiMap<K, V> {
 

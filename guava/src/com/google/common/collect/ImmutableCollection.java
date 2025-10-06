@@ -36,6 +36,7 @@ import javax.annotation.CheckForNull;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.checker.nullness.qual.PolyNull;
+import org.checkerframework.checker.pico.qual.Immutable;
 import org.checkerframework.checker.pico.qual.Mutable;
 import org.checkerframework.checker.pico.qual.Readonly;
 import org.checkerframework.checker.signedness.qual.PolySigned;
@@ -176,6 +177,7 @@ import org.checkerframework.framework.qual.CFComment;
 @ElementTypesAreNonnullByDefault
 // TODO(kevinb): I think we should push everything down to "BaseImmutableCollection" or something,
 // just to do everything we can to emphasize the "practically an interface" nature of this class.
+@Immutable
 public abstract class ImmutableCollection<E extends @NonNull @Readonly Object> extends AbstractCollection<E> implements Serializable {
   /*
    * We expect SIZED (and SUBSIZED, if applicable) to be added by the spliterator factory methods.
@@ -218,7 +220,7 @@ public abstract class ImmutableCollection<E extends @NonNull @Readonly Object> e
    * nullness perspective. The signature below at least has the virtue of being relatively simple.
    */
   @SuppressWarnings({"nullness:return", "nullness:assignment"})
-  public final <T extends @Nullable @UnknownSignedness @Readonly Object> T @Mutable [] toArray(@PolyNull T @Mutable [] other) {
+  public final <T extends @Nullable @UnknownSignedness @Readonly Object> T[] toArray(@PolyNull T[] other) {
     checkNotNull(other);
     int size = size();
 
@@ -259,7 +261,7 @@ public abstract class ImmutableCollection<E extends @NonNull @Readonly Object> e
 
   @Pure
   @Override
-  public abstract boolean contains(@CheckForNull @UnknownSignedness Object object);
+  public abstract boolean contains(@CheckForNull @UnknownSignedness @Readonly Object object);
 
   /**
    * Guaranteed to throw an exception and leave the collection unmodified.
@@ -285,7 +287,7 @@ public abstract class ImmutableCollection<E extends @NonNull @Readonly Object> e
   @Deprecated
   @Override
   @DoNotCall("Always throws UnsupportedOperationException")
-  public final boolean remove(@CheckForNull @UnknownSignedness Object object) {
+  public final boolean remove(@CheckForNull @UnknownSignedness @Readonly Object object) {
     throw new UnsupportedOperationException();
   }
 
@@ -409,7 +411,7 @@ public abstract class ImmutableCollection<E extends @NonNull @Readonly Object> e
    * @since 10.0
    */
   @DoNotMock
-  public abstract static @Mutable class Builder<E> {
+  public abstract static class Builder<E> {
     static final int DEFAULT_INITIAL_CAPACITY = 4;
 
     static int expandedCapacity(int oldCapacity, int minCapacity) {

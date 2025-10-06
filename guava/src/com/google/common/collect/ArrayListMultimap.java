@@ -30,6 +30,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.checkerframework.checker.pico.qual.Immutable;
 import org.checkerframework.checker.pico.qual.Mutable;
 import org.checkerframework.checker.pico.qual.Readonly;
 import org.checkerframework.checker.pico.qual.ReceiverDependentMutable;
@@ -67,7 +68,8 @@ import org.checkerframework.framework.qual.AnnotatedFor;
 @AnnotatedFor({"nullness"})
 @GwtCompatible(serializable = true, emulated = true)
 @ElementTypesAreNonnullByDefault
-public @ReceiverDependentMutable final class ArrayListMultimap<K extends @Nullable Object, V extends @Nullable @Readonly Object>
+@ReceiverDependentMutable
+public final class ArrayListMultimap<K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object>
     extends ArrayListMultimapGwtSerializationDependencies<K, V> {
   // Default from ArrayList
   private static final int DEFAULT_VALUES_PER_KEY = 3;
@@ -80,8 +82,8 @@ public @ReceiverDependentMutable final class ArrayListMultimap<K extends @Nullab
    * <p>This method will soon be deprecated in favor of {@code
    * MultimapBuilder.hashKeys().arrayListValues().build()}.
    */
-  public static <K extends @Nullable Object, V extends @Nullable @Readonly Object> @Mutable ArrayListMultimap<K, V> create() {
-    return new @Mutable ArrayListMultimap<>();
+  public static <K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object> @Mutable ArrayListMultimap<K, V> create() {
+    return new ArrayListMultimap<>();
   }
 
   /**
@@ -96,9 +98,9 @@ public @ReceiverDependentMutable final class ArrayListMultimap<K extends @Nullab
    * @throws IllegalArgumentException if {@code expectedKeys} or {@code expectedValuesPerKey} is
    *     negative
    */
-  public static <K extends @Nullable Object, V extends @Nullable @Readonly Object>
-  @Mutable ArrayListMultimap<K, V> create(int expectedKeys, int expectedValuesPerKey) {
-    return new @Mutable ArrayListMultimap<>(expectedKeys, expectedValuesPerKey);
+  public static <K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object>
+  ArrayListMultimap<K, V> create(int expectedKeys, int expectedValuesPerKey) {
+    return new ArrayListMultimap<>(expectedKeys, expectedValuesPerKey);
   }
 
   /**
@@ -109,9 +111,9 @@ public @ReceiverDependentMutable final class ArrayListMultimap<K extends @Nullab
    *
    * @param multimap the multimap whose contents are copied to this multimap
    */
-  public static <K extends @Nullable Object, V extends @Nullable @Readonly Object>
-  @Mutable ArrayListMultimap<K, V> create(Multimap<? extends K, ? extends V> multimap) {
-    return new @Mutable ArrayListMultimap<>(multimap);
+  public static <K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object>
+  ArrayListMultimap<K, V> create(Multimap<? extends K, ? extends V> multimap) {
+    return new ArrayListMultimap<>(multimap);
   }
 
   private ArrayListMultimap() {

@@ -72,6 +72,7 @@ import org.checkerframework.framework.qual.AnnotatedFor;
 @GwtCompatible(serializable = true, emulated = true)
 @SuppressWarnings("serial") // we're overriding default serialization
 @ElementTypesAreNonnullByDefault
+@Immutable
 public abstract class ImmutableList<E extends @Readonly Object> extends ImmutableCollection<E>
     implements List<E>, RandomAccess {
 
@@ -422,7 +423,7 @@ public abstract class ImmutableList<E extends @Readonly Object> extends Immutabl
 
   @Override
   public UnmodifiableListIterator<E> listIterator(int index) {
-    return new AbstractIndexedListIterator<E>(size(), index) {
+    return new @Immutable AbstractIndexedListIterator<E>(size(), index) {
       @Override
       protected E get(int index) {
         return ImmutableList.this.get(index);
@@ -486,6 +487,7 @@ public abstract class ImmutableList<E extends @Readonly Object> extends Immutabl
     return new SubList(fromIndex, toIndex - fromIndex);
   }
 
+  @Immutable
   class SubList extends ImmutableList<E> {
     final transient int offset;
     final transient int length;
@@ -619,7 +621,7 @@ public abstract class ImmutableList<E extends @Readonly Object> extends Immutabl
   }
 
   @Override
-  int copyIntoArray(@Nullable @Readonly Object @Mutable [] dst, int offset) {
+  int copyIntoArray(@Nullable @Readonly Object [] dst, int offset) {
     // this loop is faster for RandomAccess instances, which ImmutableLists are
     int size = size();
     for (int i = 0; i < size; i++) {
@@ -700,7 +702,7 @@ public abstract class ImmutableList<E extends @Readonly Object> extends Immutabl
   }
 
   @Override
-  public boolean equals(@CheckForNull @UnknownSignedness Object obj) {
+  public boolean equals(@CheckForNull @UnknownSignedness @Readonly Object obj) {
     return Lists.equalsImpl(this, obj);
   }
 
@@ -790,9 +792,9 @@ public abstract class ImmutableList<E extends @Readonly Object> extends Immutabl
    *
    * @since 2.0
    */
-  public static final @Mutable class Builder<E> extends ImmutableCollection.Builder<E> {
+  public static final class Builder<E> extends ImmutableCollection.Builder<E> {
     // The first `size` elements are non-null.
-    @VisibleForTesting @Nullable Object[] contents;
+    @VisibleForTesting @Nullable @Readonly Object[] contents;
     private int size;
     private boolean forceCopy;
 

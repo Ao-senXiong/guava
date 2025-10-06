@@ -89,6 +89,7 @@ final class JdkBackedImmutableBiMap<K extends @Immutable Object, V extends @Immu
   }
 
   @WeakOuter
+  @Immutable
   private final class InverseEntries extends ImmutableList<Entry<V, K>> {
     @Override
     public Entry<V, K> get(int index) {

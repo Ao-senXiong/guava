@@ -26,6 +26,8 @@ import java.util.LinkedHashMap;
 import org.checkerframework.checker.index.qual.NonNegative;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.checker.pico.qual.Immutable;
+import org.checkerframework.checker.pico.qual.Readonly;
+import org.checkerframework.checker.pico.qual.ReceiverDependentMutable;
 import org.checkerframework.checker.signedness.qual.UnknownSignedness;
 import org.checkerframework.dataflow.qual.Pure;
 import org.checkerframework.framework.qual.AnnotatedFor;
@@ -47,6 +49,7 @@ import org.checkerframework.framework.qual.AnnotatedFor;
 @AnnotatedFor({"nullness"})
 @GwtCompatible(serializable = true, emulated = true)
 @ElementTypesAreNonnullByDefault
+@ReceiverDependentMutable
 public final class LinkedHashMultiset<E extends @Nullable @Immutable Object>
     extends AbstractMapBasedMultiset<E> {
 
@@ -111,15 +114,15 @@ public final class LinkedHashMultiset<E extends @Nullable @Immutable Object>
 
   @Pure
   @Override
-  public boolean contains(@Nullable @UnknownSignedness Object arg0) { return super.contains(arg0); }
+  public boolean contains(@Nullable @UnknownSignedness @Readonly Object arg0) { return super.contains(arg0); }
 
   @Override
-  public @NonNegative int count(@Nullable @UnknownSignedness Object arg0) { return super.count(arg0); }
+  public @NonNegative int count(@Nullable @UnknownSignedness @Readonly Object arg0) { return super.count(arg0); }
 
   @Override
-  public int remove(@Nullable Object arg0, int arg1) { return super.remove(arg0, arg1); }
+  public int remove(@Nullable @Readonly Object arg0, int arg1) { return super.remove(arg0, arg1); }
 
   @Pure
   @Override
-  public boolean containsAll(Collection<?> arg0) { return super.containsAll(arg0); }
+  public boolean containsAll(@Readonly Collection<?> arg0) { return super.containsAll(arg0); }
 }

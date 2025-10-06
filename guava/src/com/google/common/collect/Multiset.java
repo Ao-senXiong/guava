@@ -34,6 +34,7 @@ import javax.annotation.CheckForNull;
 import org.checkerframework.checker.index.qual.NonNegative;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.checker.pico.qual.Mutable;
+import org.checkerframework.checker.pico.qual.PolyMutable;
 import org.checkerframework.checker.pico.qual.Readonly;
 import org.checkerframework.checker.pico.qual.ReceiverDependentMutable;
 import org.checkerframework.checker.signedness.qual.UnknownSignedness;
@@ -96,7 +97,8 @@ import org.checkerframework.framework.qual.AnnotatedFor;
 @AnnotatedFor({"nullness"})
 @GwtCompatible
 @ElementTypesAreNonnullByDefault
-public @ReceiverDependentMutable interface Multiset<E extends @Readonly @Nullable Object> extends Collection<E> {
+@ReceiverDependentMutable
+public interface Multiset<E extends @Readonly @Nullable Object> extends Collection<E> {
   // Query Operations
 
   /**
@@ -106,7 +108,7 @@ public @ReceiverDependentMutable interface Multiset<E extends @Readonly @Nullabl
    * multiset, which is given by {@code entrySet().size()}.
    */
   @Override
-  @NonNegative int size();
+  @NonNegative int size(@Readonly Multiset<E> this);
 
   /**
    * Returns the number of occurrences of an element in this multiset (the <i>count</i> of the
@@ -121,7 +123,7 @@ public @ReceiverDependentMutable interface Multiset<E extends @Readonly @Nullabl
    * @return the number of occurrences of the element in this multiset; possibly zero but never
    *     negative
    */
-  int count(@CompatibleWith("E") @CheckForNull @Readonly Object element);
+  int count(@Readonly Multiset<E> this, @CompatibleWith("E") @CheckForNull @Readonly Object element);
 
   // Bulk Operations
 
@@ -251,7 +253,7 @@ public @ReceiverDependentMutable interface Multiset<E extends @Readonly @Nullabl
    *
    * @return a view of the set of distinct elements in this multiset
    */
-  @ReceiverDependentMutable Set<E> elementSet();
+  @PolyMutable Set<E> elementSet(@PolyMutable Multiset<E> this);
 
   /**
    * Returns a view of the contents of this multiset, grouped into {@code Multiset.Entry} instances,
@@ -269,7 +271,7 @@ public @ReceiverDependentMutable interface Multiset<E extends @Readonly @Nullabl
    *
    * @return a set of entries representing the data of this multiset
    */
-  @ReceiverDependentMutable Set<Entry<E>> entrySet();
+  @PolyMutable Set<Entry<E>> entrySet(@PolyMutable Multiset<E> this);
 
   /**
    * An unmodifiable element-count pair for a multiset. The {@link Multiset#entrySet} method returns
@@ -279,6 +281,7 @@ public @ReceiverDependentMutable interface Multiset<E extends @Readonly @Nullabl
    *
    * @since 2.0
    */
+  @ReceiverDependentMutable
   interface Entry<E extends @Readonly @Nullable Object> {
 
     /**
@@ -288,7 +291,7 @@ public @ReceiverDependentMutable interface Multiset<E extends @Readonly @Nullabl
      * @return the element corresponding to this entry
      */
     @ParametricNullness
-    E getElement();
+    E getElement(@Readonly Entry<E> this);
 
     /**
      * Returns the count of the associated element in the underlying multiset. This count may either
@@ -299,7 +302,7 @@ public @ReceiverDependentMutable interface Multiset<E extends @Readonly @Nullabl
      *
      * @return the count of the element; never negative
      */
-    int getCount();
+    int getCount(@Readonly Entry<E> this);
 
     /**
      * {@inheritDoc}
@@ -316,7 +319,7 @@ public @ReceiverDependentMutable interface Multiset<E extends @Readonly @Nullabl
     @Pure
     @Override
     // TODO(kevinb): check this wrt TreeMultiset?
-    boolean equals(@CheckForNull @Readonly Object o);
+    boolean equals(@Readonly Entry<E> this, @CheckForNull @Readonly Object o);
 
     /**
      * {@inheritDoc}
@@ -330,7 +333,7 @@ public @ReceiverDependentMutable interface Multiset<E extends @Readonly @Nullabl
      */
     @Pure
     @Override
-    int hashCode(@UnknownSignedness Entry<E> this);
+    int hashCode(@UnknownSignedness @Readonly Entry<E> this);
 
     /**
      * Returns the canonical string representation of this entry, defined as follows. If the count
@@ -340,7 +343,7 @@ public @ReceiverDependentMutable interface Multiset<E extends @Readonly @Nullabl
      */
     @SideEffectFree
     @Override
-    String toString();
+    String toString(@Readonly Entry<E> this);
   }
 
   /**
@@ -367,7 +370,7 @@ public @ReceiverDependentMutable interface Multiset<E extends @Readonly @Nullabl
   @Pure
   @Override
   // TODO(kevinb): caveats about equivalence-relation?
-  boolean equals(@CheckForNull @UnknownSignedness @Readonly Object object);
+  boolean equals(@Readonly Multiset<E> this, @CheckForNull @UnknownSignedness @Readonly Object object);
 
   /**
    * Returns the hash code for this multiset. This is defined as the sum of
@@ -381,7 +384,7 @@ public @ReceiverDependentMutable interface Multiset<E extends @Readonly @Nullabl
    */
   @Pure
   @Override
-  int hashCode(@UnknownSignedness @ReceiverDependentMutable Multiset<E> this);
+  int hashCode(@UnknownSignedness @Readonly Multiset<E> this);
 
   /**
    * {@inheritDoc}
@@ -392,7 +395,7 @@ public @ReceiverDependentMutable interface Multiset<E extends @Readonly @Nullabl
    */
   @SideEffectFree
   @Override
-  String toString();
+  String toString(@Readonly Multiset<E> this);
 
   // Refined Collection Methods
 
@@ -452,7 +455,7 @@ public @ReceiverDependentMutable interface Multiset<E extends @Readonly @Nullabl
    */
   @CanIgnoreReturnValue
   @Override
-  boolean removeAll(@Mutable Multiset<E> this, Collection<?> c);
+  boolean removeAll(@Mutable Multiset<E> this, @Readonly Collection<?> c);
 
   /**
    * {@inheritDoc}
@@ -469,7 +472,7 @@ public @ReceiverDependentMutable interface Multiset<E extends @Readonly @Nullabl
    */
   @CanIgnoreReturnValue
   @Override
-  boolean retainAll(@Mutable Multiset<E> this, Collection<?> c);
+  boolean retainAll(@Mutable Multiset<E> this, @Readonly Collection<?> c);
 
   /**
    * {@inheritDoc}
@@ -492,7 +495,7 @@ public @ReceiverDependentMutable interface Multiset<E extends @Readonly @Nullabl
   }
 
   @Override
-  default @ReceiverDependentMutable Spliterator<E> spliterator() {
+  default Spliterator<E> spliterator() {
     return Multisets.spliteratorImpl(this);
   }
 }

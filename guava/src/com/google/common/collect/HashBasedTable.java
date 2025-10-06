@@ -25,6 +25,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.checkerframework.checker.pico.qual.Immutable;
+import org.checkerframework.checker.pico.qual.ReceiverDependentMutable;
 
 /**
  * Implementation of {@link Table} using linked hash tables. This guarantees predictable iteration
@@ -50,7 +51,9 @@ import org.checkerframework.checker.pico.qual.Immutable;
  */
 @GwtCompatible(serializable = true)
 @ElementTypesAreNonnullByDefault
+@ReceiverDependentMutable
 public class HashBasedTable<R extends @Immutable Object, C extends @Immutable Object, V> extends StandardTable<R, C, V> {
+  @ReceiverDependentMutable
   private static class Factory<C extends @Immutable Object, V> implements Supplier<Map<C, V>>, Serializable {
     final int expectedSize;
 
@@ -100,7 +103,7 @@ public class HashBasedTable<R extends @Immutable Object, C extends @Immutable Ob
     return result;
   }
 
-  HashBasedTable(Map<R, Map<C, V>> backingMap, Factory<C, V> factory) {
+  HashBasedTable(@ReceiverDependentMutable Map<R, Map<C, V>> backingMap, @ReceiverDependentMutable Factory<C, V> factory) {
     super(backingMap, factory);
   }
 

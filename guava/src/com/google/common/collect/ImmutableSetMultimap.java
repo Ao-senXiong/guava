@@ -66,6 +66,7 @@ import org.checkerframework.framework.qual.AnnotatedFor;
 @AnnotatedFor({"nullness"})
 @GwtCompatible(serializable = true, emulated = true)
 @ElementTypesAreNonnullByDefault
+@Immutable
 public class ImmutableSetMultimap<K extends @Immutable Object, V extends @Immutable Object> extends ImmutableMultimap<K, V>
     implements SetMultimap<K, V> {
   /**
@@ -533,6 +534,7 @@ public class ImmutableSetMultimap<K extends @Immutable Object, V extends @Immuta
     return result == null ? (entries = new EntrySet<>(this)) : result;
   }
 
+  @Immutable
   private static final class EntrySet<K extends @Immutable Object, V extends @Immutable Object> extends ImmutableSet<Entry<K, V>> {
     @Weak private final transient ImmutableSetMultimap<K, V> multimap;
 

@@ -33,6 +33,7 @@ import org.checkerframework.checker.pico.qual.Immutable;
  */
 @GwtIncompatible
 @ElementTypesAreNonnullByDefault
+@Immutable
 abstract class ImmutableBiMapFauxverideShim<K extends @Immutable Object, V extends @Immutable Object> extends ImmutableMap<K, V> {
   /**
    * Not supported. Use {@link ImmutableBiMap#toImmutableBiMap} instead. This method exists only to
