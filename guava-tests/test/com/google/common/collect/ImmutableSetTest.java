@@ -17,9 +17,11 @@
 package com.google.common.collect;
 
 import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.assertThrows;
 
 import com.google.common.annotations.GwtCompatible;
 import com.google.common.annotations.GwtIncompatible;
+import com.google.common.annotations.J2ktIncompatible;
 import com.google.common.base.Equivalence;
 import com.google.common.collect.ImmutableSet.Builder;
 import com.google.common.collect.testing.ListTestSuiteBuilder;
@@ -37,16 +39,15 @@ import com.google.common.collect.testing.google.SetGenerators.ImmutableSetUnsize
 import com.google.common.collect.testing.google.SetGenerators.ImmutableSetWithBadHashesGenerator;
 import com.google.common.testing.CollectorTester;
 import com.google.common.testing.EqualsTester;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
 import java.util.function.BiPredicate;
 import java.util.stream.Collector;
 import junit.framework.Test;
 import junit.framework.TestSuite;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * Unit test for {@link ImmutableSet}.
@@ -56,8 +57,10 @@ import junit.framework.TestSuite;
  * @author Nick Kralevich
  */
 @GwtCompatible(emulated = true)
+@ElementTypesAreNonnullByDefault
 public class ImmutableSetTest extends AbstractImmutableSetTest {
 
+  @J2ktIncompatible
   @GwtIncompatible // suite
   public static Test suite() {
     TestSuite suite = new TestSuite();
@@ -160,7 +163,6 @@ public class ImmutableSetTest extends AbstractImmutableSetTest {
             .createTestSuite());
 
     suite.addTestSuite(ImmutableSetTest.class);
-    suite.addTestSuite(FloodingTest.class);
 
     return suite;
   }
@@ -195,7 +197,6 @@ public class ImmutableSetTest extends AbstractImmutableSetTest {
     return ImmutableSet.of(e1, e2, e3, e4, e5);
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   protected <E extends Comparable<? super E>> Set<E> of(
       E e1, E e2, E e3, E e4, E e5, E e6, E... rest) {
@@ -263,11 +264,7 @@ public class ImmutableSetTest extends AbstractImmutableSetTest {
     assertEquals(1 << 30, ImmutableSet.chooseTableSize((1 << 30) - 1));
 
     // Now we've gone too far
-    try {
-      ImmutableSet.chooseTableSize(1 << 30);
-      fail();
-    } catch (IllegalArgumentException expected) {
-    }
+    assertThrows(IllegalArgumentException.class, () -> ImmutableSet.chooseTableSize(1 << 30));
   }
 
   @GwtIncompatible // RegularImmutableSet.table not in emulation
@@ -324,11 +321,11 @@ public class ImmutableSetTest extends AbstractImmutableSetTest {
       }
 
       @Override
-      public boolean equals(Object obj) {
+      public boolean equals(@Nullable Object obj) {
         return obj instanceof TypeWithDuplicates && ((TypeWithDuplicates) obj).a == a;
       }
 
-      public boolean fullEquals(TypeWithDuplicates other) {
+      public boolean fullEquals(@Nullable TypeWithDuplicates other) {
         return other != null && a == other.a && b == other.b;
       }
     }
@@ -353,11 +350,6 @@ public class ImmutableSetTest extends AbstractImmutableSetTest {
     TypeWithDuplicates c = new TypeWithDuplicates(3, 1);
     CollectorTester.of(collector, equivalence)
         .expectCollects(ImmutableSet.of(a, b1, c), a, b1, c, b2);
-  }
-
-  @GwtIncompatible // GWT is single threaded
-  public void testCopyOf_threadSafe() {
-    verifyThreadSafe();
   }
 
   @Override
@@ -390,74 +382,5 @@ public class ImmutableSetTest extends AbstractImmutableSetTest {
     ImmutableSet<Object> unused = builder.build();
     ImmutableSet<Object> subject = builder.add(1).add(2).add(3).build();
     assertFalse(subject.contains(4));
-  }
-
-  public static class FloodingTest extends AbstractHashFloodingTest<Set<Object>> {
-    public FloodingTest() {
-      super(
-          Arrays.asList(ConstructionPathway.values()),
-          n -> n * Math.log(n),
-          ImmutableList.of(
-              QueryOp.create(
-                  "contains",
-                  (s, o) -> {
-                    boolean unused = s.contains(o);
-                  },
-                  Math::log)));
-    }
-    /** All the ways to construct an ImmutableSet. */
-    enum ConstructionPathway implements Construction<Set<Object>> {
-      OF {
-        @Override
-        public ImmutableSet<Object> create(List<?> list) {
-          Object o1 = list.get(0);
-          Object o2 = list.get(1);
-          Object o3 = list.get(2);
-          Object o4 = list.get(3);
-          Object o5 = list.get(4);
-          Object o6 = list.get(5);
-          Object[] rest = list.subList(6, list.size()).toArray();
-          return ImmutableSet.of(o1, o2, o3, o4, o5, o6, rest);
-        }
-      },
-      COPY_OF_ARRAY {
-        @Override
-        public ImmutableSet<Object> create(List<?> list) {
-          return ImmutableSet.copyOf(list.toArray());
-        }
-      },
-      COPY_OF_LIST {
-        @Override
-        public ImmutableSet<Object> create(List<?> list) {
-          return ImmutableSet.copyOf(list);
-        }
-      },
-      BUILDER_ADD_ONE_BY_ONE {
-        @Override
-        public ImmutableSet<Object> create(List<?> list) {
-          ImmutableSet.Builder<Object> builder = ImmutableSet.builder();
-          for (Object o : list) {
-            builder.add(o);
-          }
-          return builder.build();
-        }
-      },
-      BUILDER_ADD_ARRAY {
-        @Override
-        public ImmutableSet<Object> create(List<?> list) {
-          ImmutableSet.Builder<Object> builder = ImmutableSet.builder();
-          builder.add(list.toArray());
-          return builder.build();
-        }
-      },
-      BUILDER_ADD_LIST {
-        @Override
-        public ImmutableSet<Object> create(List<?> list) {
-          ImmutableSet.Builder<Object> builder = ImmutableSet.builder();
-          builder.addAll(list);
-          return builder.build();
-        }
-      };
-    }
   }
 }

@@ -160,7 +160,7 @@ final class Types {
   }
 
   /**
-   * Returns human readable string representation of {@code type}.
+   * Returns a human-readable string representation of {@code type}.
    *
    * <p>The format is subject to change.
    */
@@ -356,6 +356,7 @@ final class Types {
    * <p>This workaround should be removed at a distant future time when we no longer support Java
    * versions earlier than 8.
    */
+  @SuppressWarnings("removal") // b/318391980
   private static final class TypeVariableInvocationHandler implements InvocationHandler {
     private static final ImmutableMap<String, Method> typeVariableMethods;
 

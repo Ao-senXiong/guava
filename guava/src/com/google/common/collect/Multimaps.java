@@ -22,9 +22,9 @@ import static com.google.common.collect.CollectPreconditions.checkRemove;
 import static com.google.common.collect.NullnessCasts.uncheckedCastNullableTToT;
 import static java.util.Objects.requireNonNull;
 
-import com.google.common.annotations.Beta;
 import com.google.common.annotations.GwtCompatible;
 import com.google.common.annotations.GwtIncompatible;
+import com.google.common.annotations.J2ktIncompatible;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
@@ -129,7 +129,7 @@ public final class Multimaps {
           java.util.function.Function<? super T, ? extends K> keyFunction,
           java.util.function.Function<? super T, ? extends V> valueFunction,
           java.util.function.Supplier<M> multimapSupplier) {
-    return CollectCollectors.toMultimap(keyFunction, valueFunction, multimapSupplier);
+    return CollectCollectors.<T, K, V, M>toMultimap(keyFunction, valueFunction, multimapSupplier);
   }
 
   /**
@@ -165,7 +165,6 @@ public final class Multimaps {
    *
    * @since 21.0
    */
-  @Beta
   public static <
           T extends @Nullable Object,
           K extends @Nullable Object,
@@ -175,7 +174,8 @@ public final class Multimaps {
           java.util.function.Function<? super T, ? extends K> keyFunction,
           java.util.function.Function<? super T, ? extends Stream<? extends V>> valueFunction,
           java.util.function.Supplier<M> multimapSupplier) {
-    return CollectCollectors.flatteningToMultimap(keyFunction, valueFunction, multimapSupplier);
+    return CollectCollectors.<T, K, V, M>flatteningToMultimap(
+        keyFunction, valueFunction, multimapSupplier);
   }
 
   /**
@@ -277,8 +277,11 @@ public final class Multimaps {
     // can't use Serialization writeMultimap and populateMultimap methods since
     // there's no way to generate the empty backing map.
 
-    /** @serialData the factory and the backing map */
+    /**
+     * @serialData the factory and the backing map
+     */
     @GwtIncompatible // java.io.ObjectOutputStream
+    @J2ktIncompatible
     private void writeObject(ObjectOutputStream stream) throws IOException {
       stream.defaultWriteObject();
       stream.writeObject(factory);
@@ -286,15 +289,17 @@ public final class Multimaps {
     }
 
     @GwtIncompatible // java.io.ObjectInputStream
+    @J2ktIncompatible
     @SuppressWarnings("unchecked") // reading data stored by writeObject
     private void readObject(ObjectInputStream stream) throws IOException, ClassNotFoundException {
       stream.defaultReadObject();
-      factory = (Supplier<? extends Collection<V>>) stream.readObject();
-      Map<K, Collection<V>> map = (Map<K, Collection<V>>) stream.readObject();
+      factory = (Supplier<? extends Collection<V>>) requireNonNull(stream.readObject());
+      Map<K, Collection<V>> map = (Map<K, Collection<V>>) requireNonNull(stream.readObject());
       setMap(map);
     }
 
     @GwtIncompatible // java serialization not supported
+    @J2ktIncompatible
     private static final long serialVersionUID = 0;
   }
 
@@ -358,8 +363,11 @@ public final class Multimaps {
       return factory.get();
     }
 
-    /** @serialData the factory and the backing map */
+    /**
+     * @serialData the factory and the backing map
+     */
     @GwtIncompatible // java.io.ObjectOutputStream
+    @J2ktIncompatible
     private void writeObject(ObjectOutputStream stream) throws IOException {
       stream.defaultWriteObject();
       stream.writeObject(factory);
@@ -367,15 +375,17 @@ public final class Multimaps {
     }
 
     @GwtIncompatible // java.io.ObjectInputStream
+    @J2ktIncompatible
     @SuppressWarnings("unchecked") // reading data stored by writeObject
     private void readObject(ObjectInputStream stream) throws IOException, ClassNotFoundException {
       stream.defaultReadObject();
-      factory = (Supplier<? extends List<V>>) stream.readObject();
-      Map<K, Collection<V>> map = (Map<K, Collection<V>>) stream.readObject();
+      factory = (Supplier<? extends List<V>>) requireNonNull(stream.readObject());
+      Map<K, Collection<V>> map = (Map<K, Collection<V>>) requireNonNull(stream.readObject());
       setMap(map);
     }
 
     @GwtIncompatible // java serialization not supported
+    @J2ktIncompatible
     private static final long serialVersionUID = 0;
   }
 
@@ -461,8 +471,11 @@ public final class Multimaps {
       }
     }
 
-    /** @serialData the factory and the backing map */
+    /**
+     * @serialData the factory and the backing map
+     */
     @GwtIncompatible // java.io.ObjectOutputStream
+    @J2ktIncompatible
     private void writeObject(ObjectOutputStream stream) throws IOException {
       stream.defaultWriteObject();
       stream.writeObject(factory);
@@ -470,15 +483,17 @@ public final class Multimaps {
     }
 
     @GwtIncompatible // java.io.ObjectInputStream
+    @J2ktIncompatible
     @SuppressWarnings("unchecked") // reading data stored by writeObject
     private void readObject(ObjectInputStream stream) throws IOException, ClassNotFoundException {
       stream.defaultReadObject();
-      factory = (Supplier<? extends Set<V>>) stream.readObject();
-      Map<K, Collection<V>> map = (Map<K, Collection<V>>) stream.readObject();
+      factory = (Supplier<? extends Set<V>>) requireNonNull(stream.readObject());
+      Map<K, Collection<V>> map = (Map<K, Collection<V>>) requireNonNull(stream.readObject());
       setMap(map);
     }
 
     @GwtIncompatible // not needed in emulated source
+    @J2ktIncompatible
     private static final long serialVersionUID = 0;
   }
 
@@ -550,8 +565,11 @@ public final class Multimaps {
       return valueComparator;
     }
 
-    /** @serialData the factory and the backing map */
+    /**
+     * @serialData the factory and the backing map
+     */
     @GwtIncompatible // java.io.ObjectOutputStream
+    @J2ktIncompatible
     private void writeObject(ObjectOutputStream stream) throws IOException {
       stream.defaultWriteObject();
       stream.writeObject(factory);
@@ -559,16 +577,18 @@ public final class Multimaps {
     }
 
     @GwtIncompatible // java.io.ObjectInputStream
+    @J2ktIncompatible
     @SuppressWarnings("unchecked") // reading data stored by writeObject
     private void readObject(ObjectInputStream stream) throws IOException, ClassNotFoundException {
       stream.defaultReadObject();
-      factory = (Supplier<? extends SortedSet<V>>) stream.readObject();
+      factory = (Supplier<? extends SortedSet<V>>) requireNonNull(stream.readObject());
       valueComparator = factory.get().comparator();
-      Map<K, Collection<V>> map = (Map<K, Collection<V>>) stream.readObject();
+      Map<K, Collection<V>> map = (Map<K, Collection<V>>) requireNonNull(stream.readObject());
       setMap(map);
     }
 
     @GwtIncompatible // not needed in emulated source
+    @J2ktIncompatible
     private static final long serialVersionUID = 0;
   }
 
@@ -691,13 +711,7 @@ public final class Multimaps {
             map =
                 Collections.unmodifiableMap(
                     Maps.transformValues(
-                        delegate.asMap(),
-                        new Function<Collection<V>, Collection<V>>() {
-                          @Override
-                          public Collection<V> apply(Collection<V> collection) {
-                            return unmodifiableValueCollection(collection);
-                          }
-                        }));
+                        delegate.asMap(), collection -> unmodifiableValueCollection(collection)));
       }
       return result;
     }
@@ -1057,7 +1071,6 @@ public final class Multimaps {
    *
    * @since 15.0
    */
-  @Beta
   @SuppressWarnings("unchecked")
   // safe by specification of ListMultimap.asMap()
   public static <K extends @Nullable Object, V extends @Nullable Object> Map<K, List<V>> asMap(
@@ -1071,7 +1084,6 @@ public final class Multimaps {
    *
    * @since 15.0
    */
-  @Beta
   @SuppressWarnings("unchecked")
   // safe by specification of SetMultimap.asMap()
   public static <K extends @Nullable Object, V extends @Nullable Object> Map<K, Set<V>> asMap(
@@ -1085,7 +1097,6 @@ public final class Multimaps {
    *
    * @since 15.0
    */
-  @Beta
   @SuppressWarnings("unchecked")
   // safe by specification of SortedSetMultimap.asMap()
   public static <K extends @Nullable Object, V extends @Nullable Object> Map<K, SortedSet<V>> asMap(
@@ -1099,7 +1110,6 @@ public final class Multimaps {
    *
    * @since 15.0
    */
-  @Beta
   public static <K extends @Nullable Object, V extends @Nullable Object>
       Map<K, Collection<V>> asMap(Multimap<K, V> multimap) {
     return multimap.asMap();
@@ -1525,14 +1535,7 @@ public final class Multimaps {
 
     @Override
     Map<K, Collection<V2>> createAsMap() {
-      return Maps.transformEntries(
-          fromMultimap.asMap(),
-          new EntryTransformer<K, Collection<V1>, Collection<V2>>() {
-            @Override
-            public Collection<V2> transformEntry(@ParametricNullness K key, Collection<V1> value) {
-              return transform(key, value);
-            }
-          });
+      return Maps.transformEntries(fromMultimap.asMap(), (key, value) -> transform(key, value));
     }
 
     @Override
@@ -1914,14 +1917,7 @@ public final class Multimaps {
 
       @Override
       public Iterator<Entry<K, Collection<V>>> iterator() {
-        return Maps.asMapEntryIterator(
-            multimap.keySet(),
-            new Function<K, Collection<V>>() {
-              @Override
-              public Collection<V> apply(@ParametricNullness K key) {
-                return multimap.get(key);
-              }
-            });
+        return Maps.asMapEntryIterator(multimap.keySet(), key -> multimap.get(key));
       }
 
       @Override

@@ -17,12 +17,14 @@
 package com.google.common.collect.testing;
 
 import com.google.common.annotations.GwtCompatible;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.errorprone.annotations.OverridingMethodsMustInvokeSuper;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.junit.Ignore;
 
 /**
@@ -35,7 +37,8 @@ import org.junit.Ignore;
  */
 @GwtCompatible
 @Ignore // Affects only Android test runner, which respects JUnit 4 annotations on JUnit 3 tests.
-public abstract class AbstractContainerTester<C, E>
+@ElementTypesAreNonnullByDefault
+public abstract class AbstractContainerTester<C, E extends @Nullable Object>
     extends AbstractTester<OneSizeTestContainerGenerator<C, E>> {
   protected SampleElements<E> samples;
   protected C container;
@@ -61,6 +64,7 @@ public abstract class AbstractContainerTester<C, E>
    * @see #resetContainer(Object) resetContainer(C)
    * @return the new container instance.
    */
+  @CanIgnoreReturnValue
   protected C resetContainer() {
     return resetContainer(getSubjectGenerator().createTestSubject());
   }
@@ -75,6 +79,7 @@ public abstract class AbstractContainerTester<C, E>
    * @return the new container instance
    * @param newValue the new container instance
    */
+  @CanIgnoreReturnValue
   protected C resetContainer(C newValue) {
     container = newValue;
     return container;
@@ -171,7 +176,7 @@ public abstract class AbstractContainerTester<C, E>
     return array;
   }
 
-  public static class ArrayWithDuplicate<E> {
+  public static class ArrayWithDuplicate<E extends @Nullable Object> {
     public final E[] elements;
     public final E duplicate;
 
@@ -207,7 +212,7 @@ public abstract class AbstractContainerTester<C, E>
 
   /**
    * Returns the {@linkplain #getSampleElements() sample elements} as ordered by {@link
-   * TestContainerGenerator#order(List)}. Tests should used this method only if they declare
+   * TestContainerGenerator#order(List)}. Tests should use this method only if they declare
    * requirement {@link com.google.common.collect.testing.features.CollectionFeature#KNOWN_ORDER}.
    */
   protected List<E> getOrderedElements() {
@@ -226,12 +231,10 @@ public abstract class AbstractContainerTester<C, E>
     return getNumElements() / 2;
   }
 
-  @SuppressWarnings("unchecked")
   protected MinimalCollection<E> createDisjointCollection() {
     return MinimalCollection.of(e3(), e4());
   }
 
-  @SuppressWarnings("unchecked")
   protected MinimalCollection<E> emptyCollection() {
     return MinimalCollection.<E>of();
   }

@@ -19,11 +19,14 @@ package com.google.common.collect;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.NullnessCasts.uncheckedCastNullableTToT;
+import static java.util.Objects.requireNonNull;
 
 import com.google.common.annotations.GwtCompatible;
 import com.google.common.annotations.GwtIncompatible;
+import com.google.common.annotations.J2ktIncompatible;
 import com.google.common.base.Objects;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
+import com.google.errorprone.annotations.concurrent.LazyInit;
 import com.google.j2objc.annotations.RetainedWith;
 import com.google.j2objc.annotations.WeakOuter;
 import java.io.IOException;
@@ -61,8 +64,12 @@ import org.checkerframework.framework.qual.CFComment;
 abstract class AbstractBiMap<K extends @Nullable Object, V extends @Nullable Object>
     extends ForwardingMap<K, V> implements BiMap<K, V>, Serializable {
 
+  @SuppressWarnings("nullness:initialization.field.uninitialized") // For J2KT (lateinit)
   private transient Map<K, V> delegate;
-  @RetainedWith transient AbstractBiMap<V, K> inverse;
+
+  @SuppressWarnings("nullness:initialization.field.uninitialized") // For J2KT (lateinit)
+  @RetainedWith
+  transient AbstractBiMap<V, K> inverse;
 
   /** Package-private constructor for creating a map-backed bimap. */
   AbstractBiMap(Map<K, V> forward, Map<V, K> backward) {
@@ -235,7 +242,7 @@ abstract class AbstractBiMap<K extends @Nullable Object, V extends @Nullable Obj
     return inverse;
   }
 
-  @CheckForNull private transient Set<K> keySet;
+  @LazyInit @CheckForNull private transient Set<K> keySet;
 
   @SideEffectFree
   @Override
@@ -281,7 +288,7 @@ abstract class AbstractBiMap<K extends @Nullable Object, V extends @Nullable Obj
     }
   }
 
-  @CheckForNull private transient Set<V> valueSet;
+  @LazyInit @CheckForNull private transient Set<V> valueSet;
 
   @SideEffectFree
   @Override
@@ -327,7 +334,7 @@ abstract class AbstractBiMap<K extends @Nullable Object, V extends @Nullable Obj
     }
   }
 
-  @CheckForNull private transient Set<Entry<K, V>> entrySet;
+  @LazyInit @CheckForNull private transient Set<Entry<K, V>> entrySet;
 
   @SideEffectFree
   @Override
@@ -436,17 +443,16 @@ abstract class AbstractBiMap<K extends @Nullable Object, V extends @Nullable Obj
 
     // See java.util.Collections.CheckedEntrySet for details on attacks.
 
+    /*
+     * standardToArray returns `@Nullable Object[]` rather than `Object[]` but only because it can
+     * be used with collections that may contain null. This collection never contains nulls, so we
+     * can treat it as a plain `Object[]`.
+     */
+    @SuppressWarnings("nullness")
     @CFComment("signedeness: is same as V, which this method does not know")
     @Override
     public @PolyNull @PolySigned Object[] toArray() {
-      /*
-       * standardToArray returns `@Nullable Object[]` rather than `Object[]` but only because it can
-       * be used with collections that may contain null. This collection never contains nulls, so we
-       * can treat it as a plain `Object[]`.
-       */
-      @SuppressWarnings("nullness")
-      Object[] result = standardToArray();
-      return result;
+      return standardToArray();
     }
 
     @Override
@@ -506,29 +512,36 @@ abstract class AbstractBiMap<K extends @Nullable Object, V extends @Nullable Obj
       return inverse.checkKey(value);
     }
 
-    /** @serialData the forward bimap */
+    /**
+     * @serialData the forward bimap
+     */
     @GwtIncompatible // java.io.ObjectOutputStream
+    @J2ktIncompatible
     private void writeObject(ObjectOutputStream stream) throws IOException {
       stream.defaultWriteObject();
       stream.writeObject(inverse());
     }
 
     @GwtIncompatible // java.io.ObjectInputStream
+    @J2ktIncompatible
     @SuppressWarnings("unchecked") // reading data stored by writeObject
     private void readObject(ObjectInputStream stream) throws IOException, ClassNotFoundException {
       stream.defaultReadObject();
-      setInverse((AbstractBiMap<V, K>) stream.readObject());
+      setInverse((AbstractBiMap<V, K>) requireNonNull(stream.readObject()));
     }
 
     @GwtIncompatible // Not needed in the emulated source.
+    @J2ktIncompatible
     Object readResolve() {
       return inverse().inverse();
     }
 
     @GwtIncompatible // Not needed in emulated source.
+    @J2ktIncompatible
     private static final long serialVersionUID = 0;
   }
 
   @GwtIncompatible // Not needed in emulated source.
+  @J2ktIncompatible
   private static final long serialVersionUID = 0;
 }

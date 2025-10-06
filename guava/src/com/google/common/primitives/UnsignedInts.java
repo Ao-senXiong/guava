@@ -18,7 +18,6 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkPositionIndexes;
 
-import com.google.common.annotations.Beta;
 import com.google.common.annotations.GwtCompatible;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.util.Arrays;
@@ -55,7 +54,6 @@ import org.checkerframework.framework.qual.AnnotatedFor;
  * @since 11.0
  */
 @AnnotatedFor({"signedness"})
-@Beta
 @GwtCompatible
 @ElementTypesAreNonnullByDefault
 public final class UnsignedInts {
@@ -72,7 +70,7 @@ public final class UnsignedInts {
    * Compares the two specified {@code int} values, treating them as unsigned values between {@code
    * 0} and {@code 2^32 - 1} inclusive.
    *
-   * <p><b>Java 8 users:</b> use {@link Integer#compareUnsigned(int, int)} instead.
+   * <p><b>Java 8+ users:</b> use {@link Integer#compareUnsigned(int, int)} instead.
    *
    * @param a the first unsigned {@code int} to compare
    * @param b the second unsigned {@code int} to compare
@@ -87,7 +85,7 @@ public final class UnsignedInts {
   /**
    * Returns the value of the given {@code int} as a {@code long}, when treated as unsigned.
    *
-   * <p><b>Java 8 users:</b> use {@link Integer#toUnsignedLong(int)} instead.
+   * <p><b>Java 8+ users:</b> use {@link Integer#toUnsignedLong(int)} instead.
    */
   public static @NonNegative @SignedPositive long toLong(@UnknownSignedness int value) {
     return value & INT_MASK;
@@ -292,7 +290,7 @@ public final class UnsignedInts {
    * Returns dividend / divisor, where the dividend and divisor are treated as unsigned 32-bit
    * quantities.
    *
-   * <p><b>Java 8 users:</b> use {@link Integer#divideUnsigned(int, int)} instead.
+   * <p><b>Java 8+ users:</b> use {@link Integer#divideUnsigned(int, int)} instead.
    *
    * @param dividend the dividend (numerator)
    * @param divisor the divisor (denominator)
@@ -306,7 +304,7 @@ public final class UnsignedInts {
    * Returns dividend % divisor, where the dividend and divisor are treated as unsigned 32-bit
    * quantities.
    *
-   * <p><b>Java 8 users:</b> use {@link Integer#remainderUnsigned(int, int)} instead.
+   * <p><b>Java 8+ users:</b> use {@link Integer#remainderUnsigned(int, int)} instead.
    *
    * @param dividend the dividend (numerator)
    * @param divisor the divisor (denominator)
@@ -348,7 +346,7 @@ public final class UnsignedInts {
   /**
    * Returns the unsigned {@code int} value represented by the given decimal string.
    *
-   * <p><b>Java 8 users:</b> use {@link Integer#parseUnsignedInt(String)} instead.
+   * <p><b>Java 8+ users:</b> use {@link Integer#parseUnsignedInt(String)} instead.
    *
    * @throws NumberFormatException if the string does not contain a valid unsigned {@code int} value
    * @throws NullPointerException if {@code s} is null (in contrast to {@link
@@ -362,7 +360,7 @@ public final class UnsignedInts {
   /**
    * Returns the unsigned {@code int} value represented by a string with the given radix.
    *
-   * <p><b>Java 8 users:</b> use {@link Integer#parseUnsignedInt(String, int)} instead.
+   * <p><b>Java 8+ users:</b> use {@link Integer#parseUnsignedInt(String, int)} instead.
    *
    * @param string the string containing the unsigned integer representation to be parsed.
    * @param radix the radix to use while parsing {@code s}; must be between {@link
@@ -386,7 +384,7 @@ public final class UnsignedInts {
   /**
    * Returns a string representation of x, where x is treated as unsigned.
    *
-   * <p><b>Java 8 users:</b> use {@link Integer#toUnsignedString(int)} instead.
+   * <p><b>Java 8+ users:</b> use {@link Integer#toUnsignedString(int)} instead.
    */
   public static String toString(@Unsigned int x) {
     return toString(x, 10);
@@ -396,7 +394,7 @@ public final class UnsignedInts {
    * Returns a string representation of {@code x} for the given radix, where {@code x} is treated as
    * unsigned.
    *
-   * <p><b>Java 8 users:</b> use {@link Integer#toUnsignedString(int, int)} instead.
+   * <p><b>Java 8+ users:</b> use {@link Integer#toUnsignedString(int, int)} instead.
    *
    * @param x the value to convert to a string.
    * @param radix the radix to use while working with {@code x}
