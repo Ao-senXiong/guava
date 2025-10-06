@@ -4014,8 +4014,7 @@ public final class Maps {
    * @param o the object to remove from {@code c}
    * @return {@code true} if {@code c} was changed
    */
-  static <K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object> boolean removeEntryImpl(
-      @Mutable Collection<Entry<K, V>> c, @CheckForNull @Readonly Object o) {
+  static <K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object> boolean removeEntryImpl(Collection<Entry<K, V>> c, @CheckForNull @Readonly Object o) {
     if (!(o instanceof Entry)) {
       return false;
     }
@@ -4427,7 +4426,7 @@ public final class Maps {
   }
 
   @GwtIncompatible // NavigableMap
-  abstract @Mutable static class DescendingMap<K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object>
+  abstract static class DescendingMap<K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object>
       extends ForwardingMap<K, V> implements NavigableMap<K, V> {
 
     abstract NavigableMap<K, V> forward();

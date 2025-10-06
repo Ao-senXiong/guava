@@ -669,7 +669,7 @@ final class Synchronized {
 
     @Pure
     @Override
-    public boolean containsKey(@CheckForNull @UnknownSignedness Object key) {
+    public boolean containsKey(@CheckForNull @UnknownSignedness @Readonly Object key) {
       synchronized (mutex) {
         return delegate().containsKey(key);
       }
@@ -685,7 +685,7 @@ final class Synchronized {
 
     @Pure
     @Override
-    public boolean containsEntry(@CheckForNull Object key, @CheckForNull Object value) {
+    public boolean containsEntry(@CheckForNull @Readonly Object key, @CheckForNull @Readonly Object value) {
       synchronized (mutex) {
         return delegate().containsEntry(key, value);
       }
@@ -727,14 +727,14 @@ final class Synchronized {
     }
 
     @Override
-    public boolean remove(@CheckForNull Object key, @CheckForNull Object value) {
+    public boolean remove(@CheckForNull @Readonly Object key, @CheckForNull @Readonly Object value) {
       synchronized (mutex) {
         return delegate().remove(key, value);
       }
     }
 
     @Override
-    public Collection<V> removeAll(@CheckForNull Object key) {
+    public Collection<V> removeAll(@CheckForNull @Readonly Object key) {
       synchronized (mutex) {
         return delegate().removeAll(key); // copy not synchronized
       }
@@ -857,7 +857,7 @@ final class Synchronized {
     }
 
     @Override
-    public List<V> removeAll(@CheckForNull Object key) {
+    public List<V> removeAll(@CheckForNull @Readonly Object key) {
       synchronized (mutex) {
         return delegate().removeAll(key); // copy not synchronized
       }
@@ -903,7 +903,7 @@ final class Synchronized {
     }
 
     @Override
-    public Set<V> removeAll(@CheckForNull Object key) {
+    public Set<V> removeAll(@CheckForNull @Readonly Object key) {
       synchronized (mutex) {
         return delegate().removeAll(key); // copy not synchronized
       }
@@ -959,7 +959,7 @@ final class Synchronized {
     }
 
     @Override
-    public SortedSet<V> removeAll(@CheckForNull Object key) {
+    public SortedSet<V> removeAll(@CheckForNull @Readonly Object key) {
       synchronized (mutex) {
         return delegate().removeAll(key); // copy not synchronized
       }
@@ -1143,7 +1143,7 @@ final class Synchronized {
 
     @Pure
     @Override
-    public boolean containsKey(@CheckForNull @UnknownSignedness Object key) {
+    public boolean containsKey(@CheckForNull @UnknownSignedness @Readonly Object key) {
       synchronized (mutex) {
         return delegate().containsKey(key);
       }
@@ -1177,7 +1177,7 @@ final class Synchronized {
 
     @Override
     @CheckForNull
-    public V get(@CheckForNull @UnknownSignedness Object key) {
+    public V get(@CheckForNull @UnknownSignedness @Readonly Object key) {
       synchronized (mutex) {
         return delegate().get(key);
       }
@@ -1186,7 +1186,7 @@ final class Synchronized {
     @Pure
     @Override
     @CheckForNull
-    public V getOrDefault(@CheckForNull @UnknownSignedness Object key, @CheckForNull V defaultValue) {
+    public V getOrDefault(@CheckForNull @UnknownSignedness @Readonly Object key, @CheckForNull V defaultValue) {
       synchronized (mutex) {
         return delegate().getOrDefault(key, defaultValue);
       }
@@ -1288,7 +1288,7 @@ final class Synchronized {
 
     @Override
     @CheckForNull
-    public V remove(@CheckForNull @UnknownSignedness Object key) {
+    public V remove(@CheckForNull @UnknownSignedness @Readonly Object key) {
       synchronized (mutex) {
         return delegate().remove(key);
       }
@@ -1296,7 +1296,7 @@ final class Synchronized {
 
     @Pure
     @Override
-    public boolean remove(@CheckForNull @UnknownSignedness Object key, @CheckForNull @UnknownSignedness Object value) {
+    public boolean remove(@CheckForNull @UnknownSignedness @Readonly Object key, @CheckForNull @UnknownSignedness @Readonly Object value) {
       synchronized (mutex) {
         return delegate().remove(key, value);
       }
@@ -1473,7 +1473,7 @@ final class Synchronized {
 
     @Override
     @CheckForNull
-    public Collection<V> get(@CheckForNull @UnknownSignedness Object key) {
+    public Collection<V> get(@CheckForNull @UnknownSignedness @Readonly Object key) {
       synchronized (mutex) {
         Collection<V> collection = super.get(key);
         return (collection == null) ? null : typePreservingCollection(collection, mutex);

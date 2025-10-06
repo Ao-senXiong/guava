@@ -30,6 +30,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.LongBinaryOperator;
 import java.util.function.LongUnaryOperator;
 import javax.annotation.CheckForNull;
+import org.checkerframework.checker.pico.qual.Readonly;
 import org.checkerframework.checker.signedness.qual.UnknownSignedness;
 
 /**
@@ -277,7 +278,7 @@ public final class AtomicLongMap<K> implements Serializable {
   }
 
   /** Returns true if this map contains a mapping for the specified key. */
-  public boolean containsKey(@UnknownSignedness Object key) {
+  public boolean containsKey(@UnknownSignedness @Readonly Object key) {
     return map.containsKey(key);
   }
 

@@ -222,7 +222,7 @@ public abstract class ImmutableList<E extends @Readonly Object> extends Immutabl
       E e1, E e2, E e3, E e4, E e5, E e6, E e7, E e8, E e9, E e10, E e11, E e12, E... others) {
     checkArgument(
         others.length <= Integer.MAX_VALUE - 12, "the total number of elements must fit in an int");
-    @Readonly Object[] array = new @Readonly Object @Mutable [12 + others.length];
+    @Readonly Object[] array = new @Readonly Object[12 + others.length];
     array[0] = e1;
     array[1] = e2;
     array[2] = e3;

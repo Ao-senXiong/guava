@@ -299,7 +299,7 @@ public final class ArrayTable<R extends @Immutable Object, C extends @Immutable 
 
     @Override
     @CheckForNull
-    public V remove(@CheckForNull @UnknownSignedness Object key) {
+    public V remove(@CheckForNull @UnknownSignedness @Readonly Object key) {
       throw new UnsupportedOperationException();
     }
 

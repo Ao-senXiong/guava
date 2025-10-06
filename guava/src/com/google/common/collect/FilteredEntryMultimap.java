@@ -102,12 +102,12 @@ class FilteredEntryMultimap<K extends @Nullable @Immutable Object, V extends @Nu
   }
 
   @Override
-  public boolean containsKey(@CheckForNull @UnknownSignedness Object key) {
+  public boolean containsKey(@CheckForNull @UnknownSignedness @Readonly Object key) {
     return asMap().get(key) != null;
   }
 
   @Override
-  public Collection<V> removeAll(@CheckForNull Object key) {
+  public Collection<V> removeAll(@CheckForNull @Readonly Object key) {
     return MoreObjects.firstNonNull(asMap().remove(key), unmodifiableEmptyCollection());
   }
 
@@ -175,7 +175,7 @@ class FilteredEntryMultimap<K extends @Nullable @Immutable Object, V extends @Nu
   @WeakOuter
   class AsMap extends ViewCachingAbstractMap<K, Collection<V>> {
     @Override
-    public boolean containsKey(@CheckForNull @UnknownSignedness Object key) {
+    public boolean containsKey(@CheckForNull @UnknownSignedness @Readonly Object key) {
       return get(key) != null;
     }
 
@@ -186,7 +186,7 @@ class FilteredEntryMultimap<K extends @Nullable @Immutable Object, V extends @Nu
 
     @Override
     @CheckForNull
-    public Collection<V> get(@CheckForNull @UnknownSignedness Object key) {
+    public Collection<V> get(@CheckForNull @UnknownSignedness @Readonly Object key) {
       Collection<V> result = unfiltered.asMap().get(key);
       if (result == null) {
         return null;
@@ -199,7 +199,7 @@ class FilteredEntryMultimap<K extends @Nullable @Immutable Object, V extends @Nu
 
     @Override
     @CheckForNull
-    public Collection<V> remove(@CheckForNull @UnknownSignedness Object key) {
+    public Collection<V> remove(@CheckForNull @UnknownSignedness @Readonly Object key) {
       Collection<V> collection = unfiltered.asMap().get(key);
       if (collection == null) {
         return null;
@@ -358,7 +358,7 @@ class FilteredEntryMultimap<K extends @Nullable @Immutable Object, V extends @Nu
     }
 
     @Override
-    public int remove(@CheckForNull Object key, int occurrences) {
+    public int remove(@CheckForNull @Readonly Object key, int occurrences) {
       checkNonnegative(occurrences, "occurrences");
       if (occurrences == 0) {
         return count(key);

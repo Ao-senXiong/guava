@@ -383,14 +383,14 @@ public abstract class ImmutableMap<K extends @Immutable Object, V> implements Ma
   }
 
   static void checkNoConflict(
-      boolean safe, String conflictDescription, Object entry1, Object entry2) {
+      boolean safe, String conflictDescription, @Readonly Object entry1, @Readonly Object entry2) {
     if (!safe) {
       throw conflictException(conflictDescription, entry1, entry2);
     }
   }
 
   static IllegalArgumentException conflictException(
-      String conflictDescription, Object entry1, Object entry2) {
+      String conflictDescription, @Readonly Object entry1, @Readonly Object entry2) {
     return new IllegalArgumentException(
         "Multiple entries with same " + conflictDescription + ": " + entry1 + " and " + entry2);
   }
@@ -425,7 +425,7 @@ public abstract class ImmutableMap<K extends @Immutable Object, V> implements Ma
    * @since 2.0
    */
   @DoNotMock
-  @Mutable public static class Builder<K extends @Immutable Object, V> {
+  public static class Builder<K extends @Immutable Object, V> {
     @CheckForNull Comparator<? super V> valueComparator;
     @Nullable Entry<K, V>[] entries;
     int size;

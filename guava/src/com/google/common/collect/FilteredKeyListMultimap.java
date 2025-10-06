@@ -48,7 +48,7 @@ final class FilteredKeyListMultimap<K extends @Nullable @Immutable Object, V ext
   }
 
   @Override
-  public List<V> removeAll(@CheckForNull Object key) {
+  public List<V> removeAll(@CheckForNull @Readonly Object key) {
     return (List<V>) super.removeAll(key);
   }
 

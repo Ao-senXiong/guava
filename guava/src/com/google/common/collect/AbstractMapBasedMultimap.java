@@ -1001,7 +1001,7 @@ abstract class AbstractMapBasedMultimap<K extends @Nullable @Immutable Object, V
     }
 
     @Override
-    public boolean remove(@CheckForNull @UnknownSignedness Object key) {
+    public boolean remove(@CheckForNull @UnknownSignedness @Readonly Object key) {
       int count = 0;
       Collection<V> collection = map().remove(key);
       if (collection != null) {
@@ -1376,13 +1376,13 @@ abstract class AbstractMapBasedMultimap<K extends @Nullable @Immutable Object, V
     // The following methods are included for performance.
 
     @Override
-    public boolean containsKey(@CheckForNull @UnknownSignedness Object key) {
+    public boolean containsKey(@CheckForNull @UnknownSignedness @Readonly Object key) {
       return Maps.safeContainsKey(submap, key);
     }
 
     @Override
     @CheckForNull
-    public Collection<V> get(@CheckForNull @UnknownSignedness Object key) {
+    public Collection<V> get(@CheckForNull @UnknownSignedness @Readonly Object key) {
       Collection<V> collection = Maps.safeGet(submap, key);
       if (collection == null) {
         return null;
@@ -1404,7 +1404,7 @@ abstract class AbstractMapBasedMultimap<K extends @Nullable @Immutable Object, V
 
     @Override
     @CheckForNull
-    public Collection<V> remove(@CheckForNull @UnknownSignedness Object key) {
+    public Collection<V> remove(@CheckForNull @UnknownSignedness @Readonly Object key) {
       Collection<V> collection = submap.remove(key);
       if (collection == null) {
         return null;

@@ -37,6 +37,7 @@ import org.checkerframework.checker.nullness.qual.KeyFor;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.checker.pico.qual.Immutable;
 import org.checkerframework.checker.pico.qual.Mutable;
+import org.checkerframework.checker.pico.qual.Readonly;
 import org.checkerframework.checker.signedness.qual.UnknownSignedness;
 import org.checkerframework.dataflow.qual.Pure;
 import org.checkerframework.dataflow.qual.SideEffectFree;
@@ -239,8 +240,8 @@ final class RegularImmutableMap<K extends @Immutable Object, V> extends Immutabl
    */
   @CanIgnoreReturnValue
   static <K extends @Immutable Object, V> @Nullable ImmutableMapEntry<K, V> checkNoConflictInKeyBucket(
-      Object key,
-      Object newValue,
+          @Readonly Object key,
+          @Readonly Object newValue,
       @CheckForNull ImmutableMapEntry<K, V> keyBucketHead,
       boolean throwIfDuplicateKeys)
       throws BucketOverflowException {
@@ -264,13 +265,13 @@ final class RegularImmutableMap<K extends @Immutable Object, V> extends Immutabl
 
   @Override
   @CheckForNull
-  public V get(@CheckForNull @UnknownSignedness Object key) {
+  public V get(@CheckForNull @UnknownSignedness @Readonly Object key) {
     return get(key, table, mask);
   }
 
   @CheckForNull
   static <V> V get(
-      @CheckForNull Object key,
+      @CheckForNull @Readonly Object key,
       @CheckForNull @Nullable ImmutableMapEntry<?, V>[] keyTable,
       int mask) {
     if (key == null || keyTable == null) {

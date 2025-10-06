@@ -39,6 +39,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.checker.pico.qual.Assignable;
 import org.checkerframework.checker.pico.qual.Immutable;
 import org.checkerframework.checker.pico.qual.Mutable;
+import org.checkerframework.checker.pico.qual.Readonly;
 import org.checkerframework.checker.signedness.qual.UnknownSignedness;
 import org.checkerframework.framework.qual.AnnotatedFor;
 
@@ -151,7 +152,7 @@ class RegularImmutableBiMap<K extends @Immutable Object , V extends @Immutable O
 
   @Override
   @CheckForNull
-  public V get(@CheckForNull @UnknownSignedness Object key) {
+  public V get(@CheckForNull @UnknownSignedness @Readonly Object key) {
     return RegularImmutableMap.get(key, keyTable, mask);
   }
 

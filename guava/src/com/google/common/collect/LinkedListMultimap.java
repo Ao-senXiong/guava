@@ -696,7 +696,7 @@ public class LinkedListMultimap<K extends @Nullable @Immutable Object, V extends
    */
   @CanIgnoreReturnValue
   @Override
-  public List<V> removeAll(@Mutable LinkedListMultimap<K,V> this, @Nullable Object key) {
+  public List<V> removeAll(@Mutable LinkedListMultimap<K,V> this, @Nullable @Readonly Object key) {
     /*
      * Safe because all we do is remove values for the key, not add them. (If we wanted to make sure
      * to call getCopy and removeAllNodes only with a true K, then we could check containsKey first.

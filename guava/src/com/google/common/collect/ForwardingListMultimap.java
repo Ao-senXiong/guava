@@ -22,6 +22,7 @@ import java.util.List;
 import javax.annotation.CheckForNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.checker.pico.qual.Immutable;
+import org.checkerframework.checker.pico.qual.Readonly;
 
 /**
  * A list multimap which forwards all its method calls to another list multimap. Subclasses should
@@ -53,7 +54,7 @@ public abstract class ForwardingListMultimap<K extends @Nullable @Immutable Obje
 
   @CanIgnoreReturnValue
   @Override
-  public List<V> removeAll(@CheckForNull Object key) {
+  public List<V> removeAll(@CheckForNull @Readonly Object key) {
     return delegate().removeAll(key);
   }
 

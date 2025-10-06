@@ -46,7 +46,7 @@ abstract class AbstractNavigableMap<K extends @Nullable @Immutable Object, V ext
 
   @Override
   @CheckForNull
-  public abstract V get(@CheckForNull @UnknownSignedness Object key);
+  public abstract V get(@CheckForNull @UnknownSignedness @Readonly Object key);
 
   @Override
   @CheckForNull

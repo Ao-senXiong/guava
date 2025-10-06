@@ -26,6 +26,7 @@ import java.util.function.BiConsumer;
 import javax.annotation.CheckForNull;
 import org.checkerframework.checker.index.qual.NonNegative;
 import org.checkerframework.checker.pico.qual.Immutable;
+import org.checkerframework.checker.pico.qual.Readonly;
 import org.checkerframework.checker.signedness.qual.UnknownSignedness;
 
 /**
@@ -58,7 +59,7 @@ final class SingletonImmutableBiMap<K extends @Immutable Object, V extends @Immu
 
   @Override
   @CheckForNull
-  public V get(@CheckForNull @UnknownSignedness Object key) {
+  public V get(@CheckForNull @UnknownSignedness @Readonly Object key) {
     return singleKey.equals(key) ? singleValue : null;
   }
 
@@ -73,7 +74,7 @@ final class SingletonImmutableBiMap<K extends @Immutable Object, V extends @Immu
   }
 
   @Override
-  public boolean containsKey(@CheckForNull @UnknownSignedness Object key) {
+  public boolean containsKey(@CheckForNull @UnknownSignedness @Readonly Object key) {
     return singleKey.equals(key);
   }
 

@@ -73,7 +73,7 @@ class FilteredKeyMultimap<K extends @Nullable @Immutable Object, V extends @Null
   }
 
   @Override
-  public boolean containsKey(@CheckForNull @UnknownSignedness Object key) {
+  public boolean containsKey(@CheckForNull @UnknownSignedness @Readonly Object key) {
     if (unfiltered.containsKey(key)) {
       @SuppressWarnings("unchecked") // k is equal to a K, if not one itself
       K k = (K) key;
@@ -83,7 +83,7 @@ class FilteredKeyMultimap<K extends @Nullable @Immutable Object, V extends @Null
   }
 
   @Override
-  public Collection<V> removeAll(@CheckForNull Object key) {
+  public Collection<V> removeAll(@CheckForNull @Readonly Object key) {
     return containsKey(key) ? unfiltered.removeAll(key) : unmodifiableEmptyCollection();
   }
 

@@ -198,7 +198,7 @@ public final class ObjectArrays {
   }
 
   @CanIgnoreReturnValue
-  private static @Nullable Object @Mutable [] fillArray(Iterable<?> elements, @Nullable Object @Mutable [] array) {
+  private static @Nullable Object [] fillArray(Iterable<?> elements, @Nullable Object [] array) {
     int i = 0;
     for (Object element : elements) {
       array[i++] = element;

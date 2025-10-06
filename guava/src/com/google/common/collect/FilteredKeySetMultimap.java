@@ -51,7 +51,7 @@ final class FilteredKeySetMultimap<K extends @Nullable @Immutable Object, V exte
   }
 
   @Override
-  public Set<V> removeAll(@CheckForNull Object key) {
+  public Set<V> removeAll(@CheckForNull @Readonly Object key) {
     return (Set<V>) super.removeAll(key);
   }
 

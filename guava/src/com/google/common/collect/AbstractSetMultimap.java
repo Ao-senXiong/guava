@@ -106,7 +106,7 @@ abstract class AbstractSetMultimap<K extends @Nullable @Immutable Object, V exte
    */
   @CanIgnoreReturnValue
   @Override
-  public Set<V> removeAll(@CheckForNull Object key) {
+  public Set<V> removeAll(@CheckForNull @Readonly Object key) {
     return (Set<V>) super.removeAll(key);
   }
 

@@ -348,13 +348,13 @@ public final class TreeRangeMap<K extends @Immutable Comparable, V> implements R
     }
 
     @Override
-    public boolean containsKey(@CheckForNull @UnknownSignedness Object key) {
+    public boolean containsKey(@CheckForNull @UnknownSignedness @Readonly Object key) {
       return get(key) != null;
     }
 
     @Override
     @CheckForNull
-    public V get(@CheckForNull @UnknownSignedness Object key) {
+    public V get(@CheckForNull @UnknownSignedness @Readonly Object key) {
       if (key instanceof Range) {
         Range<?> range = (Range<?>) key;
         RangeMapEntry<K, V> rangeMapEntry = entriesByLowerBound.get(range.lowerBound);
@@ -651,7 +651,7 @@ public final class TreeRangeMap<K extends @Immutable Comparable, V> implements R
     class SubRangeMapAsMap extends AbstractMap<Range<K>, V> {
 
       @Override
-      public boolean containsKey(@CheckForNull @UnknownSignedness Object key) {
+      public boolean containsKey(@CheckForNull @UnknownSignedness @Readonly Object key) {
         return get(key) != null;
       }
 
@@ -691,7 +691,7 @@ public final class TreeRangeMap<K extends @Immutable Comparable, V> implements R
 
       @Override
       @CheckForNull
-      public V remove(@CheckForNull @UnknownSignedness Object key) {
+      public V remove(@CheckForNull @UnknownSignedness @Readonly Object key) {
         V value = get(key);
         if (value != null) {
           // it's definitely in the map, so the cast and requireNonNull are safe

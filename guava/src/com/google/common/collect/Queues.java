@@ -373,7 +373,7 @@ public final class Queues {
   @SuppressWarnings("GoodTime") // should accept a java.time.Duration
   public static <E> int drainUninterruptibly(
       BlockingQueue<E> q,
-      @Mutable Collection<? super E> buffer,
+      Collection<? super E> buffer,
       int numElements,
       long timeout,
       TimeUnit unit) {

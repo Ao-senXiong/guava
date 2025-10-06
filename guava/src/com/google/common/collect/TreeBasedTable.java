@@ -292,7 +292,7 @@ public class TreeBasedTable<R extends @Immutable Object, C extends @Immutable Ob
     }
 
     @Override
-    public boolean containsKey(@CheckForNull @UnknownSignedness Object key) {
+    public boolean containsKey(@CheckForNull @UnknownSignedness @Readonly Object key) {
       return rangeContains(key) && super.containsKey(key);
     }
 

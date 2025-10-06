@@ -83,7 +83,7 @@ public interface SortedSetMultimap<K extends @Nullable @Immutable Object, V exte
    */
   @CanIgnoreReturnValue
   @Override
-  SortedSet<V> removeAll(@Mutable SortedSetMultimap<K,V> this, @CheckForNull Object key);
+  SortedSet<V> removeAll(@Mutable SortedSetMultimap<K,V> this, @CheckForNull @Readonly Object key);
 
   /**
    * Stores a collection of values with the same key, replacing any existing values for that key.

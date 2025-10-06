@@ -876,7 +876,7 @@ public final class Multimaps {
     }
 
     @Override
-    public SortedSet<V> removeAll(@CheckForNull Object key) {
+    public SortedSet<V> removeAll(@CheckForNull @Readonly Object key) {
       throw new UnsupportedOperationException();
     }
 
@@ -1146,7 +1146,7 @@ public final class Multimaps {
 
     @Pure
     @Override
-    public boolean containsKey(@CheckForNull @UnknownSignedness Object key) {
+    public boolean containsKey(@CheckForNull @UnknownSignedness @Readonly Object key) {
       return map.containsKey(key);
     }
 
@@ -1158,7 +1158,7 @@ public final class Multimaps {
 
     @Pure
     @Override
-    public boolean containsEntry(@CheckForNull Object key, @CheckForNull Object value) {
+    public boolean containsEntry(@CheckForNull @Readonly Object key, @CheckForNull @Readonly Object value) {
       return map.entrySet().contains(Maps.immutableEntry(key, value));
     }
 
@@ -1227,12 +1227,12 @@ public final class Multimaps {
     }
 
     @Override
-    public boolean remove(@CheckForNull Object key, @CheckForNull Object value) {
+    public boolean remove(@CheckForNull @Readonly Object key, @CheckForNull @Readonly Object value) {
       return map.entrySet().remove(Maps.immutableEntry(key, value));
     }
 
     @Override
-    public @Mutable Set<V> removeAll(@CheckForNull Object key) {
+    public Set<V> removeAll(@CheckForNull @Readonly Object key) {
       Set<V> values = new @Mutable HashSet<V>(2);
       if (!map.containsKey(key)) {
         return values;
@@ -1545,7 +1545,7 @@ public final class Multimaps {
     }
 
     @Override
-    public boolean containsKey(@CheckForNull @UnknownSignedness Object key) {
+    public boolean containsKey(@CheckForNull @UnknownSignedness @Readonly Object key) {
       return fromMultimap.containsKey(key);
     }
 
@@ -1597,13 +1597,13 @@ public final class Multimaps {
 
     @SuppressWarnings("unchecked")
     @Override
-    public boolean remove(@CheckForNull Object key, @CheckForNull Object value) {
+    public boolean remove(@CheckForNull @Readonly Object key, @CheckForNull @Readonly Object value) {
       return get((K) key).remove(value);
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public Collection<V2> removeAll(@CheckForNull Object key) {
+    public Collection<V2> removeAll(@CheckForNull @Readonly Object key) {
       return transform((K) key, fromMultimap.removeAll(key));
     }
 
@@ -1645,7 +1645,7 @@ public final class Multimaps {
 
     @SuppressWarnings("unchecked")
     @Override
-    public List<V2> removeAll(@CheckForNull Object key) {
+    public List<V2> removeAll(@CheckForNull @Readonly Object key) {
       return transform((K) key, fromMultimap.removeAll(key));
     }
 
@@ -1905,12 +1905,12 @@ public final class Multimaps {
       return new EntrySet();
     }
 
-    void removeValuesForKey(@CheckForNull Object key) {
+    void removeValuesForKey(@CheckForNull @Readonly Object key) {
       multimap.keySet().remove(key);
     }
 
     @WeakOuter
-    @Mutable class EntrySet extends Maps.EntrySet<K, Collection<V>> {
+    class EntrySet extends Maps.EntrySet<K, Collection<V>> {
       @Override
       Map<K, Collection<V>> map() {
         return AsMap.this;
@@ -1943,13 +1943,13 @@ public final class Multimaps {
     @SuppressWarnings("unchecked")
     @Override
     @CheckForNull
-    public Collection<V> get(@CheckForNull @UnknownSignedness Object key) {
+    public Collection<V> get(@CheckForNull @UnknownSignedness @Readonly Object key) {
       return containsKey(key) ? multimap.get((K) key) : null;
     }
 
     @Override
     @CheckForNull
-    public Collection<V> remove(@CheckForNull @UnknownSignedness Object key) {
+    public Collection<V> remove(@CheckForNull @UnknownSignedness @Readonly Object key) {
       return containsKey(key) ? multimap.removeAll(key) : null;
     }
 
@@ -1964,7 +1964,7 @@ public final class Multimaps {
     }
 
     @Override
-    public boolean containsKey(@CheckForNull @UnknownSignedness Object key) {
+    public boolean containsKey(@CheckForNull @UnknownSignedness @Readonly Object key) {
       return multimap.containsKey(key);
     }
 

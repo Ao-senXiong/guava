@@ -25,6 +25,7 @@ import javax.annotation.CheckForNull;
 import org.checkerframework.checker.index.qual.NonNegative;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.checker.pico.qual.Immutable;
+import org.checkerframework.checker.pico.qual.Readonly;
 import org.checkerframework.checker.signedness.qual.UnknownSignedness;
 
 /** A {@code RegularImmutableTable} optimized for dense data. */
@@ -124,7 +125,7 @@ final class DenseImmutableTable<R extends @Immutable Object, C extends @Immutabl
 
     @Override
     @CheckForNull
-    public V get(@CheckForNull @UnknownSignedness Object key) {
+    public V get(@CheckForNull @UnknownSignedness @Readonly Object key) {
       Integer keyIndex = keyToIndex().get(key);
       return (keyIndex == null) ? null : getValue(keyIndex);
     }

@@ -106,7 +106,7 @@ abstract class AbstractSortedSetMultimap<K extends @Nullable @Immutable Object, 
    */
   @CanIgnoreReturnValue
   @Override
-  public SortedSet<V> removeAll(@CheckForNull Object key) {
+  public SortedSet<V> removeAll(@CheckForNull @Readonly Object key) {
     return (SortedSet<V>) super.removeAll(key);
   }
 

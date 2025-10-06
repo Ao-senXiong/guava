@@ -22,6 +22,7 @@ import java.util.concurrent.ConcurrentMap;
 import javax.annotation.CheckForNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.checker.pico.qual.Immutable;
+import org.checkerframework.checker.pico.qual.Readonly;
 import org.checkerframework.checker.pico.qual.ReceiverDependentMutable;
 import org.checkerframework.checker.signedness.qual.UnknownSignedness;
 import org.checkerframework.framework.qual.AnnotatedFor;
@@ -65,7 +66,7 @@ public abstract class ForwardingConcurrentMap<K extends @Immutable Object, V> ex
   @CanIgnoreReturnValue
   @Override
   @SuppressWarnings("nullness:argument")
-  public boolean remove(@CheckForNull @UnknownSignedness Object key, @CheckForNull @UnknownSignedness Object value) {
+  public boolean remove(@CheckForNull @UnknownSignedness @Readonly Object key, @CheckForNull @UnknownSignedness @Readonly Object value) {
     return delegate().remove(key, value);
   }
 

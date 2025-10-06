@@ -167,7 +167,7 @@ public final class MinMaxPriorityQueue<E> extends AbstractQueue<E> {
    * @since 8.0
    */
   @Beta
-  public static final @Mutable class Builder<B> {
+  public static final class Builder<B> {
     /*
      * TODO(kevinb): when the dust settles, see if we still need this or can
      * just default to DEFAULT_CAPACITY.

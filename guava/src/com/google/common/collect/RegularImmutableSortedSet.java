@@ -32,6 +32,7 @@ import javax.annotation.CheckForNull;
 import org.checkerframework.checker.index.qual.NonNegative;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.checker.pico.qual.Immutable;
+import org.checkerframework.checker.pico.qual.Readonly;
 import org.checkerframework.checker.signedness.qual.UnknownSignedness;
 import org.checkerframework.dataflow.qual.Pure;
 import org.checkerframework.dataflow.qual.SideEffectFree;
@@ -166,7 +167,7 @@ final class RegularImmutableSortedSet<E> extends ImmutableSortedSet<E> {
     }
   }
 
-  private int unsafeBinarySearch(Object key) throws ClassCastException {
+  private int unsafeBinarySearch(@Readonly Object key) throws ClassCastException {
     return Collections.binarySearch(elements, key, unsafeComparator());
   }
 

@@ -23,6 +23,7 @@ import java.util.Set;
 import javax.annotation.CheckForNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.checker.pico.qual.Immutable;
+import org.checkerframework.checker.pico.qual.Readonly;
 
 /**
  * Implementation of {@link Multimaps#filterEntries(SetMultimap, Predicate)}.
@@ -49,7 +50,7 @@ final class FilteredEntrySetMultimap<K extends @Nullable @Immutable Object, V ex
   }
 
   @Override
-  public Set<V> removeAll(@CheckForNull Object key) {
+  public Set<V> removeAll(@CheckForNull @Readonly Object key) {
     return (Set<V>) super.removeAll(key);
   }
 
