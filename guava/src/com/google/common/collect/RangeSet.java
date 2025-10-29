@@ -20,9 +20,12 @@ import com.google.errorprone.annotations.DoNotMock;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import javax.annotation.CheckForNull;
+import org.checkerframework.checker.pico.qual.Mutable;
+import org.checkerframework.checker.pico.qual.PolyMutable;
 import org.checkerframework.checker.pico.qual.Readonly;
 import org.checkerframework.checker.pico.qual.ReceiverDependentMutable;
 import org.checkerframework.checker.signedness.qual.UnknownSignedness;
+import org.checkerframework.framework.qual.AnnotatedFor;
 
 /**
  * A set comprising zero or more {@linkplain Range#isEmpty nonempty}, {@linkplain
@@ -52,12 +55,13 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
  * @author Louis Wasserman
  * @since 14.0
  */
+@AnnotatedFor("pico")
 @Beta
 @DoNotMock("Use ImmutableRangeSet or TreeRangeSet")
 @GwtIncompatible
 @ElementTypesAreNonnullByDefault
 @ReceiverDependentMutable
-public interface RangeSet<C extends Comparable> {
+public interface RangeSet<C extends @Readonly Comparable> {
   // TODO(lowasser): consider adding default implementations of some of these methods
 
   // Query methods
@@ -70,7 +74,7 @@ public interface RangeSet<C extends Comparable> {
    * value}, or {@code null} if this range set does not contain {@code value}.
    */
   @CheckForNull
-  Range<C> rangeContaining(C value);
+  Range<C> rangeContaining(@Readonly RangeSet<C> this, C value);
 
   /**
    * Returns {@code true} if there exists a non-empty range enclosed by both a member range in this
@@ -79,13 +83,13 @@ public interface RangeSet<C extends Comparable> {
    *
    * @since 20.0
    */
-  boolean intersects(Range<C> otherRange);
+  boolean intersects(@Readonly RangeSet<C> this, @Readonly Range<C> otherRange);
 
   /**
    * Returns {@code true} if there exists a member range in this range set which {@linkplain
    * Range#encloses encloses} the specified range.
    */
-  boolean encloses(Range<C> otherRange);
+  boolean encloses(@Readonly RangeSet<C> this, @Readonly Range<C> otherRange);
 
   /**
    * Returns {@code true} if for each member range in {@code other} there exists a member range in
@@ -96,7 +100,7 @@ public interface RangeSet<C extends Comparable> {
    * <p>This is equivalent to checking if this range set {@link #encloses} each of the ranges in
    * {@code other}.
    */
-  boolean enclosesAll(RangeSet<C> other);
+  boolean enclosesAll(@Readonly RangeSet<C> this, @Readonly RangeSet<C> other);
 
   /**
    * Returns {@code true} if for each range in {@code other} there exists a member range in this
@@ -108,7 +112,7 @@ public interface RangeSet<C extends Comparable> {
    *
    * @since 21.0
    */
-  default boolean enclosesAll(Iterable<Range<C>> other) {
+  default boolean enclosesAll(@Readonly RangeSet<C> this, @Readonly Iterable<Range<C>> other) {
     for (Range<C> range : other) {
       if (!encloses(range)) {
         return false;
@@ -126,7 +130,7 @@ public interface RangeSet<C extends Comparable> {
    *
    * @throws NoSuchElementException if this range set is {@linkplain #isEmpty() empty}
    */
-  Range<C> span();
+  Range<C> span(@Readonly RangeSet<C> this);
 
   // Views
 
@@ -136,7 +140,7 @@ public interface RangeSet<C extends Comparable> {
    * Iterable#iterator} method return the ranges in increasing order of lower bound (equivalently,
    * of upper bound).
    */
-  Set<Range<C>> asRanges();
+  @PolyMutable Set<Range<C>> asRanges(@PolyMutable RangeSet<C> this);
 
   /**
    * Returns a descending view of the {@linkplain Range#isConnected disconnected} ranges that make
@@ -146,7 +150,7 @@ public interface RangeSet<C extends Comparable> {
    *
    * @since 19.0
    */
-  Set<Range<C>> asDescendingSetOfRanges();
+    @PolyMutable Set<Range<C>> asDescendingSetOfRanges(@PolyMutable RangeSet<C> this);
 
   /**
    * Returns a view of the complement of this {@code RangeSet}.
@@ -154,7 +158,7 @@ public interface RangeSet<C extends Comparable> {
    * <p>The returned view supports the {@link #add} operation if this {@code RangeSet} supports
    * {@link #remove}, and vice versa.
    */
-  RangeSet<C> complement();
+  @PolyMutable RangeSet<C> complement(@PolyMutable RangeSet<C> this);
 
   /**
    * Returns a view of the intersection of this {@code RangeSet} with the specified range.
@@ -163,7 +167,7 @@ public interface RangeSet<C extends Comparable> {
    * the caveat that an {@link IllegalArgumentException} is thrown on an attempt to {@linkplain
    * #add(Range) add} any range not {@linkplain Range#encloses(Range) enclosed} by {@code view}.
    */
-  RangeSet<C> subRangeSet(Range<C> view);
+  @PolyMutable RangeSet<C> subRangeSet(@PolyMutable RangeSet<C> this, Range<C> view);
 
   // Modification
 
@@ -179,7 +183,7 @@ public interface RangeSet<C extends Comparable> {
    * @throws UnsupportedOperationException if this range set does not support the {@code add}
    *     operation
    */
-  void add(Range<C> range);
+  void add(@Mutable RangeSet<C> this, Range<C> range);
 
   /**
    * Removes the specified range from this {@code RangeSet} (optional operation). After this
@@ -190,7 +194,7 @@ public interface RangeSet<C extends Comparable> {
    * @throws UnsupportedOperationException if this range set does not support the {@code remove}
    *     operation
    */
-  void remove(Range<C> range);
+  void remove(@Mutable RangeSet<C> this, Range<C> range);
 
   /**
    * Removes all ranges from this {@code RangeSet} (optional operation). After this operation,
@@ -201,7 +205,7 @@ public interface RangeSet<C extends Comparable> {
    * @throws UnsupportedOperationException if this range set does not support the {@code clear}
    *     operation
    */
-  void clear();
+  void clear(@Mutable RangeSet<C> this);
 
   /**
    * Adds all of the ranges from the specified range set to this range set (optional operation).
@@ -213,7 +217,7 @@ public interface RangeSet<C extends Comparable> {
    * @throws UnsupportedOperationException if this range set does not support the {@code addAll}
    *     operation
    */
-  void addAll(RangeSet<C> other);
+  void addAll(@Mutable RangeSet<C> this, @Readonly RangeSet<C> other);
 
   /**
    * Adds all of the specified ranges to this range set (optional operation). After this operation,
@@ -226,7 +230,7 @@ public interface RangeSet<C extends Comparable> {
    *     operation
    * @since 21.0
    */
-  default void addAll(Iterable<Range<C>> ranges) {
+  default void addAll(@Mutable RangeSet<C> this, @Readonly Iterable<Range<C>> ranges) {
     for (Range<C> range : ranges) {
       add(range);
     }
@@ -243,7 +247,7 @@ public interface RangeSet<C extends Comparable> {
    * @throws UnsupportedOperationException if this range set does not support the {@code removeAll}
    *     operation
    */
-  void removeAll(RangeSet<C> other);
+  void removeAll(@Mutable RangeSet<C> this, @Readonly RangeSet<C> other);
 
   /**
    * Removes all of the specified ranges from this range set (optional operation).
@@ -255,7 +259,7 @@ public interface RangeSet<C extends Comparable> {
    *     operation
    * @since 21.0
    */
-  default void removeAll(Iterable<Range<C>> ranges) {
+  default void removeAll(@Mutable RangeSet<C> this, @Readonly Iterable<Range<C>> ranges) {
     for (Range<C> range : ranges) {
       remove(range);
     }
@@ -268,7 +272,7 @@ public interface RangeSet<C extends Comparable> {
    * according to {@link Range#equals(Object)}.
    */
   @Override
-  boolean equals(@CheckForNull @Readonly Object obj);
+  boolean equals(@Readonly RangeSet<C> this, @CheckForNull @Readonly Object obj);
 
   /** Returns {@code asRanges().hashCode()}. */
   @Override

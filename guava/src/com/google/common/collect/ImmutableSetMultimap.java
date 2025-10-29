@@ -621,7 +621,7 @@ public class ImmutableSetMultimap<K extends @Immutable Object, V extends @Immuta
     if (keyCount < 0) {
       throw new InvalidObjectException("Invalid key count " + keyCount);
     }
-    ImmutableMap.Builder<Object, ImmutableSet<Object>> builder = ImmutableMap.builder();
+    ImmutableMap.Builder<@Immutable Object, ImmutableSet<Object>> builder = ImmutableMap.builder();
     int tmpSize = 0;
 
     for (int i = 0; i < keyCount; i++) {
@@ -643,7 +643,7 @@ public class ImmutableSetMultimap<K extends @Immutable Object, V extends @Immuta
       tmpSize += valueCount;
     }
 
-    ImmutableMap<Object, ImmutableSet<Object>> tmpMap;
+    ImmutableMap<@Immutable Object, ImmutableSet<Object>> tmpMap;
     try {
       tmpMap = builder.buildOrThrow();
     } catch (IllegalArgumentException e) {

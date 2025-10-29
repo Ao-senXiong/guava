@@ -68,7 +68,7 @@ import org.checkerframework.framework.qual.AnnotatedFor;
  * @author Kevin Bourrillion
  * @since 2.0
  */
-@AnnotatedFor({"nullness"})
+@AnnotatedFor({"nullness", "pico"})
 @GwtCompatible(serializable = true, emulated = true)
 @SuppressWarnings("serial") // we're overriding default serialization
 @ElementTypesAreNonnullByDefault
@@ -82,7 +82,7 @@ public abstract class ImmutableList<E extends @Readonly Object> extends Immutabl
    *
    * @since 21.0
    */
-  public static <E extends @NonNull Object> Collector<E, ?, ImmutableList<E>> toImmutableList() {
+  public static <E extends @NonNull @Readonly Object> Collector<E, ?, ImmutableList<E>> toImmutableList() {
     return CollectCollectors.toImmutableList();
   }
 
@@ -442,18 +442,18 @@ public abstract class ImmutableList<E extends @Readonly Object> extends Immutabl
   }
 
   @Override
-  public int indexOf(@CheckForNull @UnknownSignedness Object object) {
+  public int indexOf(@CheckForNull @UnknownSignedness @Readonly Object object) {
     return (object == null) ? -1 : Lists.indexOfImpl(this, object);
   }
 
   @Pure
   @Override
-  public int lastIndexOf(@CheckForNull @UnknownSignedness Object object) {
+  public int lastIndexOf(@CheckForNull @UnknownSignedness @Readonly Object object) {
     return (object == null) ? -1 : Lists.lastIndexOfImpl(this, object);
   }
 
   @Override
-  public boolean contains(@CheckForNull @UnknownSignedness Object object) {
+  public boolean contains(@CheckForNull @UnknownSignedness @Readonly Object object) {
     return indexOf(object) >= 0;
   }
 
@@ -641,6 +641,7 @@ public abstract class ImmutableList<E extends @Readonly Object> extends Immutabl
     return (size() <= 1) ? this : new ReverseImmutableList<E>(this);
   }
 
+  @Immutable
   private static class ReverseImmutableList<E> extends ImmutableList<E> {
     private final transient ImmutableList<E> forwardList;
 
@@ -662,18 +663,18 @@ public abstract class ImmutableList<E extends @Readonly Object> extends Immutabl
     }
 
     @Override
-    public boolean contains(@CheckForNull @UnknownSignedness Object object) {
+    public boolean contains(@CheckForNull @UnknownSignedness @Readonly Object object) {
       return forwardList.contains(object);
     }
 
     @Override
-    public int indexOf(@CheckForNull @UnknownSignedness Object object) {
+    public int indexOf(@CheckForNull @UnknownSignedness @Readonly Object object) {
       int index = forwardList.lastIndexOf(object);
       return (index >= 0) ? reverseIndex(index) : -1;
     }
 
     @Override
-    public int lastIndexOf(@CheckForNull @UnknownSignedness Object object) {
+    public int lastIndexOf(@CheckForNull @UnknownSignedness @Readonly Object object) {
       int index = forwardList.indexOf(object);
       return (index >= 0) ? reverseIndex(index) : -1;
     }
@@ -707,7 +708,7 @@ public abstract class ImmutableList<E extends @Readonly Object> extends Immutabl
   }
 
   @Override
-  public int hashCode(@UnknownSignedness ImmutableList<E> this) {
+  public int hashCode(@UnknownSignedness @Readonly ImmutableList<E> this) {
     int hashCode = 1;
     int n = size();
     for (int i = 0; i < n; i++) {

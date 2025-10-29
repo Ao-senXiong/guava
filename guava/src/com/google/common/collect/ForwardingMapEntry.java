@@ -54,7 +54,7 @@ import org.checkerframework.framework.qual.AnnotatedFor;
  * @author Louis Wasserman
  * @since 2.0
  */
-@AnnotatedFor({"nullness"})
+@AnnotatedFor({"nullness", "pico"})
 @GwtCompatible
 @ElementTypesAreNonnullByDefault
 @ReceiverDependentMutable
@@ -66,19 +66,19 @@ public abstract class ForwardingMapEntry<K extends @Nullable @Immutable Object, 
   protected ForwardingMapEntry() {}
 
   @Override
-  protected abstract @ReceiverDependentMutable Entry<K, V> delegate();
+  protected abstract @PolyMutable Entry<K, V> delegate(@PolyMutable ForwardingMapEntry<K, V> this);
 
   @Pure
   @Override
   @ParametricNullness
-  public K getKey() {
+  public K getKey(@Readonly ForwardingMapEntry<K, V> this) {
     return delegate().getKey();
   }
 
   @Pure
   @Override
   @ParametricNullness
-  public V getValue() {
+  public V getValue(@Readonly ForwardingMapEntry<K, V> this) {
     return delegate().getValue();
   }
 
@@ -90,13 +90,13 @@ public abstract class ForwardingMapEntry<K extends @Nullable @Immutable Object, 
 
   @Pure
   @Override
-  public boolean equals(@CheckForNull Object object) {
+  public boolean equals(@Readonly ForwardingMapEntry<K, V> this, @CheckForNull @Readonly Object object) {
     return delegate().equals(object);
   }
 
   @Pure
   @Override
-  public int hashCode(@UnknownSignedness ForwardingMapEntry<K, V> this) {
+  public int hashCode(@UnknownSignedness @Readonly ForwardingMapEntry<K, V> this) {
     return delegate().hashCode();
   }
 
@@ -107,7 +107,7 @@ public abstract class ForwardingMapEntry<K extends @Nullable @Immutable Object, 
    *
    * @since 7.0
    */
-  protected boolean standardEquals(@CheckForNull Object object) {
+  protected boolean standardEquals(@Readonly ForwardingMapEntry<K, V> this, @CheckForNull @Readonly Object object) {
     if (object instanceof Entry) {
       Entry<?, ?> that = (Entry<?, ?>) object;
       return Objects.equal(this.getKey(), that.getKey())
@@ -123,7 +123,7 @@ public abstract class ForwardingMapEntry<K extends @Nullable @Immutable Object, 
    *
    * @since 7.0
    */
-  protected int standardHashCode() {
+  protected int standardHashCode(@Readonly ForwardingMapEntry<K, V> this) {
     K k = getKey();
     V v = getValue();
     return ((k == null) ? 0 : k.hashCode()) ^ ((v == null) ? 0 : v.hashCode());
@@ -137,7 +137,7 @@ public abstract class ForwardingMapEntry<K extends @Nullable @Immutable Object, 
    * @since 7.0
    */
   @Beta
-  protected String standardToString() {
+  protected String standardToString(@Readonly ForwardingMapEntry<K, V> this) {
     return getKey() + "=" + getValue();
   }
 }

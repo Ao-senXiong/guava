@@ -29,7 +29,7 @@ import org.checkerframework.dataflow.qual.Pure;
 import org.checkerframework.framework.qual.AnnotatedFor;
 
 /** An ordering that uses the reverse of a given order. */
-@AnnotatedFor({"nullness"})
+@AnnotatedFor({"nullness", "pico"})
 @GwtCompatible(serializable = true)
 @ElementTypesAreNonnullByDefault
 final class ReverseOrdering<T extends @Nullable @Readonly Object> extends Ordering<T>
@@ -104,7 +104,7 @@ final class ReverseOrdering<T extends @Nullable @Readonly Object> extends Orderi
 
   @Pure
   @Override
-  public boolean equals(@CheckForNull Object object) {
+  public boolean equals(@CheckForNull @Readonly Object object) {
     if (object == this) {
       return true;
     }

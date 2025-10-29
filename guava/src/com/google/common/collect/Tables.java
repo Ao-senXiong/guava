@@ -40,6 +40,8 @@ import java.util.stream.Collector;
 import javax.annotation.CheckForNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.checker.pico.qual.Immutable;
+import org.checkerframework.checker.pico.qual.Mutable;
+import org.checkerframework.checker.pico.qual.PolyMutable;
 import org.checkerframework.checker.pico.qual.Readonly;
 import org.checkerframework.checker.pico.qual.ReceiverDependentMutable;
 import org.checkerframework.checker.signedness.qual.UnknownSignedness;
@@ -126,7 +128,7 @@ public final class Tables {
    * @param value the value to be associated with the returned cell
    */
   public static <R extends @Nullable @Immutable Object, C extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object>
-      Cell<R, C, V> immutableCell(
+      @Immutable Cell<R, C, V> immutableCell(
           @ParametricNullness R rowKey,
           @ParametricNullness C columnKey,
           @ParametricNullness V value) {
@@ -179,7 +181,7 @@ public final class Tables {
     AbstractCell() {}
 
     @Override
-    public boolean equals(@CheckForNull @Readonly Object obj) {
+    public boolean equals(@Readonly AbstractCell<R, C, V> this, @CheckForNull @Readonly Object obj) {
       if (obj == this) {
         return true;
       }
@@ -198,7 +200,7 @@ public final class Tables {
     }
 
     @Override
-    public String toString() {
+    public String toString(@Readonly AbstractCell<R, C, V> this) {
       return "(" + getRowKey() + "," + getColumnKey() + ")=" + getValue();
     }
   }
@@ -228,59 +230,60 @@ public final class Tables {
       extends AbstractTable<C, R, V> {
     final Table<R, C, V> original;
 
-    TransposeTable(Table<R, C, V> original) {
+    TransposeTable(@ReceiverDependentMutable Table<R, C, V> original) {
       this.original = checkNotNull(original);
     }
 
     @Override
-    public void clear() {
+    public void clear(@Mutable TransposeTable<C, R, V> this) {
       original.clear();
     }
 
     @Override
-    public Map<C, V> column(@ParametricNullness R columnKey) {
+    public @PolyMutable Map<C, V> column(@PolyMutable TransposeTable<C, R, V> this, @ParametricNullness R columnKey) {
       return original.row(columnKey);
     }
 
     @Override
-    public Set<R> columnKeySet() {
+    public @PolyMutable Set<R> columnKeySet(@PolyMutable TransposeTable<C, R, V> this) {
       return original.rowKeySet();
     }
 
     @Override
-    public Map<R, Map<C, V>> columnMap() {
+    public @PolyMutable Map<R, Map<C, V>> columnMap(@PolyMutable TransposeTable<C, R, V> this) {
       return original.rowMap();
     }
 
     @Override
-    public boolean contains(@CheckForNull @Readonly Object rowKey, @CheckForNull @Readonly Object columnKey) {
+    public boolean contains(@Readonly TransposeTable<C, R, V> this, @CheckForNull @Readonly Object rowKey, @CheckForNull @Readonly Object columnKey) {
       return original.contains(columnKey, rowKey);
     }
 
     @Override
-    public boolean containsColumn(@CheckForNull @Readonly Object columnKey) {
+    public boolean containsColumn(@Readonly TransposeTable<C, R, V> this, @CheckForNull @Readonly Object columnKey) {
       return original.containsRow(columnKey);
     }
 
     @Override
-    public boolean containsRow(@CheckForNull @Readonly Object rowKey) {
+    public boolean containsRow(@Readonly TransposeTable<C, R, V> this, @CheckForNull @Readonly Object rowKey) {
       return original.containsColumn(rowKey);
     }
 
     @Override
-    public boolean containsValue(@CheckForNull @UnknownSignedness @Readonly Object value) {
+    public boolean containsValue(@Readonly TransposeTable<C, R, V> this, @CheckForNull @UnknownSignedness @Readonly Object value) {
       return original.containsValue(value);
     }
 
     @Override
     @CheckForNull
-    public V get(@CheckForNull @Readonly Object rowKey, @CheckForNull @Readonly Object columnKey) {
+    public V get(@Readonly TransposeTable<C, R, V> this, @CheckForNull @Readonly Object rowKey, @CheckForNull @Readonly Object columnKey) {
       return original.get(columnKey, rowKey);
     }
 
     @Override
     @CheckForNull
     public V put(
+            @Mutable TransposeTable<C, R, V> this,
         @ParametricNullness C rowKey,
         @ParametricNullness R columnKey,
         @ParametricNullness V value) {
@@ -288,38 +291,38 @@ public final class Tables {
     }
 
     @Override
-    public void putAll(Table<? extends C, ? extends R, ? extends V> table) {
+    public void putAll(@Mutable TransposeTable<C, R, V> this, @Readonly Table<? extends C, ? extends R, ? extends V> table) {
       original.putAll(transpose(table));
     }
 
     @Override
     @CheckForNull
-    public V remove(@CheckForNull @Readonly Object rowKey, @CheckForNull @Readonly Object columnKey) {
+    public V remove(@Mutable TransposeTable<C, R, V> this, @CheckForNull @Readonly Object rowKey, @CheckForNull @Readonly Object columnKey) {
       return original.remove(columnKey, rowKey);
     }
 
     @Override
-    public Map<R, V> row(@ParametricNullness C rowKey) {
+    public @PolyMutable Map<R, V> row(@PolyMutable TransposeTable<C, R, V> this, @ParametricNullness C rowKey) {
       return original.column(rowKey);
     }
 
     @Override
-    public Set<C> rowKeySet() {
+    public @PolyMutable Set<C> rowKeySet(@PolyMutable TransposeTable<C, R, V> this) {
       return original.columnKeySet();
     }
 
     @Override
-    public Map<C, Map<R, V>> rowMap() {
+    public @PolyMutable Map<C, Map<R, V>> rowMap(@PolyMutable TransposeTable<C, R, V> this) {
       return original.columnMap();
     }
 
     @Override
-    public int size() {
+    public int size(@Readonly TransposeTable<C, R, V> this) {
       return original.size();
     }
 
     @Override
-    public Collection<V> values() {
+    public @PolyMutable Collection<V> values(@PolyMutable TransposeTable<C, R, V> this) {
       return original.values();
     }
 

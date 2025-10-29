@@ -306,13 +306,13 @@ final class CollectSpliterators {
    * @param <OutSpliteratorT> the type of the output spliterators
    */
   abstract static class FlatMapSpliterator<
-          InElementT extends @Nullable Object,
-          OutElementT extends @Nullable Object,
+          InElementT extends @Nullable @Readonly Object,
+          OutElementT extends @Nullable @Readonly Object,
           OutSpliteratorT extends Spliterator<OutElementT>>
       implements Spliterator<OutElementT> {
     /** Factory for constructing {@link FlatMapSpliterator} instances. */
     @FunctionalInterface
-    interface Factory<InElementT extends @Nullable Object, OutSpliteratorT extends Spliterator<?>> {
+    interface Factory<InElementT extends @Nullable @Readonly Object, OutSpliteratorT extends Spliterator<?>> {
       OutSpliteratorT newFlatMapSpliterator(
           @CheckForNull OutSpliteratorT prefix,
           Spliterator<InElementT> fromSplit,
@@ -457,8 +457,8 @@ final class CollectSpliterators {
    * @param <OutSpliteratorT> the primitive spliterator type associated with {@code OutElementT}
    */
   abstract static class FlatMapSpliteratorOfPrimitive<
-          InElementT extends @Nullable Object,
-          OutElementT extends @Nullable Object,
+          InElementT extends @Nullable @Readonly Object,
+          OutElementT extends @Nullable @Readonly Object,
           OutConsumerT,
           OutSpliteratorT extends
               Spliterator.OfPrimitive<OutElementT, OutConsumerT, OutSpliteratorT>>
@@ -510,7 +510,7 @@ final class CollectSpliterators {
   }
 
   /** Implementation of {@link #flatMapToInt}. */
-  static final class FlatMapSpliteratorOfInt<InElementT extends @Nullable Object>
+  static final class FlatMapSpliteratorOfInt<InElementT extends @Nullable @Readonly Object>
       extends FlatMapSpliteratorOfPrimitive<InElementT, Integer, IntConsumer, Spliterator.OfInt>
       implements Spliterator.OfInt {
     FlatMapSpliteratorOfInt(

@@ -29,7 +29,6 @@ import java.util.Set;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.checker.pico.qual.Immutable;
 import org.checkerframework.checker.pico.qual.Mutable;
-import org.checkerframework.checker.pico.qual.PolyMutable;
 import org.checkerframework.checker.pico.qual.Readonly;
 import org.checkerframework.checker.pico.qual.ReceiverDependentMutable;
 import org.checkerframework.dataflow.qual.Pure;
@@ -55,7 +54,7 @@ import org.checkerframework.framework.qual.AnnotatedFor;
  * @author Jared Levy
  * @since 2.0
  */
-@AnnotatedFor({"nullness"})
+@AnnotatedFor({"nullness", "pico"})
 @GwtCompatible(serializable = true, emulated = true)
 @ElementTypesAreNonnullByDefault
 @ReceiverDependentMutable
@@ -71,7 +70,7 @@ public final class HashMultimap<K extends @Nullable @Immutable Object, V extends
    * <p>This method will soon be deprecated in favor of {@code
    * MultimapBuilder.hashKeys().hashSetValues().build()}.
    */
-  public static <K extends @Nullable Object, V extends @Nullable Object>
+  public static <K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object>
       HashMultimap<K, V> create() {
     return new HashMultimap<>();
   }
@@ -88,7 +87,7 @@ public final class HashMultimap<K extends @Nullable @Immutable Object, V extends
    * @throws IllegalArgumentException if {@code expectedKeys} or {@code expectedValuesPerKey} is
    *     negative
    */
-  public static <K extends @Nullable Object, V extends @Nullable Object> HashMultimap<K, V> create(
+  public static <K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object> HashMultimap<K, V> create(
       int expectedKeys, int expectedValuesPerKey) {
     return new HashMultimap<>(expectedKeys, expectedValuesPerKey);
   }
@@ -103,7 +102,7 @@ public final class HashMultimap<K extends @Nullable @Immutable Object, V extends
    *
    * @param multimap the multimap whose contents are copied to this multimap
    */
-  public static <K extends @Nullable Object, V extends @Nullable Object> HashMultimap<K, V> create(
+  public static <K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object> HashMultimap<K, V> create(
       Multimap<? extends K, ? extends V> multimap) {
     return new HashMultimap<>(multimap);
   }
@@ -160,11 +159,11 @@ public final class HashMultimap<K extends @Nullable @Immutable Object, V extends
 
 @Pure
 @Override
-public boolean equals(@Nullable Object arg0) { return super.equals(arg0); }
+public boolean equals(@Readonly HashMultimap<K,V> this, @Nullable @Readonly Object arg0) { return super.equals(arg0); }
 
 @Override
-public Set<V> get(@Nullable K arg0) { return super.get(arg0); }
+public Set<V> get(@Readonly HashMultimap<K,V> this, @Nullable K arg0) { return super.get(arg0); }
 
 @Override
-public Set<V> removeAll(@Nullable Object arg0) { return super.removeAll(arg0); }
+public Set<V> removeAll(@Mutable HashMultimap<K,V> this, @Nullable @Readonly Object arg0) { return super.removeAll(arg0); }
 }

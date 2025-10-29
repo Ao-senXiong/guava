@@ -23,6 +23,8 @@ import java.util.function.Function;
 import java.util.stream.Collector;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.checker.pico.qual.Immutable;
+import org.checkerframework.checker.pico.qual.Readonly;
+import org.checkerframework.framework.qual.AnnotatedFor;
 
 /**
  * "Overrides" the {@link ImmutableMap} static methods that lack {@link ImmutableSortedMap}
@@ -31,6 +33,7 @@ import org.checkerframework.checker.pico.qual.Immutable;
  *
  * @author Chris Povirk
  */
+@AnnotatedFor("pico")
 @GwtIncompatible
 @ElementTypesAreNonnullByDefault
 @Immutable
@@ -45,7 +48,7 @@ abstract class ImmutableSortedMapFauxverideShim<K extends @Immutable Object, V> 
    */
   @DoNotCall("Use toImmutableSortedMap")
   @Deprecated
-  public static <T extends @Nullable Object, K extends @Immutable Object, V>
+  public static <T extends @Nullable @Readonly Object, K extends @Immutable Object, V>
       Collector<T, ?, ImmutableMap<K, V>> toImmutableMap(
           Function<? super T, ? extends K> keyFunction,
           Function<? super T, ? extends V> valueFunction) {
@@ -62,7 +65,7 @@ abstract class ImmutableSortedMapFauxverideShim<K extends @Immutable Object, V> 
    */
   @DoNotCall("Use toImmutableSortedMap")
   @Deprecated
-  public static <T extends @Nullable Object, K extends @Immutable Object, V>
+  public static <T extends @Nullable @Readonly Object, K extends @Immutable Object, V>
       Collector<T, ?, ImmutableMap<K, V>> toImmutableMap(
           Function<? super T, ? extends K> keyFunction,
           Function<? super T, ? extends V> valueFunction,

@@ -22,19 +22,20 @@ import java.util.List;
 import javax.annotation.CheckForNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.checker.pico.qual.Immutable;
+import org.checkerframework.checker.pico.qual.Readonly;
 
 import org.checkerframework.checker.signedness.qual.UnknownSignedness;
 import org.checkerframework.dataflow.qual.Pure;
 import org.checkerframework.framework.qual.AnnotatedFor;
 
 /** An ordering that compares objects according to a given order. */
-@AnnotatedFor({"nullness"})
+@AnnotatedFor({"nullness", "pico"})
 @GwtCompatible(serializable = true)
 @ElementTypesAreNonnullByDefault
 final class ExplicitOrdering<T extends @Immutable Object> extends Ordering<T> implements Serializable {
   final ImmutableMap<T, Integer> rankMap;
 
-  ExplicitOrdering(List<T> valuesInOrder) {
+  ExplicitOrdering(@Readonly List<T> valuesInOrder) {
     this(Maps.indexMap(valuesInOrder));
   }
 
@@ -58,7 +59,7 @@ final class ExplicitOrdering<T extends @Immutable Object> extends Ordering<T> im
 
   @Pure
   @Override
-  public boolean equals(@CheckForNull Object object) {
+  public boolean equals(@CheckForNull @Readonly Object object) {
     if (object instanceof ExplicitOrdering) {
       ExplicitOrdering<?> that = (ExplicitOrdering<?>) object;
       return this.rankMap.equals(that.rankMap);

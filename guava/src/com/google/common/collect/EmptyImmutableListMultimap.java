@@ -18,6 +18,7 @@ package com.google.common.collect;
 
 import com.google.common.annotations.GwtCompatible;
 import org.checkerframework.checker.pico.qual.Immutable;
+import org.checkerframework.checker.pico.qual.Readonly;
 import org.checkerframework.framework.qual.AnnotatedFor;
 
 /**
@@ -25,18 +26,18 @@ import org.checkerframework.framework.qual.AnnotatedFor;
  *
  * @author Jared Levy
  */
-@AnnotatedFor({"nullness"})
+@AnnotatedFor({"nullness", "pico"})
 @GwtCompatible(serializable = true)
 @ElementTypesAreNonnullByDefault
 @Immutable
-class EmptyImmutableListMultimap extends ImmutableListMultimap<Object, Object> {
+class EmptyImmutableListMultimap extends ImmutableListMultimap<@Immutable Object, @Readonly Object> {
   static final EmptyImmutableListMultimap INSTANCE = new EmptyImmutableListMultimap();
 
   private EmptyImmutableListMultimap() {
-    super(ImmutableMap.<Object, ImmutableList<Object>>of(), 0);
+    super(ImmutableMap.<@Immutable Object, ImmutableList<Object>>of(), 0);
   }
 
-  private Object readResolve() {
+  private @Immutable Object readResolve() {
     return INSTANCE; // preserve singleton property
   }
 

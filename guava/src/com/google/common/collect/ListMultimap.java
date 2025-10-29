@@ -25,6 +25,7 @@ import javax.annotation.CheckForNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.checker.pico.qual.Immutable;
 import org.checkerframework.checker.pico.qual.Mutable;
+import org.checkerframework.checker.pico.qual.PolyMutable;
 import org.checkerframework.checker.pico.qual.Readonly;
 import org.checkerframework.checker.pico.qual.ReceiverDependentMutable;
 import org.checkerframework.dataflow.qual.Pure;
@@ -91,7 +92,7 @@ public interface ListMultimap<K extends @Nullable @Immutable Object, V extends @
    * Multimaps#asMap(ListMultimap)} instead.
    */
   @Override
-  @ReceiverDependentMutable Map<K, Collection<V>> asMap();
+  @PolyMutable Map<K, Collection<V>> asMap(@PolyMutable ListMultimap<K,V> this);
 
   /**
    * Compares the specified object to this multimap for equality.

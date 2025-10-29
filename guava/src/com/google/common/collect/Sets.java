@@ -189,7 +189,7 @@ public final class Sets {
    * use the {@code HashSet} constructor directly, taking advantage of <a
    * href="http://goo.gl/iz2Wi">"diamond" syntax</a>.
    */
-  public static <E extends @Nullable Object> HashSet<E> newHashSet() {
+  public static <E extends @Nullable @Immutable Object> HashSet<E> newHashSet() {
     return new HashSet<E>();
   }
 
@@ -230,7 +230,7 @@ public final class Sets {
    *
    * <p>Overall, this method is not very useful and will likely be deprecated in the future.
    */
-  public static <E extends @Nullable @Readonly Object> HashSet<E> newHashSet(Iterable<? extends E> elements) {
+  public static <E extends @Nullable @Immutable Object> HashSet<E> newHashSet(Iterable<? extends E> elements) {
     return (elements instanceof Collection)
         ? new HashSet<E>((Collection<? extends E>) elements)
         : newHashSet(elements.iterator());
@@ -248,7 +248,7 @@ public final class Sets {
    *
    * <p>Overall, this method is not very useful and will likely be deprecated in the future.
    */
-  public static <E extends @Nullable @Readonly Object> HashSet<E> newHashSet(Iterator<? extends E> elements) {
+  public static <E extends @Nullable @Immutable Object> HashSet<E> newHashSet(Iterator<? extends E> elements) {
     HashSet<E> set = newHashSet();
     Iterators.addAll(set, elements);
     return set;
@@ -553,7 +553,7 @@ public final class Sets {
    * @deprecated Use {@link Collections#newSetFromMap} instead.
    */
   @Deprecated
-  public static <E extends @Nullable Object> Set<E> newSetFromMap(
+  public static <E extends @Nullable @Immutable Object> Set<E> newSetFromMap(
       Map<E, Boolean> map) {
     return Collections.newSetFromMap(map);
   }
@@ -740,7 +740,7 @@ public final class Sets {
 
       @Override
       public UnmodifiableIterator<E> iterator() {
-        return new AbstractIterator<E>() {
+        return new @Immutable AbstractIterator<E>() {
           final Iterator<? extends E> itr1 = set1.iterator();
           final Iterator<? extends E> itr2 = set2.iterator();
 
@@ -772,7 +772,7 @@ public final class Sets {
       }
 
       @Override
-      public boolean contains(@CheckForNull @UnknownSignedness Object object) {
+      public boolean contains(@CheckForNull @UnknownSignedness @Readonly Object object) {
         return set1.contains(object) || set2.contains(object);
       }
 
@@ -826,7 +826,7 @@ public final class Sets {
     return new SetView<E>() {
       @Override
       public UnmodifiableIterator<E> iterator() {
-        return new AbstractIterator<E>() {
+        return new @Immutable AbstractIterator<E>() {
           final Iterator<E> itr = set1.iterator();
 
           @Override
@@ -1673,7 +1673,7 @@ public final class Sets {
     }
     return new AbstractSet<Set<E>>() {
       @Override
-      public boolean contains(@CheckForNull @UnknownSignedness Object o) {
+      public boolean contains(@CheckForNull @UnknownSignedness @Readonly Object o) {
         if (o instanceof Set) {
           Set<?> s = (Set<?>) o;
           return s.size() == size && index.keySet().containsAll(s);

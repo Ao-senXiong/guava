@@ -26,6 +26,7 @@ import javax.annotation.CheckForNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.checker.pico.qual.Immutable;
 import org.checkerframework.checker.pico.qual.Mutable;
+import org.checkerframework.checker.pico.qual.PolyMutable;
 import org.checkerframework.checker.pico.qual.Readonly;
 import org.checkerframework.checker.pico.qual.ReceiverDependentMutable;
 import org.checkerframework.checker.signedness.qual.UnknownSignedness;
@@ -45,7 +46,7 @@ import org.checkerframework.framework.qual.AnnotatedFor;
  * @author Robert Konigsberg
  * @since 2.0
  */
-@AnnotatedFor({"nullness"})
+@AnnotatedFor({"nullness", "pico"})
 @GwtCompatible
 @ElementTypesAreNonnullByDefault
 @ReceiverDependentMutable
@@ -56,10 +57,10 @@ public abstract class ForwardingMultimap<K extends @Nullable @Immutable Object, 
   protected ForwardingMultimap() {}
 
   @Override
-  protected abstract Multimap<K, V> delegate();
+  protected abstract @PolyMutable Multimap<K, V> delegate(@PolyMutable ForwardingMultimap<K, V> this);
 
   @Override
-  public Map<K, Collection<V>> asMap() {
+  public @PolyMutable Map<K, Collection<V>> asMap(@PolyMutable ForwardingMultimap<K, V> this) {
     return delegate().asMap();
   }
 
@@ -88,7 +89,7 @@ public abstract class ForwardingMultimap<K extends @Nullable @Immutable Object, 
 
   @SideEffectFree
   @Override
-  public Collection<Entry<K, V>> entries() {
+  public @PolyMutable Collection<Entry<K, V>> entries(@PolyMutable ForwardingMultimap<K, V> this) {
     return delegate().entries();
   }
 
@@ -104,13 +105,13 @@ public abstract class ForwardingMultimap<K extends @Nullable @Immutable Object, 
   }
 
   @Override
-  public Multiset<K> keys() {
+  public @PolyMutable Multiset<K> keys(@PolyMutable ForwardingMultimap<K, V> this) {
     return delegate().keys();
   }
 
   @SideEffectFree
   @Override
-  public Set<K> keySet() {
+  public @PolyMutable Set<K> keySet(@PolyMutable ForwardingMultimap<K, V> this) {
     return delegate().keySet();
   }
 
@@ -140,13 +141,13 @@ public abstract class ForwardingMultimap<K extends @Nullable @Immutable Object, 
 
   @CanIgnoreReturnValue
   @Override
-  public Collection<V> removeAll(@Mutable ForwardingMultimap<K, V> this, @CheckForNull @Readonly Object key) {
+  public @PolyMutable Collection<V> removeAll(@Mutable ForwardingMultimap<K, V> this, @CheckForNull @Readonly Object key) {
     return delegate().removeAll(key);
   }
 
   @CanIgnoreReturnValue
   @Override
-  public Collection<V> replaceValues(@Mutable ForwardingMultimap<K, V> this, @ParametricNullness K key, Iterable<? extends V> values) {
+  public @PolyMutable Collection<V> replaceValues(@Mutable ForwardingMultimap<K, V> this, @ParametricNullness K key, Iterable<? extends V> values) {
     return delegate().replaceValues(key, values);
   }
 
@@ -158,13 +159,13 @@ public abstract class ForwardingMultimap<K extends @Nullable @Immutable Object, 
 
   @SideEffectFree
   @Override
-  public Collection<V> values() {
+  public @PolyMutable Collection<V> values(@PolyMutable ForwardingMultimap<K, V> this) {
     return delegate().values();
   }
 
   @Pure
   @Override
-  public boolean equals(@CheckForNull @Readonly Object object) {
+  public boolean equals(@Readonly ForwardingMultimap<K, V> this, @CheckForNull @Readonly Object object) {
     return object == this || delegate().equals(object);
   }
 

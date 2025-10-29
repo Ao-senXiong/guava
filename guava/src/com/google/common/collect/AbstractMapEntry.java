@@ -35,7 +35,7 @@ import org.checkerframework.framework.qual.AnnotatedFor;
  *
  * @author Jared Levy
  */
-@AnnotatedFor({"nullness"})
+@AnnotatedFor({"nullness", "pico"})
 @GwtCompatible
 @ElementTypesAreNonnullByDefault
 @ReceiverDependentMutable
@@ -45,12 +45,12 @@ abstract class AbstractMapEntry<K extends @Nullable @Immutable Object, V extends
   @Pure
   @Override
   @ParametricNullness
-  public abstract K getKey();
+  public abstract K getKey(@Readonly AbstractMapEntry<K, V> this);
 
   @Pure
   @Override
   @ParametricNullness
-  public abstract V getValue();
+  public abstract V getValue(@Readonly AbstractMapEntry<K, V> this);
 
   @Override
   @ParametricNullness
@@ -60,7 +60,7 @@ abstract class AbstractMapEntry<K extends @Nullable @Immutable Object, V extends
 
   @Pure
   @Override
-  public boolean equals(@CheckForNull Object object) {
+  public boolean equals(@Readonly AbstractMapEntry<K, V> this, @CheckForNull @Readonly Object object) {
     if (object instanceof Entry) {
       Entry<?, ?> that = (Entry<?, ?>) object;
       return Objects.equal(this.getKey(), that.getKey())
@@ -71,7 +71,7 @@ abstract class AbstractMapEntry<K extends @Nullable @Immutable Object, V extends
 
   @Pure
   @Override
-  public int hashCode(@UnknownSignedness AbstractMapEntry<K, V> this) {
+  public int hashCode(@UnknownSignedness @Readonly AbstractMapEntry<K, V> this) {
     K k = getKey();
     V v = getValue();
     return ((k == null) ? 0 : k.hashCode()) ^ ((v == null) ? 0 : v.hashCode());
@@ -80,7 +80,7 @@ abstract class AbstractMapEntry<K extends @Nullable @Immutable Object, V extends
   /** Returns a string representation of the form {@code {key}={value}}. */
   @Pure
   @Override
-  public String toString() {
+  public String toString(@Readonly AbstractMapEntry<K, V> this) {
     return getKey() + "=" + getValue();
   }
 }

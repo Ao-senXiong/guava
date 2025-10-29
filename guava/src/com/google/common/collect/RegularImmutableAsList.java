@@ -23,6 +23,7 @@ import javax.annotation.CheckForNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.checker.pico.qual.Immutable;
 import org.checkerframework.checker.pico.qual.Readonly;
+import org.checkerframework.framework.qual.AnnotatedFor;
 
 /**
  * An {@link ImmutableAsList} implementation specialized for when the delegate collection is already
@@ -30,6 +31,7 @@ import org.checkerframework.checker.pico.qual.Readonly;
  *
  * @author Louis Wasserman
  */
+@AnnotatedFor("pico")
 @GwtCompatible(emulated = true)
 @SuppressWarnings("serial") // uses writeReplace, not default serialization
 @ElementTypesAreNonnullByDefault
@@ -71,7 +73,7 @@ class RegularImmutableAsList<E> extends ImmutableAsList<E> {
 
   @GwtIncompatible // not present in emulated superclass
   @Override
-  int copyIntoArray(@Nullable Object[] dst, int offset) {
+  int copyIntoArray(@Nullable @Readonly Object[] dst, int offset) {
     return delegateList.copyIntoArray(dst, offset);
   }
 

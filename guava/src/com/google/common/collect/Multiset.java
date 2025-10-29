@@ -94,7 +94,7 @@ import org.checkerframework.framework.qual.AnnotatedFor;
  * @author Kevin Bourrillion
  * @since 2.0
  */
-@AnnotatedFor({"nullness"})
+@AnnotatedFor({"nullness", "pico"})
 @GwtCompatible
 @ElementTypesAreNonnullByDefault
 @ReceiverDependentMutable
@@ -406,7 +406,7 @@ public interface Multiset<E extends @Readonly @Nullable Object> extends Collecti
    * iterator, though not necessarily sequentially.
    */
   @Override
-  @ReceiverDependentMutable Iterator<E> iterator();
+  Iterator<E> iterator(@Readonly Multiset<E> this);
 
   /**
    * Determines whether this multiset contains the specified element.
@@ -419,7 +419,7 @@ public interface Multiset<E extends @Readonly @Nullable Object> extends Collecti
    */
   @Pure
   @Override
-  boolean contains(@CheckForNull @UnknownSignedness @Readonly Object element);
+  boolean contains(@Readonly Multiset<E> this, @CheckForNull @UnknownSignedness @Readonly Object element);
 
   /**
    * Returns {@code true} if this multiset contains at least one occurrence of each element in the
@@ -440,7 +440,7 @@ public interface Multiset<E extends @Readonly @Nullable Object> extends Collecti
    */
   @Pure
   @Override
-  boolean containsAll(@Readonly Collection<?> elements);
+  boolean containsAll(@Readonly Multiset<E> this, @Readonly Collection<?> elements);
 
   /**
    * {@inheritDoc}
@@ -495,7 +495,7 @@ public interface Multiset<E extends @Readonly @Nullable Object> extends Collecti
   }
 
   @Override
-  default Spliterator<E> spliterator() {
+  default Spliterator<E> spliterator(@Readonly Multiset<E> this) {
     return Multisets.spliteratorImpl(this);
   }
 }

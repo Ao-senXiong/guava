@@ -21,6 +21,8 @@ import java.util.function.ToIntFunction;
 import java.util.stream.Collector;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.checker.pico.qual.Immutable;
+import org.checkerframework.checker.pico.qual.Readonly;
+import org.checkerframework.framework.qual.AnnotatedFor;
 
 /**
  * "Overrides" the {@link ImmutableMultiset} static methods that lack {@link
@@ -39,6 +41,7 @@ import org.checkerframework.checker.pico.qual.Immutable;
  *
  * @author Louis Wasserman
  */
+@AnnotatedFor("pico")
 @GwtIncompatible
 @ElementTypesAreNonnullByDefault
 @Immutable
@@ -69,7 +72,7 @@ abstract class ImmutableSortedMultisetFauxverideShim<E> extends ImmutableMultise
    */
   @DoNotCall("Use toImmutableSortedMultiset.")
   @Deprecated
-  public static <T extends @Nullable Object, E>
+  public static <T extends @Nullable @Readonly Object, E>
       Collector<T, ?, ImmutableMultiset<E>> toImmutableMultiset(
           Function<? super T, ? extends E> elementFunction,
           ToIntFunction<? super T> countFunction) {

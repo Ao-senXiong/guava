@@ -45,14 +45,14 @@ import org.checkerframework.checker.pico.qual.Readonly;
 @ElementTypesAreNonnullByDefault
 final class CollectCollectors {
 
-  private static final Collector<Object, ?, ImmutableList<Object>> TO_IMMUTABLE_LIST =
+  private static final Collector<Object, ?, ImmutableList<@Readonly Object>> TO_IMMUTABLE_LIST =
       Collector.of(
           ImmutableList::builder,
           ImmutableList.Builder::add,
           ImmutableList.Builder::combine,
           ImmutableList.Builder::build);
 
-  private static final Collector<Object, ?, ImmutableSet<Object>> TO_IMMUTABLE_SET =
+  private static final Collector<Object, ?, ImmutableSet<@Readonly Object>> TO_IMMUTABLE_SET =
       Collector.of(
           ImmutableSet::builder,
           ImmutableSet.Builder::add,

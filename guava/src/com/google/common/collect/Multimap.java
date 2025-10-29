@@ -169,7 +169,7 @@ import org.checkerframework.framework.qual.AnnotatedFor;
  */
 @DoNotMock("Use ImmutableMultimap, HashMultimap, or another implementation")
 @GwtCompatible
-@AnnotatedFor({"nullness"})
+@AnnotatedFor({"nullness", "pico"})
 @ElementTypesAreNonnullByDefault
 @ReceiverDependentMutable
 public interface Multimap<K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object> {
@@ -280,7 +280,7 @@ public interface Multimap<K extends @Nullable @Immutable Object, V extends @Null
    *     no effect on the multimap.
    */
   @CanIgnoreReturnValue
-  @ReceiverDependentMutable Collection<V> replaceValues(@Mutable Multimap<K, V> this, @ParametricNullness K key, Iterable<? extends V> values);
+  Collection<V> replaceValues(@Mutable Multimap<K, V> this, @ParametricNullness K key, Iterable<? extends V> values);
 
   /**
    * Removes all values associated with the key {@code key}.
@@ -292,7 +292,7 @@ public interface Multimap<K extends @Nullable @Immutable Object, V extends @Null
    *     modifiable, but updating it will have no effect on the multimap.
    */
   @CanIgnoreReturnValue
-  @ReceiverDependentMutable Collection<V> removeAll(@Mutable Multimap<K, V> this, @CompatibleWith("K") @CheckForNull @Readonly Object key);
+  Collection<V> removeAll(@Mutable Multimap<K, V> this, @CompatibleWith("K") @CheckForNull @Readonly Object key);
 
   /** Removes all key-value pairs from the multimap, leaving it {@linkplain #isEmpty empty}. */
   void clear(@Mutable Multimap<K, V> this);
@@ -306,7 +306,7 @@ public interface Multimap<K extends @Nullable @Immutable Object, V extends @Null
    *
    * <p>Changes to the returned collection will update the underlying multimap, and vice versa.
    */
-  @ReceiverDependentMutable Collection<V> get(@Readonly Multimap<K, V> this, @ParametricNullness K key);
+  @PolyMutable Collection<V> get(@PolyMutable Multimap<K, V> this, @ParametricNullness K key);
 
   /**
    * Returns a view collection of all <i>distinct</i> keys contained in this multimap. Note that the
@@ -370,7 +370,7 @@ public interface Multimap<K extends @Nullable @Immutable Object, V extends @Null
    * underlying multimap, and vice versa. The map does not support {@code put} or {@code putAll},
    * nor do its entries support {@link Entry#setValue setValue}.
    */
-  @ReceiverDependentMutable Map<K, Collection<V>> asMap();
+  @PolyMutable Map<K, Collection<V>> asMap(@PolyMutable Multimap<K,V> this);
 
   // Comparison and hashing
 

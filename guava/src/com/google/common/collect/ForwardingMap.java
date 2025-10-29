@@ -66,7 +66,7 @@ import org.checkerframework.framework.qual.AnnotatedFor;
  * @author Louis Wasserman
  * @since 2.0
  */
-@AnnotatedFor({"nullness"})
+@AnnotatedFor({"nullness", "pico"})
 @GwtCompatible
 @ElementTypesAreNonnullByDefault
 @ReceiverDependentMutable
@@ -78,7 +78,7 @@ public abstract class ForwardingMap<K extends @Nullable @Immutable Object, V ext
   protected ForwardingMap() {}
 
   @Override
-  protected abstract @ReceiverDependentMutable Map<K, V> delegate(@ReceiverDependentMutable ForwardingMap<K, V> this);
+  protected abstract @PolyMutable Map<K, V> delegate(@PolyMutable ForwardingMap<K, V> this);
 
   @Pure
   @Override

@@ -42,9 +42,9 @@ import org.checkerframework.framework.qual.CFComment;
  * @since 2.0
  */
 @GwtCompatible
-@AnnotatedFor({"nullness"})
+@AnnotatedFor({"nullness", "pico"})
 @ElementTypesAreNonnullByDefault
-@CFComment("BiMap both key and value type are immutable")
+@CFComment("PICO: BiMap both key and value type are immutable")
 @ReceiverDependentMutable
 public interface BiMap<K extends @Nullable @Immutable Object, V extends @Nullable @Immutable Object> extends Map<K, V> {
   // Modification Operations

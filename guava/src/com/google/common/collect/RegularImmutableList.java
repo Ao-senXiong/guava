@@ -34,7 +34,7 @@ import org.checkerframework.framework.qual.AnnotatedFor;
  *
  * @author Kevin Bourrillion
  */
-@AnnotatedFor({"nullness"})
+@AnnotatedFor({"nullness", "pico"})
 @GwtCompatible(serializable = true, emulated = true)
 @SuppressWarnings("serial") // uses writeReplace(), not default serialization
 @ElementTypesAreNonnullByDefault
@@ -44,7 +44,7 @@ class RegularImmutableList<E> extends ImmutableList<E> {
 
   @VisibleForTesting final transient Object[] array;
 
-  RegularImmutableList(Object[] array) {
+  RegularImmutableList(Object @Immutable [] array) {
     this.array = array;
   }
 

@@ -21,7 +21,10 @@ import com.google.common.primitives.Booleans;
 import java.io.Serializable;
 import java.util.NoSuchElementException;
 import javax.annotation.CheckForNull;
+import org.checkerframework.checker.pico.qual.Immutable;
+import org.checkerframework.checker.pico.qual.Readonly;
 import org.checkerframework.checker.signedness.qual.UnknownSignedness;
+import org.checkerframework.framework.qual.AnnotatedFor;
 
 /**
  * Implementation detail for the internal structure of {@link Range} instances. Represents a unique
@@ -32,9 +35,11 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
  *
  * @author Kevin Bourrillion
  */
+@AnnotatedFor("pico")
 @GwtCompatible
 @ElementTypesAreNonnullByDefault
-abstract class Cut<C extends Comparable> implements Comparable<Cut<C>>, Serializable {
+@Immutable
+abstract class Cut<C extends @Readonly Comparable> implements Comparable<Cut<C>>, Serializable {
   final C endpoint;
 
   Cut(C endpoint) {
@@ -92,7 +97,7 @@ abstract class Cut<C extends Comparable> implements Comparable<Cut<C>>, Serializ
 
   @SuppressWarnings("unchecked") // catching CCE
   @Override
-  public boolean equals(@CheckForNull Object obj) {
+  public boolean equals(@CheckForNull @Readonly Object obj) {
     if (obj instanceof Cut) {
       // It might not really be a Cut<C>, but we'll catch a CCE if it's not
       Cut<C> that = (Cut<C>) obj;
@@ -115,13 +120,14 @@ abstract class Cut<C extends Comparable> implements Comparable<Cut<C>>, Serializ
    * casting the type parameter is safe.
    */
   @SuppressWarnings("unchecked")
-  static <C extends Comparable> Cut<C> belowAll() {
+  static <C extends @Readonly Comparable> Cut<C> belowAll() {
     return (Cut<C>) BelowAll.INSTANCE;
   }
 
   private static final long serialVersionUID = 0;
 
-  private static final class BelowAll extends Cut<Comparable<?>> {
+  @Immutable
+  private static final class BelowAll extends Cut<@Readonly Comparable<?>> {
     private static final BelowAll INSTANCE = new BelowAll();
 
     private BelowAll() {
@@ -226,7 +232,8 @@ abstract class Cut<C extends Comparable> implements Comparable<Cut<C>>, Serializ
     return (Cut<C>) AboveAll.INSTANCE;
   }
 
-  private static final class AboveAll extends Cut<Comparable<?>> {
+  @Immutable
+  private static final class AboveAll extends Cut<@Readonly Comparable<?>> {
     private static final AboveAll INSTANCE = new AboveAll();
 
     private AboveAll() {
@@ -312,7 +319,8 @@ abstract class Cut<C extends Comparable> implements Comparable<Cut<C>>, Serializ
     return new BelowValue<>(endpoint);
   }
 
-  private static final class BelowValue<C extends Comparable> extends Cut<C> {
+  @Immutable
+  private static final class BelowValue<C extends @Readonly Comparable> extends Cut<C> {
     BelowValue(C endpoint) {
       super(checkNotNull(endpoint));
     }
@@ -392,11 +400,12 @@ abstract class Cut<C extends Comparable> implements Comparable<Cut<C>>, Serializ
     private static final long serialVersionUID = 0;
   }
 
-  static <C extends Comparable> Cut<C> aboveValue(C endpoint) {
+  static <C extends @Readonly Comparable> Cut<C> aboveValue(C endpoint) {
     return new AboveValue<>(endpoint);
   }
 
-  private static final class AboveValue<C extends Comparable> extends Cut<C> {
+  @Immutable
+  private static final class AboveValue<C extends @Readonly Comparable> extends Cut<C> {
     AboveValue(C endpoint) {
       super(checkNotNull(endpoint));
     }

@@ -646,7 +646,7 @@ public abstract class ImmutableMap<K extends @Immutable Object, V> implements Ma
           return of();
         case 1:
           // requireNonNull is safe because the first `size` elements have been filled in.
-          Entry<K, @Immutable V> onlyEntry = requireNonNull(entries[0]);
+          Entry<K, V> onlyEntry = requireNonNull(entries[0]);
           return of(onlyEntry.getKey(), onlyEntry.getValue());
         default:
           entriesUsed = true;
@@ -666,7 +666,7 @@ public abstract class ImmutableMap<K extends @Immutable Object, V> implements Ma
         return entries;
       }
       @SuppressWarnings({"rawtypes", "unchecked"})
-      Entry<K, V>[] newEntries = new Entry @Mutable [size - dups.cardinality()];
+      Entry<K, V>[] newEntries = new Entry[size - dups.cardinality()];
       for (int inI = 0, outI = 0; inI < size; inI++) {
         if (!dups.get(inI)) {
           newEntries[outI++] = entries[inI];
@@ -743,6 +743,7 @@ public abstract class ImmutableMap<K extends @Immutable Object, V> implements Ma
 
   static final Entry<?, ?>[] EMPTY_ENTRY_ARRAY = new Entry<?, ?>[0];
 
+  @Immutable
   abstract static class IteratorBasedImmutableMap<K extends @Immutable Object, V> extends ImmutableMap<K, V> {
     abstract UnmodifiableIterator<Entry<K, V>> entryIterator();
 
@@ -944,7 +945,7 @@ public abstract class ImmutableMap<K extends @Immutable Object, V> implements Ma
   @Deprecated
   @Override
   @DoNotCall("Always throws UnsupportedOperationException")
-  public final boolean remove(@CheckForNull @UnknownSignedness Object key, @CheckForNull @UnknownSignedness Object value) {
+  public final boolean remove(@CheckForNull @UnknownSignedness @Readonly Object key, @CheckForNull @UnknownSignedness @Readonly Object value) {
     throw new UnsupportedOperationException();
   }
 
@@ -1026,6 +1027,7 @@ public abstract class ImmutableMap<K extends @Immutable Object, V> implements Ma
     }
   }
 
+  @CFComment("Change to @LazyFinal later")
   @LazyInit @RetainedWith @CheckForNull private transient @Assignable ImmutableSet<Entry<K, V>> entrySet;
 
   /**
@@ -1041,6 +1043,7 @@ public abstract class ImmutableMap<K extends @Immutable Object, V> implements Ma
 
   abstract ImmutableSet<Entry<K, V>> createEntrySet();
 
+  @CFComment("Change to @LazyFinal later")
   @LazyInit @RetainedWith @CheckForNull private transient @Assignable ImmutableSet<K> keySet;
 
   /**
@@ -1101,7 +1104,8 @@ public abstract class ImmutableMap<K extends @Immutable Object, V> implements Ma
   abstract ImmutableCollection<V> createValues();
 
   // cached so that this.multimapView().inverse() only computes inverse once
-  @LazyInit @CheckForNull private transient @Assignable ImmutableSetMultimap<K, @Immutable V> multimapView;
+  @CFComment("Change to @LazyFinal later")
+  @LazyInit @CheckForNull private transient ImmutableSetMultimap<K, @Immutable V> multimapView;
 
   /**
    * Returns a multimap view of the map.
@@ -1120,6 +1124,7 @@ public abstract class ImmutableMap<K extends @Immutable Object, V> implements Ma
   }
 
   @WeakOuter
+  @Immutable
   private final class MapViewOfValuesAsSingletonSets
       extends IteratorBasedImmutableMap<K, ImmutableSet<V>> {
 
@@ -1134,13 +1139,13 @@ public abstract class ImmutableMap<K extends @Immutable Object, V> implements Ma
     }
 
     @Override
-    public boolean containsKey(@CheckForNull @UnknownSignedness Object key) {
+    public boolean containsKey(@CheckForNull @UnknownSignedness @Readonly Object key) {
       return ImmutableMap.this.containsKey(key);
     }
 
     @Override
     @CheckForNull
-    public ImmutableSet<V> get(@CheckForNull @UnknownSignedness Object key) {
+    public ImmutableSet<V> get(@CheckForNull @UnknownSignedness @Readonly Object key) {
       V outerValue = ImmutableMap.this.get(key);
       return (outerValue == null) ? null : ImmutableSet.of(outerValue);
     }
@@ -1191,7 +1196,7 @@ public abstract class ImmutableMap<K extends @Immutable Object, V> implements Ma
 
   @Pure
   @Override
-  public boolean equals(@CheckForNull Object object) {
+  public boolean equals(@CheckForNull @Readonly Object object) {
     return Maps.equalsImpl(this, object);
   }
 
@@ -1249,7 +1254,7 @@ public abstract class ImmutableMap<K extends @Immutable Object, V> implements Ma
     }
 
     @SuppressWarnings("unchecked")
-    final Object readResolve() {
+    final @Immutable Object readResolve() {
       if (!(this.keys instanceof ImmutableSet)) {
         return legacyReadResolve();
       }
@@ -1270,7 +1275,7 @@ public abstract class ImmutableMap<K extends @Immutable Object, V> implements Ma
     }
 
     @SuppressWarnings("unchecked")
-    final Object legacyReadResolve() {
+    final @Immutable Object legacyReadResolve() {
       K[] keys = (K[]) this.keys;
       V[] values = (V[]) this.values;
 

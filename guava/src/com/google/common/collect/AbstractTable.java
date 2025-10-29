@@ -35,6 +35,7 @@ import org.checkerframework.checker.pico.qual.PolyMutable;
 import org.checkerframework.checker.pico.qual.Readonly;
 import org.checkerframework.checker.pico.qual.ReceiverDependentMutable;
 import org.checkerframework.checker.signedness.qual.UnknownSignedness;
+import org.checkerframework.framework.qual.AnnotatedFor;
 import org.checkerframework.framework.qual.CFComment;
 
 /**
@@ -42,6 +43,7 @@ import org.checkerframework.framework.qual.CFComment;
  *
  * @author Louis Wasserman
  */
+@AnnotatedFor("pico")
 @GwtCompatible
 @ElementTypesAreNonnullByDefault
 @ReceiverDependentMutable
@@ -60,12 +62,12 @@ abstract class AbstractTable<
   }
 
   @Override
-  public Set<R> rowKeySet() {
+  public @PolyMutable Set<R> rowKeySet(@PolyMutable AbstractTable<R, C, V> this) {
     return rowMap().keySet();
   }
 
   @Override
-  public Set<C> columnKeySet() {
+  public @PolyMutable Set<C> columnKeySet(@PolyMutable AbstractTable<R, C, V> this) {
     return columnMap().keySet();
   }
 
@@ -133,13 +135,13 @@ abstract class AbstractTable<
     return (result == null) ? cellSet = createCellSet() : result;
   }
 
-  Set<Cell<R, C, V>> createCellSet() {
-    return new CellSet();
+  @PolyMutable Set<Cell<R, C, V>> createCellSet(@PolyMutable AbstractTable<R, C, V> this) {
+    return new @PolyMutable CellSet();
   }
 
-  abstract @ReceiverDependentMutable Iterator<Table.Cell<R, C, V>> cellIterator();
+  abstract Iterator<Table.Cell<R, C, V>> cellIterator(@Readonly AbstractTable<R, C, V> this);
 
-  abstract @ReceiverDependentMutable Spliterator<Table.Cell<R, C, V>> cellSpliterator();
+  abstract Spliterator<Table.Cell<R, C, V>> cellSpliterator(@Readonly AbstractTable<R, C, V> this);
 
   @WeakOuter
   @ReceiverDependentMutable 
@@ -174,12 +176,12 @@ abstract class AbstractTable<
     }
 
     @Override
-    public @ReceiverDependentMutable Iterator<Table.Cell<R, C, V>> iterator() {
+    public Iterator<Table.Cell<R, C, V>> iterator() {
       return cellIterator();
     }
 
     @Override
-    public @ReceiverDependentMutable Spliterator<Cell<R, C, V>> spliterator() {
+    public Spliterator<Cell<R, C, V>> spliterator() {
       return cellSpliterator();
     }
 
@@ -193,16 +195,16 @@ abstract class AbstractTable<
   @LazyInit @CheckForNull private transient @Assignable Collection<V> values;
 
   @Override
-  public @ReceiverDependentMutable Collection<V> values() {
+  public @PolyMutable Collection<V> values(@PolyMutable AbstractTable<R, C, V> this) {
     Collection<V> result = values;
     return (result == null) ? values = createValues() : result;
   }
 
-  @ReceiverDependentMutable Collection<V> createValues() {
-    return new Values();
+  @PolyMutable Collection<V> createValues(@PolyMutable AbstractTable<R, C, V> this) {
+    return new @PolyMutable Values();
   }
 
-  @ReceiverDependentMutable Iterator<V> valuesIterator() {
+  Iterator<V> valuesIterator(@Readonly AbstractTable<R, C, V> this) {
     return new TransformedIterator<Cell<R, C, V>, V>(cellSet().iterator()) {
       @Override
       @ParametricNullness
@@ -212,7 +214,7 @@ abstract class AbstractTable<
     };
   }
 
-  Spliterator<V> valuesSpliterator() {
+  Spliterator<V> valuesSpliterator(@Readonly AbstractTable<R, C, V> this) {
     return CollectSpliterators.map(cellSpliterator(), Table.Cell::getValue);
   }
 
@@ -220,12 +222,12 @@ abstract class AbstractTable<
   @ReceiverDependentMutable
   class Values extends AbstractCollection<V> {
     @Override
-    public @ReceiverDependentMutable Iterator<V> iterator() {
+    public Iterator<V> iterator(@Readonly Values this) {
       return valuesIterator();
     }
 
     @Override
-    public @ReceiverDependentMutable Spliterator<V> spliterator() {
+    public Spliterator<V> spliterator(@Readonly Values this) {
       return valuesSpliterator();
     }
 

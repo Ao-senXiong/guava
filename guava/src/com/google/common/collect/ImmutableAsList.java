@@ -27,6 +27,7 @@ import org.checkerframework.checker.index.qual.NonNegative;
 import org.checkerframework.checker.pico.qual.Immutable;
 import org.checkerframework.checker.pico.qual.Readonly;
 import org.checkerframework.checker.signedness.qual.UnknownSignedness;
+import org.checkerframework.framework.qual.AnnotatedFor;
 
 /**
  * List returned by {@link ImmutableCollection#asList} that delegates {@code contains} checks to the
@@ -35,6 +36,7 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
  * @author Jared Levy
  * @author Louis Wasserman
  */
+@AnnotatedFor("pico")
 @GwtCompatible(serializable = true, emulated = true)
 @SuppressWarnings("serial")
 @ElementTypesAreNonnullByDefault

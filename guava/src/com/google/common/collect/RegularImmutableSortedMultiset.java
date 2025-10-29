@@ -28,12 +28,14 @@ import org.checkerframework.checker.index.qual.NonNegative;
 import org.checkerframework.checker.index.qual.NonNegative;
 import org.checkerframework.checker.pico.qual.Immutable;
 import org.checkerframework.checker.signedness.qual.UnknownSignedness;
+import org.checkerframework.framework.qual.AnnotatedFor;
 
 /**
  * An immutable sorted multiset with one or more distinct elements.
  *
  * @author Louis Wasserman
  */
+@AnnotatedFor("pico")
 @SuppressWarnings("serial") // uses writeReplace, not default serialization
 @GwtIncompatible
 @ElementTypesAreNonnullByDefault

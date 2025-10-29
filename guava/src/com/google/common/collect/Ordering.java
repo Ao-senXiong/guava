@@ -42,6 +42,7 @@ import javax.annotation.CheckForNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.checker.pico.qual.Immutable;
 import org.checkerframework.checker.pico.qual.Readonly;
+import org.checkerframework.checker.pico.qual.ReceiverDependentMutable;
 import org.checkerframework.dataflow.qual.Pure;
 import org.checkerframework.framework.qual.AnnotatedFor;
 
@@ -148,7 +149,7 @@ import org.checkerframework.framework.qual.AnnotatedFor;
  * @author Kevin Bourrillion
  * @since 2.0
  */
-@AnnotatedFor({"nullness"})
+@AnnotatedFor({"nullness", "pico"})
 @GwtCompatible
 @ElementTypesAreNonnullByDefault
 public abstract class Ordering<T extends @Nullable @Readonly Object> implements Comparator<T> {
@@ -165,7 +166,7 @@ public abstract class Ordering<T extends @Nullable @Readonly Object> implements 
    */
   @GwtCompatible(serializable = true)
   @SuppressWarnings("unchecked") // TODO(kevinb): right way to explain this??
-  public static <C extends Comparable> Ordering<C> natural() {
+  public static <C extends @Readonly Comparable> Ordering<C> natural() {
     return (Ordering<C>) NaturalOrdering.INSTANCE;
   }
 
@@ -223,7 +224,7 @@ public abstract class Ordering<T extends @Nullable @Readonly Object> implements 
    */
   // TODO(kevinb): provide replacement
   @GwtCompatible(serializable = true)
-  public static <T extends @Immutable Object> Ordering<T> explicit(List<T> valuesInOrder) {
+  public static <T extends @Readonly Object> Ordering<T> explicit(List<T> valuesInOrder) {
     return new ExplicitOrdering<T>(valuesInOrder);
   }
 
@@ -285,7 +286,7 @@ public abstract class Ordering<T extends @Nullable @Readonly Object> implements 
    */
   @GwtCompatible(serializable = true)
   @SuppressWarnings("unchecked")
-  public static Ordering<@Nullable Object> allEqual() {
+  public static Ordering<@Nullable @Readonly Object> allEqual() {
     return AllEqualOrdering.INSTANCE;
   }
 
@@ -298,7 +299,7 @@ public abstract class Ordering<T extends @Nullable @Readonly Object> implements 
    * <p><b>Java 8 users:</b> Use {@code Comparator.comparing(Object::toString)} instead.
    */
   @GwtCompatible(serializable = true)
-  public static Ordering<Object> usingToString() {
+  public static Ordering<@Readonly Object> usingToString() {
     return UsingToStringOrdering.INSTANCE;
   }
 
@@ -318,22 +319,22 @@ public abstract class Ordering<T extends @Nullable @Readonly Object> implements 
    * @since 2.0
    */
   // TODO(kevinb): copy to Comparators, etc.
-  public static Ordering<@Nullable Object> arbitrary() {
+  public static Ordering<@Nullable @Readonly Object> arbitrary() {
     return ArbitraryOrderingHolder.ARBITRARY_ORDERING;
   }
 
   private static class ArbitraryOrderingHolder {
-    static final Ordering<@Nullable Object> ARBITRARY_ORDERING = new ArbitraryOrdering();
+    static final Ordering<@Nullable @Readonly Object> ARBITRARY_ORDERING = new ArbitraryOrdering();
   }
 
   @VisibleForTesting
-  static class ArbitraryOrdering extends Ordering<@Nullable Object> {
+  static class ArbitraryOrdering extends Ordering<@Nullable @Readonly Object> {
 
     private final AtomicInteger counter = new AtomicInteger(0);
-    private final ConcurrentMap<Object, Integer> uids =
+    private final ConcurrentMap<@Immutable Object, Integer> uids =
         Platform.tryWeakKeys(new MapMaker()).makeMap();
 
-    private Integer getUid(Object obj) {
+    private Integer getUid(@Readonly Object obj) {
       Integer uid = uids.get(obj);
       if (uid == null) {
         // One or more integer values could be skipped in the event of a race
@@ -349,7 +350,7 @@ public abstract class Ordering<T extends @Nullable @Readonly Object> implements 
     }
 
     @Override
-    public int compare(@CheckForNull Object left, @CheckForNull Object right) {
+    public int compare(@CheckForNull @Readonly Object left, @CheckForNull @Readonly Object right) {
       if (left == right) {
         return 0;
       } else if (left == null) {
@@ -384,7 +385,7 @@ public abstract class Ordering<T extends @Nullable @Readonly Object> implements 
      * recognize that the call is 1-morphic and should still be willing to
      * inline it if necessary.
      */
-    int identityHashCode(Object object) {
+    int identityHashCode(@Readonly Object object) {
       return System.identityHashCode(object);
     }
   }
@@ -452,7 +453,7 @@ public abstract class Ordering<T extends @Nullable @Readonly Object> implements 
    * can omit the comparator if it is the natural order).
    */
   @GwtCompatible(serializable = true)
-  public <F extends @Nullable Object> Ordering<F> onResultOf(Function<F, ? extends T> function) {
+  public <F extends @Nullable @Readonly Object> Ordering<F> onResultOf(Function<F, ? extends T> function) {
     return new ByFunctionOrdering<>(function, this);
   }
 
@@ -498,7 +499,7 @@ public abstract class Ordering<T extends @Nullable @Readonly Object> implements 
    * @param comparators the comparators to try in order
    */
   @GwtCompatible(serializable = true)
-  public static <T extends @Nullable Object> Ordering<T> compound(
+  public static <T extends @Nullable @Readonly Object> Ordering<T> compound(
       Iterable<? extends Comparator<? super T>> comparators) {
     return new CompoundOrdering<T>(comparators);
   }
@@ -951,10 +952,11 @@ public abstract class Ordering<T extends @Nullable @Readonly Object> implements 
    * Extending {@link ClassCastException} may seem odd, but it is required.
    */
   @VisibleForTesting
+  @ReceiverDependentMutable
   static class IncomparableValueException extends ClassCastException {
     final Object value;
 
-    IncomparableValueException(Object value) {
+    IncomparableValueException(@ReceiverDependentMutable Object value) {
       super("Cannot compare value: " + value);
       this.value = value;
     }

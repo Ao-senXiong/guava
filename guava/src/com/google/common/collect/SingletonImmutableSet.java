@@ -27,6 +27,7 @@ import org.checkerframework.dataflow.qual.Pure;
 import org.checkerframework.framework.qual.AnnotatedFor;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.checker.pico.qual.Immutable;
+import org.checkerframework.checker.pico.qual.Readonly;
 
 /**
  * Implementation of {@link ImmutableSet} with exactly one element.
@@ -34,7 +35,7 @@ import org.checkerframework.checker.pico.qual.Immutable;
  * @author Kevin Bourrillion
  * @author Nick Kralevich
  */
-@AnnotatedFor({"nullness"})
+@AnnotatedFor({"nullness", "pico"})
 @GwtCompatible(serializable = true, emulated = true)
 @SuppressWarnings("serial") // uses writeReplace(), not default serialization
 @ElementTypesAreNonnullByDefault
@@ -57,7 +58,7 @@ final class SingletonImmutableSet<E> extends ImmutableSet<E> {
 
   @Pure
   @Override
-  public boolean contains(@CheckForNull @UnknownSignedness Object target) {
+  public boolean contains(@CheckForNull @UnknownSignedness @Readonly Object target) {
     return element.equals(target);
   }
 
@@ -77,7 +78,7 @@ final class SingletonImmutableSet<E> extends ImmutableSet<E> {
   }
 
   @Override
-  int copyIntoArray(@Nullable Object[] dst, int offset) {
+  int copyIntoArray(@Nullable @Readonly Object[] dst, int offset) {
     dst[offset] = element;
     return offset + 1;
   }
@@ -95,5 +96,5 @@ final class SingletonImmutableSet<E> extends ImmutableSet<E> {
   }
 
 @Pure
-public boolean equals(@Nullable @UnknownSignedness Object arg0) { return super.equals(arg0); }
+public boolean equals(@Nullable @UnknownSignedness @Readonly Object arg0) { return super.equals(arg0); }
 }

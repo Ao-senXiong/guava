@@ -23,6 +23,8 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
 
 import org.checkerframework.checker.pico.qual.Immutable;
+import org.checkerframework.checker.pico.qual.ReceiverDependentMutable;
+import org.checkerframework.framework.qual.AnnotatedFor;
 
 /**
  * A semi-persistent mapping from keys to values. Values are automatically loaded by the cache, and
@@ -40,8 +42,10 @@ import org.checkerframework.checker.pico.qual.Immutable;
  * @author Charles Fry
  * @since 11.0
  */
+@AnnotatedFor("pico")
 @GwtCompatible
 @ElementTypesAreNonnullByDefault
+@ReceiverDependentMutable
 public interface LoadingCache<K extends @Immutable Object, V> extends Cache<K, V>, Function<K, V> {
 
   /**
@@ -69,7 +73,7 @@ public interface LoadingCache<K extends @Immutable Object, V> extends Cache<K, V
    *     value
    * @throws ExecutionError if an error was thrown while loading the value
    */
-  V get(K key) throws ExecutionException;
+  V get(@Readonly LoadingCache<K, V> this, K key) throws ExecutionException;
 
   /**
    * Returns the value associated with {@code key} in this cache, first loading that value if
@@ -95,7 +99,7 @@ public interface LoadingCache<K extends @Immutable Object, V> extends Cache<K, V
    *     explained in the last paragraph above, this should be an unchecked exception only.)
    * @throws ExecutionError if an error was thrown while loading the value
    */
-  V getUnchecked(K key);
+  V getUnchecked(@Readonly LoadingCache<K, V> this, K key);
 
   /**
    * Returns a map of the values associated with {@code keys}, creating or retrieving those values
@@ -121,7 +125,7 @@ public interface LoadingCache<K extends @Immutable Object, V> extends Cache<K, V
    * @throws ExecutionError if an error was thrown while loading the values
    * @since 11.0
    */
-  ImmutableMap<K, V> getAll(Iterable<? extends K> keys) throws ExecutionException;
+  ImmutableMap<K, V> getAll(@Readonly LoadingCache<K, V> this, @Readonly Iterable<? extends K> keys) throws ExecutionException;
 
   /**
    * @deprecated Provided to satisfy the {@code Function} interface; use {@link #get} or {@link
@@ -132,7 +136,7 @@ public interface LoadingCache<K extends @Immutable Object, V> extends Cache<K, V
    */
   @Deprecated
   @Override
-  V apply(K key);
+  V apply(@Readonly LoadingCache<K, V> this, K key);
 
   /**
    * Loads a new value for {@code key}, possibly asynchronously. While the new value is loading the
@@ -152,7 +156,7 @@ public interface LoadingCache<K extends @Immutable Object, V> extends Cache<K, V
    *
    * @since 11.0
    */
-  void refresh(K key);
+  void refresh(@Mutable LoadingCache<K, V> this, K key);
 
   /**
    * {@inheritDoc}
@@ -161,5 +165,5 @@ public interface LoadingCache<K extends @Immutable Object, V> extends Cache<K, V
    * cause entries to be automatically loaded.</b>
    */
   @Override
-  ConcurrentMap<K, V> asMap();
+  @PolyMutable ConcurrentMap<K, V> asMap(@PolyMutable LoadingCache<K, V> this);
 }

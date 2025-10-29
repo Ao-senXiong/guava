@@ -30,8 +30,11 @@ import javax.annotation.CheckForNull;
 import org.checkerframework.checker.nullness.qual.KeyFor;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.checker.nullness.qual.PolyNull;
+import org.checkerframework.checker.pico.qual.Immutable;
+import org.checkerframework.checker.pico.qual.Readonly;
 import org.checkerframework.checker.signedness.qual.PolySigned;
 import org.checkerframework.checker.signedness.qual.UnknownSignedness;
+import org.checkerframework.framework.qual.AnnotatedFor;
 
 /**
  * A mutable type-to-instance map. See also {@link ImmutableTypeToInstanceMap}.
@@ -42,6 +45,7 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
  * @author Ben Yu
  * @since 13.0
  */
+@AnnotatedFor("pico")
 @ElementTypesAreNonnullByDefault
 public final class MutableTypeToInstanceMap<B> extends ForwardingMap<TypeToken<? extends B>, B>
     implements TypeToInstanceMap<B> {
@@ -124,11 +128,12 @@ public final class MutableTypeToInstanceMap<B> extends ForwardingMap<TypeToken<?
     return (T) backingMap.get(type);
   }
 
-  private static final class UnmodifiableEntry<K, V> extends ForwardingMapEntry<K, V> {
+  @Immutable
+  private static final class UnmodifiableEntry<K extends @Immutable Object, V> extends ForwardingMapEntry<K, V> {
 
     private final Entry<K, V> delegate;
 
-    static <K, V> Set<Entry<K, V>> transformEntries(Set<Entry<K, V>> entries) {
+    static <K extends @Immutable Object, V> Set<Entry<K, V>> transformEntries(Set<Entry<K, V>> entries) {
       return new ForwardingSet<Map.Entry<K, V>>() {
         @Override
         protected Set<Entry<K, V>> delegate() {
@@ -155,13 +160,13 @@ public final class MutableTypeToInstanceMap<B> extends ForwardingMap<TypeToken<?
 
         @Override
         @SuppressWarnings("nullness") // b/192354773 in our checker affects toArray declarations
-        public <T extends @Nullable @UnknownSignedness Object> T[] toArray(T[] array) {
+        public <T extends @Nullable @UnknownSignedness @Readonly Object> T[] toArray(T[] array) {
           return standardToArray(array);
         }
       };
     }
 
-    private static <K, V> Iterator<Entry<K, V>> transformEntries(Iterator<Entry<K, V>> entries) {
+    private static <K extends @Immutable Object, V> Iterator<Entry<K, V>> transformEntries(Iterator<Entry<K, V>> entries) {
       return Iterators.transform(entries, UnmodifiableEntry::new);
     }
 

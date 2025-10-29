@@ -101,7 +101,7 @@ public final class HashBiMap<K extends @Nullable @Immutable Object, V extends @N
     return bimap;
   }
 
-  @ReceiverDependentMutable
+  @Immutable
   private static final class BiEntry<K extends @Nullable @Immutable Object, V extends @Nullable @Immutable Object>
       extends ImmutableEntry<K, V> {
     final int keyHash;

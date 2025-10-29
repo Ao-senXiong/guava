@@ -47,11 +47,14 @@ import java.util.Spliterators;
 import javax.annotation.CheckForNull;
 import org.checkerframework.checker.index.qual.NonNegative;
 import org.checkerframework.checker.nullness.qual.KeyFor;
+import org.checkerframework.checker.pico.qual.Assignable;
 import org.checkerframework.checker.pico.qual.Immutable;
 import org.checkerframework.checker.pico.qual.Mutable;
+import org.checkerframework.checker.pico.qual.PolyMutable;
 import org.checkerframework.checker.pico.qual.Readonly;
 import org.checkerframework.checker.pico.qual.ReceiverDependentMutable;
 import org.checkerframework.checker.signedness.qual.UnknownSignedness;
+import org.checkerframework.framework.qual.CFComment;
 
 /**
  * {@link Table} implementation backed by a map that associates row keys with column key / value
@@ -87,12 +90,12 @@ class StandardTable<R extends @Immutable Object, C extends @Immutable Object, V>
   // Accessors
 
   @Override
-  public boolean contains(@CheckForNull @Readonly Object rowKey, @CheckForNull @Readonly Object columnKey) {
+  public boolean contains(@Readonly StandardTable<R, C, V> this, @CheckForNull @Readonly Object rowKey, @CheckForNull @Readonly Object columnKey) {
     return rowKey != null && columnKey != null && super.contains(rowKey, columnKey);
   }
 
   @Override
-  public boolean containsColumn(@CheckForNull @Readonly Object columnKey) {
+  public boolean containsColumn(@Readonly StandardTable<R, C, V> this, @Readonly @CheckForNull Object columnKey) {
     if (columnKey == null) {
       return false;
     }
@@ -105,28 +108,28 @@ class StandardTable<R extends @Immutable Object, C extends @Immutable Object, V>
   }
 
   @Override
-  public boolean containsRow(@CheckForNull @Readonly Object rowKey) {
+  public boolean containsRow(@Readonly StandardTable<R, C, V> this, @CheckForNull @Readonly Object rowKey) {
     return rowKey != null && safeContainsKey(backingMap, rowKey);
   }
 
   @Override
-  public boolean containsValue(@CheckForNull @UnknownSignedness @Readonly Object value) {
+  public boolean containsValue(@Readonly StandardTable<R, C, V> this, @CheckForNull @UnknownSignedness @Readonly Object value) {
     return value != null && super.containsValue(value);
   }
 
   @Override
   @CheckForNull
-  public V get(@CheckForNull @Readonly Object rowKey, @CheckForNull @Readonly Object columnKey) {
+  public V get(@Readonly StandardTable<R, C, V> this, @CheckForNull @Readonly Object rowKey, @CheckForNull @Readonly Object columnKey) {
     return (rowKey == null || columnKey == null) ? null : super.get(rowKey, columnKey);
   }
 
   @Override
-  public boolean isEmpty() {
+  public boolean isEmpty(@Readonly StandardTable<R, C, V> this) {
     return backingMap.isEmpty();
   }
 
   @Override
-  public int size() {
+  public int size(@Readonly StandardTable<R, C, V> this) {
     int size = 0;
     for (Map<C, V> map : backingMap.values()) {
       size += map.size();
@@ -141,7 +144,7 @@ class StandardTable<R extends @Immutable Object, C extends @Immutable Object, V>
     backingMap.clear();
   }
 
-  private Map<C, V> getOrCreate(R rowKey) {
+  private Map<C, V> getOrCreate(@Mutable StandardTable<R, C, V> this, R rowKey) {
     Map<C, V> map = backingMap.get(rowKey);
     if (map == null) {
       map = factory.get();
@@ -195,7 +198,7 @@ class StandardTable<R extends @Immutable Object, C extends @Immutable Object, V>
     return output;
   }
 
-  private boolean containsMapping(
+  private boolean containsMapping(@Readonly StandardTable<R, C, V> this,
       @CheckForNull @Readonly Object rowKey, @CheckForNull @Readonly Object columnKey, @CheckForNull @Readonly Object value) {
     return value != null && value.equals(get(rowKey, columnKey));
   }
@@ -220,12 +223,12 @@ class StandardTable<R extends @Immutable Object, C extends @Immutable Object, V>
   @ReceiverDependentMutable
   private abstract class TableSet<T> extends ImprovedAbstractSet<T> {
     @Override
-    public boolean isEmpty() {
+    public boolean isEmpty(@Readonly TableSet<T> this) {
       return backingMap.isEmpty();
     }
 
     @Override
-    public void clear() {
+    public void clear(@Mutable TableSet<T> this) {
       backingMap.clear();
     }
   }
@@ -240,12 +243,12 @@ class StandardTable<R extends @Immutable Object, C extends @Immutable Object, V>
    * time the cell is returned by a method call to the set or its iterator.
    */
   @Override
-  public Set<Cell<R, C, V>> cellSet() {
+  public @PolyMutable Set<Cell<R, C, V>> cellSet(@PolyMutable StandardTable<R, C, V> this) {
     return super.cellSet();
   }
 
   @Override
-  Iterator<Cell<R, C, V>> cellIterator() {
+  Iterator<Cell<R, C, V>> cellIterator(@Readonly StandardTable<R, C, V> this) {
     return new CellIterator();
   }
 
@@ -256,12 +259,12 @@ class StandardTable<R extends @Immutable Object, C extends @Immutable Object, V>
     Iterator<Entry<C, V>> columnIterator = Iterators.emptyModifiableIterator();
 
     @Override
-    public boolean hasNext() {
+    public boolean hasNext(@Readonly CellIterator this) {
       return rowIterator.hasNext() || columnIterator.hasNext();
     }
 
     @Override
-    public Cell<R, C, V> next() {
+    public Cell<R, C, V> next(@Mutable CellIterator this) {
       if (!columnIterator.hasNext()) {
         rowEntry = rowIterator.next();
         columnIterator = rowEntry.getValue().entrySet().iterator();
@@ -305,7 +308,7 @@ class StandardTable<R extends @Immutable Object, C extends @Immutable Object, V>
   }
 
   @Override
-  Spliterator<Cell<R, C, V>> cellSpliterator() {
+  Spliterator<Cell<R, C, V>> cellSpliterator(@Readonly StandardTable<R, C, V> this) {
     return CollectSpliterators.flatMap(
         backingMap.entrySet().spliterator(),
         (Entry<R, Map<C, V>> rowEntry) ->
@@ -682,11 +685,12 @@ class StandardTable<R extends @Immutable Object, C extends @Immutable Object, V>
   }
 
   @Override
-  public Set<R> rowKeySet() {
+  public @PolyMutable Set<R> rowKeySet(@PolyMutable StandardTable<R, C, V> this) {
     return rowMap().keySet();
   }
 
-  @CheckForNull private transient Set<C> columnKeySet;
+  @CFComment("Change to @LazyFinal later")
+  @CheckForNull private transient @Assignable Set<C> columnKeySet;
 
   /**
    * {@inheritDoc}
@@ -703,6 +707,7 @@ class StandardTable<R extends @Immutable Object, C extends @Immutable Object, V>
   }
 
   @WeakOuter
+  @ReceiverDependentMutable
   private class ColumnKeySet extends TableSet<C> {
     @Override
     public Iterator<C> iterator() {
@@ -780,6 +785,7 @@ class StandardTable<R extends @Immutable Object, C extends @Immutable Object, V>
     return new ColumnKeyIterator();
   }
 
+  @ReceiverDependentMutable
   private class ColumnKeyIterator extends AbstractIterator<C> {
     // Use the same map type to support TreeMaps with comparators that aren't
     // consistent with equals().
@@ -813,14 +819,15 @@ class StandardTable<R extends @Immutable Object, C extends @Immutable Object, V>
    * row, and so on.
    */
   @Override
-  public Collection<V> values() {
+  public @PolyMutable Collection<V> values(@PolyMutable StandardTable<R, C, V> this) {
     return super.values();
   }
 
-  @CheckForNull private transient Map<R, Map<C, V>> rowMap;
+  @CFComment("Change to @LazyFinal later")
+  @CheckForNull private transient @Assignable Map<R, Map<C, V>> rowMap;
 
   @Override
-  public Map<R, Map<C, V>> rowMap() {
+  public @PolyMutable Map<R, Map<C, V>> rowMap(@PolyMutable StandardTable<R, C, V> this) {
     Map<R, Map<C, V>> result = rowMap;
     return (result == null) ? rowMap = createRowMap() : result;
   }
@@ -900,16 +907,18 @@ class StandardTable<R extends @Immutable Object, C extends @Immutable Object, V>
     }
   }
 
-  @CheckForNull private transient ColumnMap columnMap;
+  @CFComment("Change to @LazyFinal later")
+  @CheckForNull private transient @Assignable ColumnMap columnMap;
 
   @Override
-  public Map<C, Map<R, V>> columnMap() {
+  public @PolyMutable Map<C, Map<R, V>> columnMap(@PolyMutable StandardTable<R, C, V> this) {
     ColumnMap result = columnMap;
     return (result == null) ? columnMap = new ColumnMap() : result;
   }
 
   @WeakOuter
-  private @ReceiverDependentMutable class ColumnMap extends ViewCachingAbstractMap<C, Map<R, V>> {
+  @ReceiverDependentMutable
+  private class ColumnMap extends ViewCachingAbstractMap<C, Map<R, V>> {
     // The cast to C occurs only when the key is in the map, implying that it
     // has the correct type.
     @SuppressWarnings("unchecked")

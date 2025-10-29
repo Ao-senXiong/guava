@@ -27,6 +27,10 @@ import java.math.BigInteger;
 import java.util.NoSuchElementException;
 import javax.annotation.CheckForNull;
 
+import org.checkerframework.checker.pico.qual.Immutable;
+import org.checkerframework.checker.pico.qual.Readonly;
+import org.checkerframework.framework.qual.AnnotatedFor;
+
 /**
  * A descriptor for a <i>discrete</i> {@code Comparable} domain such as all {@link Integer}
  * instances. A discrete domain is one that supports the three basic operations: {@link #next},
@@ -43,9 +47,11 @@ import javax.annotation.CheckForNull;
  * @author Kevin Bourrillion
  * @since 10.0
  */
+@AnnotatedFor("pico")
 @GwtCompatible
 @ElementTypesAreNonnullByDefault
-public abstract class DiscreteDomain<C extends Comparable> {
+@Immutable
+public abstract class DiscreteDomain<C extends @Readonly Comparable> {
 
   /**
    * Returns the discrete domain for values of type {@code Integer}.

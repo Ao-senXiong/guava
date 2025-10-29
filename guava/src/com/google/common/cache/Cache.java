@@ -28,6 +28,11 @@ import java.util.concurrent.ExecutionException;
 import javax.annotation.CheckForNull;
 
 import org.checkerframework.checker.pico.qual.Immutable;
+import org.checkerframework.checker.pico.qual.Mutable;
+import org.checkerframework.checker.pico.qual.PolyMutable;
+import org.checkerframework.checker.pico.qual.Readonly;
+import org.checkerframework.checker.pico.qual.ReceiverDependentMutable;
+import org.checkerframework.framework.qual.AnnotatedFor;
 
 /**
  * A semi-persistent mapping from keys to values. Cache entries are manually added using {@link
@@ -42,9 +47,11 @@ import org.checkerframework.checker.pico.qual.Immutable;
  * @author Charles Fry
  * @since 10.0
  */
+@AnnotatedFor("pico")
 @DoNotMock("Use CacheBuilder.newBuilder().build()")
 @GwtCompatible
 @ElementTypesAreNonnullByDefault
+@ReceiverDependentMutable
 public interface Cache<K extends @Immutable Object, V> {
 
   /**
@@ -54,7 +61,7 @@ public interface Cache<K extends @Immutable Object, V> {
    * @since 11.0
    */
   @CheckForNull
-  V getIfPresent(@CompatibleWith("K") Object key);
+  V getIfPresent(@Readonly Cache<K, V> this, @CompatibleWith("K") @Readonly Object key);
 
   /**
    * Returns the value associated with {@code key} in this cache, obtaining that value from {@code
@@ -102,7 +109,7 @@ public interface Cache<K extends @Immutable Object, V> {
    * @throws ExecutionError if an error was thrown while loading the value
    * @since 11.0
    */
-  V get(K key, Callable<? extends V> loader) throws ExecutionException;
+  V get(@Readonly Cache<K, V> this, K key, Callable<? extends V> loader) throws ExecutionException;
 
   /**
    * Returns a map of the values associated with {@code keys} in this cache. The returned map will
@@ -114,7 +121,7 @@ public interface Cache<K extends @Immutable Object, V> {
    * <? extends Object> is mostly the same as <?> to plain Java. But to nullness checkers, they
    * differ: <? extends Object> means "non-null types," while <?> means "all types."
    */
-  ImmutableMap<K, V> getAllPresent(Iterable<? extends Object> keys);
+  ImmutableMap<K, V> getAllPresent(@Readonly Cache<K, V> this, @Readonly Iterable<? extends Object> keys);
 
   /**
    * Associates {@code value} with {@code key} in this cache. If the cache previously contained a
@@ -125,7 +132,7 @@ public interface Cache<K extends @Immutable Object, V> {
    *
    * @since 11.0
    */
-  void put(K key, V value);
+  void put(@Mutable Cache<K, V> this, K key, V value);
 
   /**
    * Copies all of the mappings from the specified map to the cache. The effect of this call is
@@ -135,10 +142,10 @@ public interface Cache<K extends @Immutable Object, V> {
    *
    * @since 12.0
    */
-  void putAll(Map<? extends K, ? extends V> m);
+  void putAll(@Mutable Cache<K, V> this,  @Readonly Map<? extends K, ? extends V> m);
 
   /** Discards any cached value for key {@code key}. */
-  void invalidate(@CompatibleWith("K") Object key);
+  void invalidate(@Mutable Cache<K, V> this, @CompatibleWith("K") @Readonly Object key);
 
   /**
    * Discards any cached values for keys {@code keys}.
@@ -146,14 +153,14 @@ public interface Cache<K extends @Immutable Object, V> {
    * @since 11.0
    */
   // For discussion of <? extends Object>, see getAllPresent.
-  void invalidateAll(Iterable<? extends Object> keys);
+  void invalidateAll(@Mutable Cache<K, V> this, @Readonly Iterable<? extends Object> keys);
 
   /** Discards all entries in the cache. */
-  void invalidateAll();
+  void invalidateAll(@Mutable Cache<K, V> this);
 
   /** Returns the approximate number of entries in this cache. */
   @CheckReturnValue
-  long size();
+  long size(@Readonly Cache<K, V> this);
 
   /**
    * Returns a current snapshot of this cache's cumulative statistics, or a set of default values if
@@ -167,7 +174,7 @@ public interface Cache<K extends @Immutable Object, V> {
    *
    */
   @CheckReturnValue
-  CacheStats stats();
+  CacheStats stats(@Readonly Cache<K, V> this);
 
   /**
    * Returns a view of the entries stored in this cache as a thread-safe map. Modifications made to
@@ -178,11 +185,11 @@ public interface Cache<K extends @Immutable Object, V> {
    * created, it is undefined which of the changes (if any) will be reflected in that iterator.
    */
   @CheckReturnValue
-  ConcurrentMap<K, V> asMap();
+  @PolyMutable ConcurrentMap<K, V> asMap(@PolyMutable Cache<K, V> this);
 
   /**
    * Performs any pending maintenance operations needed by the cache. Exactly which activities are
    * performed -- if any -- is implementation-dependent.
    */
-  void cleanUp();
+  void cleanUp(@Mutable Cache<K, V> this);
 }

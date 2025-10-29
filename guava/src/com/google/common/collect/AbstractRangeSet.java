@@ -16,19 +16,22 @@ package com.google.common.collect;
 
 import com.google.common.annotations.GwtIncompatible;
 import javax.annotation.CheckForNull;
+import org.checkerframework.checker.pico.qual.Mutable;
 import org.checkerframework.checker.pico.qual.Readonly;
 import org.checkerframework.checker.pico.qual.ReceiverDependentMutable;
 import org.checkerframework.checker.signedness.qual.UnknownSignedness;
+import org.checkerframework.framework.qual.AnnotatedFor;
 
 /**
  * A skeletal implementation of {@code RangeSet}.
  *
  * @author Louis Wasserman
  */
+@AnnotatedFor("pico")
 @GwtIncompatible
 @ElementTypesAreNonnullByDefault
 @ReceiverDependentMutable
-abstract class AbstractRangeSet<C extends Comparable> implements RangeSet<C> {
+abstract class AbstractRangeSet<C extends @Readonly Comparable> implements RangeSet<C> {
   AbstractRangeSet() {}
 
   @Override
@@ -46,42 +49,42 @@ abstract class AbstractRangeSet<C extends Comparable> implements RangeSet<C> {
   }
 
   @Override
-  public void add(Range<C> range) {
+  public void add(@Mutable AbstractRangeSet<C> this, @Readonly Range<C> range) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public void remove(Range<C> range) {
+  public void remove(@Mutable AbstractRangeSet<C> this, @Readonly Range<C> range) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public void clear() {
+  public void clear(@Mutable AbstractRangeSet<C> this) {
     remove(Range.<C>all());
   }
 
   @Override
-  public boolean enclosesAll(RangeSet<C> other) {
+  public boolean enclosesAll(@Mutable AbstractRangeSet<C> this, @Readonly RangeSet<C> other) {
     return enclosesAll(other.asRanges());
   }
 
   @Override
-  public void addAll(RangeSet<C> other) {
+  public void addAll(@Mutable AbstractRangeSet<C> this, @Readonly RangeSet<C> other) {
     addAll(other.asRanges());
   }
 
   @Override
-  public void removeAll(RangeSet<C> other) {
+  public void removeAll(@Mutable AbstractRangeSet<C> this, @Readonly RangeSet<C> other) {
     removeAll(other.asRanges());
   }
 
   @Override
-  public boolean intersects(Range<C> otherRange) {
+  public boolean intersects(@Mutable AbstractRangeSet<C> this, @Readonly Range<C> otherRange) {
     return !subRangeSet(otherRange).isEmpty();
   }
 
   @Override
-  public abstract boolean encloses(Range<C> otherRange);
+  public abstract boolean encloses(@Mutable AbstractRangeSet<C> this, @Readonly Range<C> otherRange);
 
   @Override
   public boolean equals(@Readonly AbstractRangeSet<C> this, @CheckForNull @Readonly Object obj) {

@@ -21,6 +21,7 @@ import java.util.Spliterator;
 import javax.annotation.CheckForNull;
 import org.checkerframework.checker.pico.qual.Immutable;
 import org.checkerframework.checker.signedness.qual.UnknownSignedness;
+import org.checkerframework.framework.qual.AnnotatedFor;
 
 /**
  * List returned by {@code ImmutableSortedSet.asList()} when the set isn't empty.
@@ -28,6 +29,7 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
  * @author Jared Levy
  * @author Louis Wasserman
  */
+@AnnotatedFor("pico")
 @GwtCompatible(emulated = true)
 @SuppressWarnings("serial")
 @ElementTypesAreNonnullByDefault

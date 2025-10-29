@@ -32,6 +32,7 @@ import java.util.Map;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.checker.pico.qual.Immutable;
 import org.checkerframework.checker.pico.qual.Mutable;
+import org.checkerframework.checker.pico.qual.PolyMutable;
 import org.checkerframework.checker.pico.qual.Readonly;
 import org.checkerframework.checker.pico.qual.ReceiverDependentMutable;
 import org.checkerframework.checker.signedness.qual.UnknownSignedness;
@@ -65,7 +66,7 @@ import org.checkerframework.framework.qual.AnnotatedFor;
  * @author Jared Levy
  * @since 2.0
  */
-@AnnotatedFor({"nullness"})
+@AnnotatedFor({"nullness", "pico"})
 @GwtCompatible(serializable = true, emulated = true)
 @ElementTypesAreNonnullByDefault
 @ReceiverDependentMutable
@@ -139,7 +140,7 @@ public final class ArrayListMultimap<K extends @Nullable @Immutable Object, V ex
    * Creates a new, empty {@code ArrayList} to hold the collection of values for an arbitrary key.
    */
   @Override
-  List<V> createCollection() {
+  @PolyMutable List<V> createCollection(@PolyMutable ArrayListMultimap<K, V> this) {
     return new ArrayList<V>(expectedValuesPerKey);
   }
 
@@ -151,7 +152,7 @@ public final class ArrayListMultimap<K extends @Nullable @Immutable Object, V ex
    *     call, or switch to a {@code HashMap<K, ArrayList<V>>}.
    */
   @Deprecated
-  public void trimToSize() {
+  public void trimToSize(@Mutable ArrayListMultimap<K, V> this) {
     for (Collection<V> collection : backingMap().values()) {
       ArrayList<V> arrayList = (ArrayList<V>) collection;
       arrayList.trimToSize();
@@ -182,31 +183,31 @@ public final class ArrayListMultimap<K extends @Nullable @Immutable Object, V ex
   private static final long serialVersionUID = 0;
 
 @Override
-public boolean containsEntry(@Nullable Object arg0, @Nullable Object arg1) { return super.containsEntry(arg0, arg1); }
+public boolean containsEntry(@Readonly ArrayListMultimap<K, V> this, @Nullable @Readonly Object arg0, @Nullable @Readonly Object arg1) { return super.containsEntry(arg0, arg1); }
 
 @Override
-public boolean containsKey(@Nullable @UnknownSignedness Object arg0) { return super.containsKey(arg0); }
+public boolean containsKey(@Readonly ArrayListMultimap<K, V> this, @Nullable @UnknownSignedness @Readonly Object arg0) { return super.containsKey(arg0); }
 
 @Override
-public boolean containsValue(@Nullable @UnknownSignedness Object arg0) { return super.containsValue(arg0); }
+public boolean containsValue(@Readonly ArrayListMultimap<K, V> this, @Nullable @UnknownSignedness @Readonly Object arg0) { return super.containsValue(arg0); }
 
 @Override
-public boolean equals(@Nullable Object arg0) { return super.equals(arg0); }
-
-@Pure
-@Override
-public boolean isEmpty() { return super.isEmpty(); }
-
-@Override
-public @ReceiverDependentMutable List<V> get(@Nullable K arg0) { return super.get(arg0); }
-
-@Override
-public boolean remove(@Mutable ArrayListMultimap<K, V> this, @Nullable Object arg0, @Nullable Object arg1) { return super.remove(arg0, arg1); }
-
-@Override
-public List<V> removeAll(@Mutable ArrayListMultimap<K, V> this, @Nullable Object arg0) { return super.removeAll(arg0); }
+public boolean equals(@Readonly ArrayListMultimap<K, V> this, @Nullable @Readonly Object arg0) { return super.equals(arg0); }
 
 @Pure
 @Override
-public int size() { return super.size(); }
+public boolean isEmpty(@Readonly ArrayListMultimap<K, V> this) { return super.isEmpty(); }
+
+@Override
+public List<V> get(@Readonly ArrayListMultimap<K, V> this, @Nullable K arg0) { return super.get(arg0); }
+
+@Override
+public boolean remove(@Mutable ArrayListMultimap<K, V> this, @Nullable @Readonly Object arg0, @Nullable @Readonly Object arg1) { return super.remove(arg0, arg1); }
+
+@Override
+public List<V> removeAll(@Mutable ArrayListMultimap<K, V> this, @Nullable @Readonly Object arg0) { return super.removeAll(arg0); }
+
+@Pure
+@Override
+public int size(@Readonly ArrayListMultimap<K, V> this) { return super.size(); }
 }

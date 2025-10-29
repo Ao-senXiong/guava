@@ -19,6 +19,7 @@ import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import javax.annotation.CheckForNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.checker.pico.qual.Readonly;
+import org.checkerframework.checker.pico.qual.ReceiverDependentMutable;
 import org.checkerframework.dataflow.qual.Pure;
 import org.checkerframework.framework.qual.AnnotatedFor;
 
@@ -47,6 +48,7 @@ import org.checkerframework.framework.qual.AnnotatedFor;
 @AnnotatedFor({"nullness"})
 @FunctionalInterface
 @ElementTypesAreNonnullByDefault
+@ReceiverDependentMutable
 public interface Function<F extends @Nullable @Readonly Object, T extends @Nullable @Readonly Object>
     extends java.util.function.Function<F, T> {
   @Override
@@ -67,5 +69,5 @@ public interface Function<F extends @Nullable @Readonly Object, T extends @Nulla
    */
   @Pure
   @Override
-  boolean equals(@CheckForNull Object object);
+  boolean equals(@CheckForNull @Readonly Object object);
 }

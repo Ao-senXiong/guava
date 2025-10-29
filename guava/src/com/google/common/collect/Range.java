@@ -29,7 +29,8 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.SortedSet;
 import javax.annotation.CheckForNull;
-import org.checkerframework.checker.pico.qual.ReceiverDependentMutable;
+import org.checkerframework.checker.pico.qual.Immutable;
+import org.checkerframework.checker.pico.qual.Readonly;
 import org.checkerframework.checker.signedness.qual.UnknownSignedness;
 
 /**
@@ -121,8 +122,8 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
 @GwtCompatible
 @SuppressWarnings("rawtypes")
 @ElementTypesAreNonnullByDefault
-@ReceiverDependentMutable
-public final class Range<C extends Comparable> extends RangeGwtSerializationDependencies
+@Immutable
+public final class Range<C extends @Readonly Comparable> extends RangeGwtSerializationDependencies
     implements Predicate<C>, Serializable {
 
   static class LowerBoundFn implements Function<Range, Cut> {
@@ -677,7 +678,7 @@ public final class Range<C extends Comparable> extends RangeGwtSerializationDepe
    * {@code [3..3)}, {@code (3..3]}, {@code (4..4]} are all unequal.
    */
   @Override
-  public boolean equals(@CheckForNull Object object) {
+  public boolean equals(@CheckForNull @Readonly Object object) {
     if (object instanceof Range) {
       Range<?> other = (Range<?>) object;
       return lowerBound.equals(other.lowerBound) && upperBound.equals(other.upperBound);

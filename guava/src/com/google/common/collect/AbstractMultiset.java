@@ -61,13 +61,13 @@ abstract class AbstractMultiset<E extends @Nullable @Readonly Object> extends Ab
 
   @Pure
   @Override
-  public boolean isEmpty() {
+  public boolean isEmpty(@Readonly AbstractMultiset<E> this) {
     return entrySet().isEmpty();
   }
 
   @Pure
   @Override
-  public boolean contains(@CheckForNull @UnknownSignedness @Readonly Object element) {
+  public boolean contains(@Readonly AbstractMultiset<E> this, @CheckForNull @UnknownSignedness @Readonly Object element) {
     return count(element) > 0;
   }
 
@@ -87,13 +87,13 @@ abstract class AbstractMultiset<E extends @Nullable @Readonly Object> extends Ab
 
   @CanIgnoreReturnValue
   @Override
-  public final boolean remove(@Mutable AbstractMultiset<E> this, @CheckForNull @UnknownSignedness Object element) {
+  public final boolean remove(@Mutable AbstractMultiset<E> this, @CheckForNull @UnknownSignedness @Readonly Object element) {
     return remove(element, 1) > 0;
   }
 
   @CanIgnoreReturnValue
   @Override
-  public int remove(@Mutable AbstractMultiset<E> this, @CheckForNull Object element, int occurrences) {
+  public int remove(@Mutable AbstractMultiset<E> this, @CheckForNull @Readonly Object element, int occurrences) {
     throw new UnsupportedOperationException();
   }
 
@@ -119,19 +119,19 @@ abstract class AbstractMultiset<E extends @Nullable @Readonly Object> extends Ab
    */
   @CanIgnoreReturnValue
   @Override
-  public final boolean addAll(@Mutable AbstractMultiset<E> this, Collection<? extends E> elementsToAdd) {
+  public final boolean addAll(@Mutable AbstractMultiset<E> this, @Readonly Collection<? extends E> elementsToAdd) {
     return Multisets.addAllImpl(this, elementsToAdd);
   }
 
   @CanIgnoreReturnValue
   @Override
-  public final boolean removeAll(@Mutable AbstractMultiset<E> this, Collection<?> elementsToRemove) {
+  public final boolean removeAll(@Mutable AbstractMultiset<E> this, @Readonly Collection<?> elementsToRemove) {
     return Multisets.removeAllImpl(this, elementsToRemove);
   }
 
   @CanIgnoreReturnValue
   @Override
-  public final boolean retainAll(@Mutable AbstractMultiset<E> this, Collection<?> elementsToRetain) {
+  public final boolean retainAll(@Mutable AbstractMultiset<E> this, @Readonly Collection<?> elementsToRetain) {
     return Multisets.retainAllImpl(this, elementsToRetain);
   }
 
@@ -161,7 +161,8 @@ abstract class AbstractMultiset<E extends @Nullable @Readonly Object> extends Ab
   }
 
   @WeakOuter
-  @ReceiverDependentMutable class ElementSet extends Multisets.ElementSet<E> {
+  @ReceiverDependentMutable
+  class ElementSet extends Multisets.ElementSet<E> {
     @Override
     @ReceiverDependentMutable Multiset<E> multiset() {
       return AbstractMultiset.this;
@@ -188,7 +189,8 @@ abstract class AbstractMultiset<E extends @Nullable @Readonly Object> extends Ab
   }
 
   @WeakOuter
-  @ReceiverDependentMutable class EntrySet extends Multisets.EntrySet<E> {
+  @ReceiverDependentMutable
+  class EntrySet extends Multisets.EntrySet<E> {
     @Override
     Multiset<E> multiset() {
       return AbstractMultiset.this;
@@ -223,7 +225,7 @@ abstract class AbstractMultiset<E extends @Nullable @Readonly Object> extends Ab
    */
   @Pure
   @Override
-  public final boolean equals(@Readonly AbstractMultiset<E> this, @CheckForNull @UnknownSignedness Object object) {
+  public final boolean equals(@Readonly AbstractMultiset<E> this, @CheckForNull @UnknownSignedness @Readonly Object object) {
     return Multisets.equalsImpl(this, object);
   }
 

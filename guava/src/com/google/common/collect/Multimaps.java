@@ -664,13 +664,14 @@ public final class Multimaps {
     return checkNotNull(delegate);
   }
 
+  @Immutable
   private static class UnmodifiableMultimap<K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object>
       extends ForwardingMultimap<K, @Immutable V> implements Serializable {
     final Multimap<K, V> delegate;
-    @LazyInit @CheckForNull transient Collection<Entry<K, V>> entries;
-    @LazyInit @CheckForNull transient Multiset<K> keys;
-    @LazyInit @CheckForNull transient Set<K> keySet;
-    @LazyInit @CheckForNull transient Collection<V> values;
+    @LazyInit @CheckForNull transient @Assignable Collection<Entry<K, V>> entries;
+    @LazyInit @CheckForNull transient @Assignable Multiset<K> keys;
+    @LazyInit @CheckForNull transient @Assignable Set<K> keySet;
+    @LazyInit @CheckForNull transient @Assignable Collection<V> values;
     @LazyInit @CheckForNull transient @Assignable Map<K, Collection<V>> map;
 
     UnmodifiableMultimap(final Multimap<K, V> delegate) {
@@ -788,16 +789,17 @@ public final class Multimaps {
     private static final long serialVersionUID = 0;
   }
 
+  @Immutable
   private static class UnmodifiableListMultimap<
           K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object>
       extends UnmodifiableMultimap<K, V> implements ListMultimap<K, V> {
-    UnmodifiableListMultimap(ListMultimap<K, V> delegate) {
+    UnmodifiableListMultimap(@Immutable ListMultimap<K, V> delegate) {
       super(delegate);
     }
 
     @Override
-    public ListMultimap<K, V> delegate() {
-      return (ListMultimap<K, V>) super.delegate();
+    public @Immutable ListMultimap<K, V> delegate() {
+      return (@Immutable ListMultimap<K, V>) super.delegate();
     }
 
     @Override
@@ -818,16 +820,17 @@ public final class Multimaps {
     private static final long serialVersionUID = 0;
   }
 
+  @Immutable
   private static class UnmodifiableSetMultimap<
           K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object>
       extends UnmodifiableMultimap<K, V> implements SetMultimap<K, V> {
-    UnmodifiableSetMultimap(SetMultimap<K, V> delegate) {
+    UnmodifiableSetMultimap(@Immutable SetMultimap<K, V> delegate) {
       super(delegate);
     }
 
     @Override
-    public SetMultimap<K, V> delegate() {
-      return (SetMultimap<K, V>) super.delegate();
+    public @Immutable SetMultimap<K, V> delegate() {
+      return (@Immutable SetMultimap<K, V>) super.delegate();
     }
 
     @Override
@@ -841,7 +844,7 @@ public final class Multimaps {
 
     @SideEffectFree
     @Override
-    public Set<Map.Entry<K, V>> entries() {
+    public @Immutable Set<Map.Entry<K, V>> entries() {
       return Maps.unmodifiableEntrySet(delegate().entries());
     }
 
@@ -858,6 +861,7 @@ public final class Multimaps {
     private static final long serialVersionUID = 0;
   }
 
+  @Immutable
   private static class UnmodifiableSortedSetMultimap<
           K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object>
       extends UnmodifiableSetMultimap<K, V> implements SortedSetMultimap<K, V> {

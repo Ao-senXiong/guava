@@ -19,6 +19,8 @@ import static java.util.Objects.requireNonNull;
 import com.google.common.annotations.GwtCompatible;
 //import com.google.errorprone.annotations.Immutable;
 import org.checkerframework.checker.pico.qual.Immutable;
+import org.checkerframework.framework.qual.AnnotatedFor;
+
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -27,11 +29,12 @@ import java.util.Map.Entry;
 @GwtCompatible
 //@Immutable(containerOf = {"R", "C", "V"})
 @ElementTypesAreNonnullByDefault
+@AnnotatedFor("pico")
 @Immutable
 final class SparseImmutableTable<R extends @Immutable Object, C extends @Immutable Object, V> extends RegularImmutableTable<R, C, V> {
-  static final ImmutableTable<Object, Object, Object> EMPTY =
+  static final ImmutableTable<@Immutable Object, @Immutable Object, @Immutable Object> EMPTY =
       new SparseImmutableTable<>(
-          ImmutableList.<Cell<Object, Object, Object>>of(), ImmutableSet.of(), ImmutableSet.of());
+          ImmutableList.<Cell<@Immutable Object, @Immutable Object, @Immutable Object>>of(), ImmutableSet.of(), ImmutableSet.of());
 
   private final ImmutableMap<R, ImmutableMap<C, V>> rowMap;
   private final ImmutableMap<C, ImmutableMap<R, V>> columnMap;

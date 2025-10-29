@@ -53,6 +53,8 @@ import javax.annotation.CheckForNull;
 import org.checkerframework.checker.index.qual.NonNegative;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.checker.pico.qual.Immutable;
+import org.checkerframework.checker.pico.qual.Mutable;
+import org.checkerframework.checker.pico.qual.PolyMutable;
 import org.checkerframework.checker.pico.qual.Readonly;
 import org.checkerframework.checker.pico.qual.ReceiverDependentMutable;
 import org.checkerframework.checker.signedness.qual.UnknownSignedness;
@@ -71,7 +73,7 @@ import org.checkerframework.framework.qual.AnnotatedFor;
  * @author Louis Wasserman
  * @since 2.0
  */
-@AnnotatedFor({"nullness"})
+@AnnotatedFor({"nullness", "pico"})
 @GwtCompatible(emulated = true)
 @ElementTypesAreNonnullByDefault
 public final class Lists {
@@ -329,20 +331,20 @@ public final class Lists {
     @ParametricNullness final E first;
     final E[] rest;
 
-    OnePlusArrayList(@ParametricNullness E first, E[] rest) {
+    OnePlusArrayList(@ParametricNullness E first, E @ReceiverDependentMutable [] rest) {
       this.first = first;
       this.rest = checkNotNull(rest);
     }
 
     @Pure
     @Override
-    public @NonNegative int size() {
+    public @NonNegative int size(@Readonly OnePlusArrayList<E> this) {
       return IntMath.saturatedAdd(rest.length, 1);
     }
 
     @Override
     @ParametricNullness
-    public E get(int index) {
+    public E get(@Readonly OnePlusArrayList<E> this, int index) {
       // check explicitly so the IOOBE will have the right message
       checkElementIndex(index, size());
       return (index == 0) ? first : rest[index - 1];
@@ -359,7 +361,7 @@ public final class Lists {
     @ParametricNullness final E second;
     final E[] rest;
 
-    TwoPlusArrayList(@ParametricNullness E first, @ParametricNullness E second, E[] rest) {
+    TwoPlusArrayList(@ParametricNullness E first, @ParametricNullness E second, E @ReceiverDependentMutable [] rest) {
       this.first = first;
       this.second = second;
       this.rest = checkNotNull(rest);
@@ -367,13 +369,13 @@ public final class Lists {
 
     @Pure
     @Override
-    public @NonNegative int size() {
+    public @NonNegative int size(@Readonly TwoPlusArrayList<E> this) {
       return IntMath.saturatedAdd(rest.length, 2);
     }
 
     @Override
     @ParametricNullness
-    public E get(int index) {
+    public E get(@Readonly TwoPlusArrayList<E> this, int index) {
       switch (index) {
         case 0:
           return first;
@@ -443,7 +445,7 @@ public final class Lists {
    *     a provided list is null
    * @since 19.0
    */
-  public static <B> List<List<B>> cartesianProduct(List<? extends List<? extends B>> lists) {
+  public static <B> List<@Readonly List<B>> cartesianProduct(List<? extends @Readonly List<? extends B>> lists) {
     return CartesianList.create(lists);
   }
 
@@ -502,7 +504,7 @@ public final class Lists {
    * @since 19.0
    */
   @SafeVarargs
-  public static <B> List<List<B>> cartesianProduct(List<? extends B>... lists) {
+  public static <B> List<@Readonly List<B>> cartesianProduct(List<? extends B>... lists) {
     return cartesianProduct(Arrays.asList(lists));
   }
 
@@ -567,18 +569,18 @@ public final class Lists {
      * can be overkill. That's why we forward this call directly to the backing list.
      */
     @Override
-    public void clear() {
+    public void clear(@Mutable TransformingSequentialList<F, T> this) {
       fromList.clear();
     }
 
     @Pure
     @Override
-    public @NonNegative int size() {
+    public @NonNegative int size(@Readonly TransformingSequentialList<F, T> this) {
       return fromList.size();
     }
 
     @Override
-    public ListIterator<T> listIterator(final int index) {
+    public ListIterator<T> listIterator(@Readonly TransformingSequentialList<F, T> this, final int index) {
       return new TransformedListIterator<F, T>(fromList.listIterator(index)) {
         @Override
         @ParametricNullness
@@ -589,7 +591,7 @@ public final class Lists {
     }
 
     @Override
-    public boolean removeIf(Predicate<? super T> filter) {
+    public boolean removeIf(@Mutable TransformingSequentialList<F, T> this, Predicate<? super T> filter) {
       checkNotNull(filter);
       return fromList.removeIf(element -> filter.test(function.apply(element)));
     }
@@ -617,23 +619,23 @@ public final class Lists {
     }
 
     @Override
-    public void clear() {
+    public void clear(@Mutable TransformingRandomAccessList<F, T> this) {
       fromList.clear();
     }
 
     @Override
     @ParametricNullness
-    public T get(int index) {
+    public T get(@Readonly TransformingRandomAccessList<F, T> this, int index) {
       return function.apply(fromList.get(index));
     }
 
     @Override
-    public Iterator<T> iterator() {
+    public Iterator<T> iterator(@Readonly TransformingRandomAccessList<F, T> this) {
       return listIterator();
     }
 
     @Override
-    public ListIterator<T> listIterator(int index) {
+    public ListIterator<T> listIterator(@Readonly TransformingRandomAccessList<F, T> this, int index) {
       return new TransformedListIterator<F, T>(fromList.listIterator(index)) {
         @Override
         T transform(F from) {
@@ -644,25 +646,25 @@ public final class Lists {
 
     @Pure
     @Override
-    public boolean isEmpty() {
+    public boolean isEmpty(@Readonly TransformingRandomAccessList<F, T> this) {
       return fromList.isEmpty();
     }
 
     @Override
-    public boolean removeIf(Predicate<? super T> filter) {
+    public boolean removeIf(@Mutable TransformingRandomAccessList<F, T> this, Predicate<? super T> filter) {
       checkNotNull(filter);
       return fromList.removeIf(element -> filter.test(function.apply(element)));
     }
 
     @Override
     @ParametricNullness
-    public T remove(int index) {
+    public T remove(@Mutable TransformingRandomAccessList<F, T> this, int index) {
       return function.apply(fromList.remove(index));
     }
 
     @Pure
     @Override
-    public @NonNegative int size() {
+    public @NonNegative int size(@Readonly TransformingRandomAccessList<F, T> this) {
       return fromList.size();
     }
 
@@ -703,7 +705,7 @@ public final class Lists {
     }
 
     @Override
-    public List<T> get(int index) {
+    public List<T> get(@Readonly Partition<T> this, int index) {
       checkElementIndex(index, size());
       int start = index * size;
       int end = Math.min(start + size, list.size());
@@ -712,13 +714,13 @@ public final class Lists {
 
     @Pure
     @Override
-    public @NonNegative int size() {
+    public @NonNegative int size(@Readonly Partition<T> this) {
       return IntMath.divide(list.size(), size, RoundingMode.CEILING);
     }
 
     @Pure
     @Override
-    public boolean isEmpty() {
+    public boolean isEmpty(@Readonly Partition<T> this) {
       return list.isEmpty();
     }
   }
@@ -726,7 +728,7 @@ public final class Lists {
   @ReceiverDependentMutable
   private static class RandomAccessPartition<T extends @Nullable @Readonly Object> extends Partition<T>
       implements RandomAccess {
-    RandomAccessPartition(List<T> list, int size) {
+    RandomAccessPartition(@ReceiverDependentMutable List<T> list, int size) {
       super(list, size);
     }
   }
@@ -765,12 +767,12 @@ public final class Lists {
     }
 
     @Override
-    public int indexOf(@CheckForNull @UnknownSignedness Object object) {
+    public int indexOf(@CheckForNull @UnknownSignedness @Readonly Object object) {
       return (object instanceof Character) ? string.indexOf((Character) object) : -1;
     }
 
     @Override
-    public int lastIndexOf(@CheckForNull @UnknownSignedness Object object) {
+    public int lastIndexOf(@CheckForNull @UnknownSignedness @Readonly Object object) {
       return (object instanceof Character) ? string.lastIndexOf((Character) object) : -1;
     }
 
@@ -806,13 +808,13 @@ public final class Lists {
     }
 
     @Override
-    public Character get(int index) {
+    public Character get(@Readonly CharSequenceAsList this, int index) {
       checkElementIndex(index, size()); // for GWT
       return sequence.charAt(index);
     }
 
     @Override
-    public @NonNegative int size() {
+    public @NonNegative int size(@Readonly CharSequenceAsList this) {
       return sequence.length();
     }
   }
@@ -848,77 +850,77 @@ public final class Lists {
   private static class ReverseList<T extends @Nullable @Readonly Object> extends AbstractList<T> {
     private final List<T> forwardList;
 
-    ReverseList(List<T> forwardList) {
+    ReverseList(@ReceiverDependentMutable List<T> forwardList) {
       this.forwardList = checkNotNull(forwardList);
     }
 
-    List<T> getForwardList() {
+    @PolyMutable List<T> getForwardList(@PolyMutable ReverseList<T> this) {
       return forwardList;
     }
 
-    private int reverseIndex(int index) {
+    private int reverseIndex(@Readonly ReverseList<T> this, int index) {
       int size = size();
       checkElementIndex(index, size);
       return (size - 1) - index;
     }
 
-    private int reversePosition(int index) {
+    private int reversePosition(@Readonly ReverseList<T> this, int index) {
       int size = size();
       checkPositionIndex(index, size);
       return size - index;
     }
 
     @Override
-    public void add(int index, @ParametricNullness T element) {
+    public void add(@Mutable ReverseList<T> this, int index, @ParametricNullness T element) {
       forwardList.add(reversePosition(index), element);
     }
 
     @Override
-    public void clear() {
+    public void clear(@Mutable ReverseList<T> this) {
       forwardList.clear();
     }
 
     @Override
     @ParametricNullness
-    public T remove(int index) {
+    public T remove(@Mutable ReverseList<T> this, int index) {
       return forwardList.remove(reverseIndex(index));
     }
 
     @Override
-    protected void removeRange(int fromIndex, int toIndex) {
+    protected void removeRange(@Mutable ReverseList<T> this, int fromIndex, int toIndex) {
       subList(fromIndex, toIndex).clear();
     }
 
     @Override
     @ParametricNullness
-    public T set(int index, @ParametricNullness T element) {
+    public T set(@Mutable ReverseList<T> this, int index, @ParametricNullness T element) {
       return forwardList.set(reverseIndex(index), element);
     }
 
     @Override
     @ParametricNullness
-    public T get(int index) {
+    public T get(@Readonly ReverseList<T> this, int index) {
       return forwardList.get(reverseIndex(index));
     }
 
     @Override
-    public @NonNegative int size() {
+    public @NonNegative int size(@Readonly ReverseList<T> this) {
       return forwardList.size();
     }
 
     @Override
-    public List<T> subList(int fromIndex, int toIndex) {
+    public @PolyMutable List<T> subList(@PolyMutable ReverseList<T> this, int fromIndex, int toIndex) {
       checkPositionIndexes(fromIndex, toIndex, size());
       return reverse(forwardList.subList(reversePosition(toIndex), reversePosition(fromIndex)));
     }
 
     @Override
-    public Iterator<T> iterator() {
+    public Iterator<T> iterator(@Readonly ReverseList<T> this) {
       return listIterator();
     }
 
     @Override
-    public ListIterator<T> listIterator(int index) {
+    public ListIterator<T> listIterator(@Readonly ReverseList<T> this, int index) {
       int start = reversePosition(index);
       final ListIterator<T> forwardIterator = forwardList.listIterator(start);
       return new ListIterator<T>() {
@@ -991,7 +993,7 @@ public final class Lists {
   @ReceiverDependentMutable
   private static class RandomAccessReverseList<T extends @Nullable @Readonly Object> extends ReverseList<T>
       implements RandomAccess {
-    RandomAccessReverseList(List<T> forwardList) {
+    RandomAccessReverseList(@ReceiverDependentMutable List<T> forwardList) {
       super(forwardList);
     }
   }
@@ -1010,7 +1012,7 @@ public final class Lists {
   }
 
   /** An implementation of {@link List#equals(Object)}. */
-  static boolean equalsImpl(List<?> thisList, @CheckForNull @UnknownSignedness Object other) {
+  static boolean equalsImpl(@Readonly List<?> thisList, @CheckForNull @UnknownSignedness @Readonly Object other) {
     if (other == checkNotNull(thisList)) {
       return true;
     }
@@ -1037,7 +1039,7 @@ public final class Lists {
 
   /** An implementation of {@link List#addAll(int, Collection)}. */
   static <E extends @Nullable @Readonly Object> boolean addAllImpl(
-      List<E> list, int index, Iterable<? extends E> elements) {
+          @Readonly List<E> list, int index, Iterable<? extends E> elements) {
     boolean changed = false;
     ListIterator<E> listIterator = list.listIterator(index);
     for (E e : elements) {
@@ -1113,7 +1115,7 @@ public final class Lists {
   }
 
   /** Returns an implementation of {@link List#listIterator(int)}. */
-  static <E extends @Nullable @Readonly Object> ListIterator<E> listIteratorImpl(List<E> list, int index) {
+  static <E extends @Nullable @Readonly Object> ListIterator<E> listIteratorImpl(@Readonly List<E> list, int index) {
     return new AbstractListWrapper<>(list).listIterator(index);
   }
 
@@ -1154,40 +1156,40 @@ public final class Lists {
     }
 
     @Override
-    public void add(int index, @ParametricNullness E element) {
+    public void add(@Mutable AbstractListWrapper<E> this, int index, @ParametricNullness E element) {
       backingList.add(index, element);
     }
 
     @Override
-    public boolean addAll(int index, Collection<? extends E> c) {
+    public boolean addAll(@Mutable AbstractListWrapper<E> this, int index, @Readonly Collection<? extends E> c) {
       return backingList.addAll(index, c);
     }
 
     @Override
     @ParametricNullness
-    public E get(int index) {
+    public E get(@Readonly AbstractListWrapper<E> this, int index) {
       return backingList.get(index);
     }
 
     @Override
     @ParametricNullness
-    public E remove(int index) {
+    public E remove(@Mutable AbstractListWrapper<E> this, int index) {
       return backingList.remove(index);
     }
 
     @Override
     @ParametricNullness
-    public E set(int index, @ParametricNullness E element) {
+    public E set(@Mutable AbstractListWrapper<E> this, int index, @ParametricNullness E element) {
       return backingList.set(index, element);
     }
 
     @Override
-    public boolean contains(@CheckForNull @UnknownSignedness @Readonly Object o) {
+    public boolean contains(@Readonly AbstractListWrapper<E> this, @CheckForNull @UnknownSignedness @Readonly Object o) {
       return backingList.contains(o);
     }
 
     @Override
-    public @NonNegative int size() {
+    public @NonNegative int size(@Readonly AbstractListWrapper<E> this) {
       return backingList.size();
     }
   }

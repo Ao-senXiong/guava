@@ -32,10 +32,13 @@ import java.util.Set;
 import java.util.TreeMap;
 import javax.annotation.CheckForNull;
 import org.checkerframework.checker.index.qual.NonNegative;
+import org.checkerframework.checker.pico.qual.Assignable;
 import org.checkerframework.checker.pico.qual.Immutable;
+import org.checkerframework.checker.pico.qual.PolyMutable;
 import org.checkerframework.checker.pico.qual.Readonly;
 import org.checkerframework.checker.pico.qual.ReceiverDependentMutable;
 import org.checkerframework.checker.signedness.qual.UnknownSignedness;
+import org.checkerframework.framework.qual.CFComment;
 
 /**
  * An implementation of {@link RangeSet} backed by a {@link TreeMap}.
@@ -47,18 +50,18 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
 @GwtIncompatible // uses NavigableMap
 @ElementTypesAreNonnullByDefault
 @ReceiverDependentMutable
-public class TreeRangeSet<C extends @Immutable Comparable<?>> extends AbstractRangeSet<C>
+public class TreeRangeSet<C extends @Readonly Comparable<?>> extends AbstractRangeSet<C>
     implements Serializable {
 
   @VisibleForTesting final NavigableMap<Cut<C>, Range<C>> rangesByLowerBound;
 
   /** Creates an empty {@code TreeRangeSet} instance. */
-  public static <C extends Comparable<?>> TreeRangeSet<C> create() {
+  public static <C extends @Readonly Comparable<?>> TreeRangeSet<C> create() {
     return new TreeRangeSet<>(new TreeMap<Cut<C>, Range<C>>());
   }
 
   /** Returns a {@code TreeRangeSet} initialized with the ranges in the specified range set. */
-  public static <C extends Comparable<?>> TreeRangeSet<C> create(RangeSet<C> rangeSet) {
+  public static <C extends @Readonly Comparable<?>> TreeRangeSet<C> create(RangeSet<C> rangeSet) {
     TreeRangeSet<C> result = create();
     result.addAll(rangeSet);
     return result;
@@ -73,7 +76,7 @@ public class TreeRangeSet<C extends @Immutable Comparable<?>> extends AbstractRa
    *
    * @since 21.0
    */
-  public static <C extends Comparable<?>> TreeRangeSet<C> create(Iterable<Range<C>> ranges) {
+  public static <C extends @Readonly Comparable<?>> TreeRangeSet<C> create(Iterable<Range<C>> ranges) {
     TreeRangeSet<C> result = create();
     result.addAll(ranges);
     return result;
@@ -83,43 +86,45 @@ public class TreeRangeSet<C extends @Immutable Comparable<?>> extends AbstractRa
     this.rangesByLowerBound = rangesByLowerCut;
   }
 
-  @CheckForNull private transient Set<Range<C>> asRanges;
-  @CheckForNull private transient Set<Range<C>> asDescendingSetOfRanges;
+  @CFComment("Change to @LazyFinal later")
+  @CheckForNull private transient @Assignable Set<Range<C>> asRanges;
+  @CheckForNull private transient @Assignable Set<Range<C>> asDescendingSetOfRanges;
 
   @Override
-  public Set<Range<C>> asRanges() {
+  public @PolyMutable Set<Range<C>> asRanges(@PolyMutable TreeRangeSet<C> this) {
     Set<Range<C>> result = asRanges;
     return (result == null) ? asRanges = new AsRanges(rangesByLowerBound.values()) : result;
   }
 
   @Override
-  public Set<Range<C>> asDescendingSetOfRanges() {
+  public @PolyMutable Set<Range<C>> asDescendingSetOfRanges(@PolyMutable TreeRangeSet<C> this) {
     Set<Range<C>> result = asDescendingSetOfRanges;
     return (result == null)
         ? asDescendingSetOfRanges = new AsRanges(rangesByLowerBound.descendingMap().values())
         : result;
   }
 
+  @ReceiverDependentMutable
   final class AsRanges extends ForwardingCollection<Range<C>> implements Set<Range<C>> {
 
     final Collection<Range<C>> delegate;
 
-    AsRanges(Collection<Range<C>> delegate) {
+    AsRanges(@ReceiverDependentMutable Collection<Range<C>> delegate) {
       this.delegate = delegate;
     }
 
     @Override
-    protected Collection<Range<C>> delegate() {
+    protected @PolyMutable Collection<Range<C>> delegate(@PolyMutable AsRanges this) {
       return delegate;
     }
 
     @Override
-    public int hashCode(@UnknownSignedness AsRanges this) {
+    public int hashCode(@UnknownSignedness @Readonly AsRanges this) {
       return Sets.hashCodeImpl(this);
     }
 
     @Override
-    public boolean equals(@CheckForNull @UnknownSignedness Object o) {
+    public boolean equals(@Readonly AsRanges this, @CheckForNull @UnknownSignedness @Readonly Object o) {
       return Sets.equalsImpl(this, o);
     }
   }
@@ -169,7 +174,7 @@ public class TreeRangeSet<C extends @Immutable Comparable<?>> extends AbstractRa
   }
 
   @Override
-  public Range<C> span() {
+  public Range<C> span(@Readonly TreeRangeSet<C> this) {
     Entry<@Immutable Cut<C>, Range<C>> firstEntry = rangesByLowerBound.firstEntry();
     Entry<@Immutable Cut<C>, Range<C>> lastEntry = rangesByLowerBound.lastEntry();
     if (firstEntry == null || lastEntry == null) {
@@ -280,16 +285,18 @@ public class TreeRangeSet<C extends @Immutable Comparable<?>> extends AbstractRa
     }
   }
 
-  @CheckForNull private transient RangeSet<C> complement;
+  @CFComment("Change to @LazyFinal later")
+  @CheckForNull private transient @Assignable RangeSet<C> complement;
 
   @Override
-  public RangeSet<C> complement() {
+  public RangeSet<C> complement(@PolyMutable TreeRangeSet<C> this) {
     RangeSet<C> result = complement;
     return (result == null) ? complement = new Complement() : result;
   }
 
   @VisibleForTesting
-  static final class RangesByUpperBound<C extends Comparable<?>>
+  @ReceiverDependentMutable
+  static final class RangesByUpperBound<C extends @Readonly Comparable<?>>
       extends AbstractNavigableMap<Cut<C>, Range<C>> {
     private final NavigableMap<Cut<C>, Range<C>> rangesByLowerBound;
 
@@ -457,7 +464,8 @@ public class TreeRangeSet<C extends @Immutable Comparable<?>> extends AbstractRa
     }
   }
 
-  private @ReceiverDependentMutable static final class ComplementRangesByLowerBound<C extends Comparable<?>>
+  @ReceiverDependentMutable
+  private static final class ComplementRangesByLowerBound<C extends @Readonly Comparable<?>>
       extends AbstractNavigableMap<Cut<C>, Range<C>> {
     private final NavigableMap<Cut<C>, Range<C>> positiveRangesByLowerBound;
     private final NavigableMap<Cut<C>, Range<C>> positiveRangesByUpperBound;
@@ -662,6 +670,7 @@ public class TreeRangeSet<C extends @Immutable Comparable<?>> extends AbstractRa
     }
   }
 
+  @ReceiverDependentMutable
   private final class Complement extends TreeRangeSet<C> {
     Complement() {
       super(new ComplementRangesByLowerBound<C>(TreeRangeSet.this.rangesByLowerBound));
@@ -688,7 +697,8 @@ public class TreeRangeSet<C extends @Immutable Comparable<?>> extends AbstractRa
     }
   }
 
-  private static final class SubRangeSetRangesByLowerBound<C extends Comparable<?>>
+  @ReceiverDependentMutable
+  private static final class SubRangeSetRangesByLowerBound<C extends @Readonly Comparable<?>>
       extends AbstractNavigableMap<Cut<C>, Range<C>> {
     /**
      * lowerBoundWindow is the headMap/subMap/tailMap view; it only restricts the keys, and does not
@@ -876,6 +886,7 @@ public class TreeRangeSet<C extends @Immutable Comparable<?>> extends AbstractRa
     return view.equals(Range.<C>all()) ? this : new SubRangeSet(view);
   }
 
+  @ReceiverDependentMutable
   private final class SubRangeSet extends TreeRangeSet<C> {
     private final Range<C> restriction;
 

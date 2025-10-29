@@ -98,7 +98,7 @@ public final class ConcurrentHashMultiset<E extends @Immutable Object> extends A
    * Creates a new, empty {@code ConcurrentHashMultiset} using the default initial capacity, load
    * factor, and concurrency settings.
    */
-  public static <E> ConcurrentHashMultiset<E> create() {
+  public static <E extends @Immutable Object> ConcurrentHashMultiset<E> create() {
     // TODO(schmoe): provide a way to use this class with other (possibly arbitrary)
     // ConcurrentMap implementors. One possibility is to extract most of this class into
     // an AbstractConcurrentMapMultiset.
@@ -153,7 +153,7 @@ public final class ConcurrentHashMultiset<E extends @Immutable Object> extends A
    * @return the nonnegative number of occurrences of the element
    */
   @Override
-  public @NonNegative int count(@CheckForNull @UnknownSignedness @Readonly Object element) {
+  public @NonNegative int count(@Readonly ConcurrentHashMultiset<E> this, @CheckForNull @UnknownSignedness @Readonly Object element) {
     AtomicInteger existingCounter = Maps.safeGet(countMap, element);
     return (existingCounter == null) ? 0 : existingCounter.get();
   }
@@ -166,7 +166,7 @@ public final class ConcurrentHashMultiset<E extends @Immutable Object> extends A
    */
   @Pure
   @Override
-  public @NonNegative int size() {
+  public @NonNegative int size(@Readonly ConcurrentHashMultiset<E> this) {
     long sum = 0L;
     for (AtomicInteger value : countMap.values()) {
       sum += value.get();
@@ -507,13 +507,13 @@ public final class ConcurrentHashMultiset<E extends @Immutable Object> extends A
   }
 
   @Override
-  int distinctElements() {
+  int distinctElements(@Readonly ConcurrentHashMultiset<E> this) {
     return countMap.size();
   }
 
   @Pure
   @Override
-  public boolean isEmpty() {
+  public boolean isEmpty(@Readonly ConcurrentHashMultiset<E> this) {
     return countMap.isEmpty();
   }
 
@@ -566,7 +566,7 @@ public final class ConcurrentHashMultiset<E extends @Immutable Object> extends A
   }
 
   @Override
-  public Iterator<E> iterator() {
+  public Iterator<E> iterator(@Readonly ConcurrentHashMultiset<E> this) {
     return Multisets.iteratorImpl(this);
   }
 
@@ -576,7 +576,8 @@ public final class ConcurrentHashMultiset<E extends @Immutable Object> extends A
   }
 
   @WeakOuter
-  private @ReceiverDependentMutable class EntrySet extends AbstractMultiset<E>.EntrySet {
+  @ReceiverDependentMutable
+  private class EntrySet extends AbstractMultiset<E>.EntrySet {
     @Override
     ConcurrentHashMultiset<E> multiset() {
       return ConcurrentHashMultiset.this;
@@ -595,7 +596,7 @@ public final class ConcurrentHashMultiset<E extends @Immutable Object> extends A
 
     @Override
     @SuppressWarnings("nullness") // b/192354773 in our checker affects toArray declarations
-    public <T extends @Nullable @UnknownSignedness Object> T[] toArray(T[] array) {
+    public <T extends @Nullable @UnknownSignedness @Readonly Object> T[] toArray(T[] array) {
       return snapshot().toArray(array);
     }
 
@@ -608,19 +609,19 @@ public final class ConcurrentHashMultiset<E extends @Immutable Object> extends A
 
   @Pure
   @Override
-  public @NonNegative int size() { return super.size(); }
+  public @NonNegative int size(@Readonly EntrySet this) { return super.size(); }
 
   @Pure
   @Override
-  public boolean isEmpty() { return super.isEmpty(); }
+  public boolean isEmpty(@Readonly EntrySet this) { return super.isEmpty(); }
 
   @Pure
   @Override
-  public boolean contains(@Nullable @UnknownSignedness Object arg0) { return super.contains(arg0); }
+  public boolean contains(@Readonly EntrySet this, @Nullable @UnknownSignedness @Readonly Object arg0) { return super.contains(arg0); }
 
   @Pure
   @Override
-  public boolean remove(@Mutable EntrySet this, @Nullable @UnknownSignedness Object arg0) { return super.remove(arg0); }
+  public boolean remove(@Mutable EntrySet this, @Nullable @UnknownSignedness @Readonly Object arg0) { return super.remove(arg0); }
   }
 
   /** @serialData the ConcurrentMap of elements and their counts. */
@@ -640,9 +641,9 @@ public final class ConcurrentHashMultiset<E extends @Immutable Object> extends A
   private static final long serialVersionUID = 1;
 
 @Override
-public boolean contains(@Nullable @UnknownSignedness Object arg0) { return super.contains(arg0); }
+public boolean contains(@Readonly ConcurrentHashMultiset<E> this, @Nullable @UnknownSignedness @Readonly Object arg0) { return super.contains(arg0); }
 
 @Pure
 @Override
-public boolean containsAll(Collection<?> arg0) { return super.containsAll(arg0); }
+public boolean containsAll(@Readonly ConcurrentHashMultiset<E> this, @Readonly Collection<?> arg0) { return super.containsAll(arg0); }
 }

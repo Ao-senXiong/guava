@@ -18,12 +18,14 @@ package com.google.common.collect;
 
 import com.google.common.annotations.GwtCompatible;
 import org.checkerframework.checker.pico.qual.Immutable;
+import org.checkerframework.framework.qual.AnnotatedFor;
 
 /**
  * Unused stub class, unreferenced under Java and manually emulated under GWT.
  *
  * @author Chris Povirk
  */
+@AnnotatedFor("pico")
 @GwtCompatible(emulated = true)
 @ElementTypesAreNonnullByDefault
 @Immutable

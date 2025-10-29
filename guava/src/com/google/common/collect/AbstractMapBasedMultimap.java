@@ -48,12 +48,13 @@ import javax.annotation.CheckForNull;
 import org.checkerframework.checker.index.qual.NonNegative;
 import org.checkerframework.checker.nullness.qual.KeyFor;
 import org.checkerframework.checker.nullness.qual.Nullable;
-import org.checkerframework.checker.pico.qual.Assignable;
 import org.checkerframework.checker.pico.qual.Immutable;
 import org.checkerframework.checker.pico.qual.Mutable;
+import org.checkerframework.checker.pico.qual.PolyMutable;
 import org.checkerframework.checker.pico.qual.Readonly;
 import org.checkerframework.checker.pico.qual.ReceiverDependentMutable;
 import org.checkerframework.checker.signedness.qual.UnknownSignedness;
+import org.checkerframework.framework.qual.AnnotatedFor;
 
 /**
  * Basic implementation of the {@link Multimap} interface. This class represents a multimap as a map
@@ -93,6 +94,7 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
  * @author Jared Levy
  * @author Louis Wasserman
  */
+@AnnotatedFor("pico")
 @GwtCompatible
 @ElementTypesAreNonnullByDefault
 @ReceiverDependentMutable
@@ -117,8 +119,8 @@ abstract class AbstractMapBasedMultimap<K extends @Nullable @Immutable Object, V
    * an entry for the provided key, and if so replaces the delegate.
    */
 
-  private transient @Assignable Map<K, @Readonly Collection<V>> map;
-  private transient @Assignable int totalSize;
+  private transient Map<K, @Readonly Collection<V>> map;
+  private transient int totalSize;
 
   /**
    * Creates a new multimap that uses the provided map.
@@ -126,13 +128,13 @@ abstract class AbstractMapBasedMultimap<K extends @Nullable @Immutable Object, V
    * @param map place to store the mapping from each key to its corresponding values
    * @throws IllegalArgumentException if {@code map} is not empty
    */
-  protected AbstractMapBasedMultimap(@ReceiverDependentMutable Map<K, @Mutable Collection<V>> map) {
+  protected AbstractMapBasedMultimap(@ReceiverDependentMutable Map<K, @Readonly Collection<V>> map) {
     checkArgument(map.isEmpty());
     this.map = map;
   }
 
   /** Used during deserialization only. */
-  final void setMap(Map<K, @Mutable Collection<V>> map) {
+  final void setMap(@Mutable AbstractMapBasedMultimap<K, V> this, Map<K, @Readonly Collection<V>> map) {
     this.map = map;
     totalSize = 0;
     for (Collection<V> values : map.values()) {
@@ -146,7 +148,7 @@ abstract class AbstractMapBasedMultimap<K extends @Nullable @Immutable Object, V
    *
    * <p>This is used in {@link #removeAll} on an empty key.
    */
-  Collection<V> createUnmodifiableEmptyCollection() {
+  @Readonly Collection<V> createUnmodifiableEmptyCollection(@Readonly AbstractMapBasedMultimap<K, V> this) {
     return unmodifiableCollectionSubclass(createCollection());
   }
 
@@ -160,7 +162,7 @@ abstract class AbstractMapBasedMultimap<K extends @Nullable @Immutable Object, V
    *
    * @return an empty collection of values
    */
-  abstract @ReceiverDependentMutable Collection<V> createCollection();
+  abstract Collection<V> createCollection();
 
   /**
    * Creates the collection of values for an explicitly provided key. By default, it simply calls
@@ -170,23 +172,23 @@ abstract class AbstractMapBasedMultimap<K extends @Nullable @Immutable Object, V
    * @param key key to associate with values in the collection
    * @return an empty collection of values
    */
-  @ReceiverDependentMutable Collection<V> createCollection(@ParametricNullness K key) {
+  Collection<V> createCollection(@ParametricNullness K key) {
     return createCollection();
   }
 
-  Map<K, Collection<V>> backingMap() {
+  @PolyMutable  Map<K, Collection<V>> backingMap(@PolyMutable AbstractMapBasedMultimap<K, V> this) {
     return map;
   }
 
   // Query Operations
 
   @Override
-  public int size() {
+  public int size(@Readonly AbstractMapBasedMultimap<K, V> this) {
     return totalSize;
   }
 
   @Override
-  public boolean containsKey(@CheckForNull @UnknownSignedness @Readonly Object key) {
+  public boolean containsKey(@Readonly AbstractMapBasedMultimap<K, V> this, @CheckForNull @UnknownSignedness @Readonly Object key) {
     return map.containsKey(key);
   }
 
@@ -273,7 +275,7 @@ abstract class AbstractMapBasedMultimap<K extends @Nullable @Immutable Object, V
     return unmodifiableCollectionSubclass(output);
   }
 
-  <E extends @Nullable @Readonly Object> Collection<E> unmodifiableCollectionSubclass(
+  <E extends @Nullable @Readonly Object> @Readonly Collection<E> unmodifiableCollectionSubclass(
       Collection<E> collection) {
     return Collections.unmodifiableCollection(collection);
   }
@@ -296,7 +298,7 @@ abstract class AbstractMapBasedMultimap<K extends @Nullable @Immutable Object, V
    * <p>The returned collection is not serializable.
    */
   @Override
-  public Collection<V> get(@ParametricNullness K key) {
+  public Collection<V> get(@Readonly AbstractMapBasedMultimap<K, V> this, @ParametricNullness K key) {
     Collection<V> collection = map.get(key);
     if (collection == null) {
       collection = createCollection(key);
@@ -345,7 +347,7 @@ abstract class AbstractMapBasedMultimap<K extends @Nullable @Immutable Object, V
     WrappedCollection(
         @ParametricNullness K key,
         @ReceiverDependentMutable Collection<V> delegate,
-        @CheckForNull WrappedCollection ancestor) {
+        @CheckForNull @ReceiverDependentMutable WrappedCollection ancestor) {
       this.key = key;
       this.delegate = delegate;
       this.ancestor = ancestor;
@@ -558,7 +560,7 @@ abstract class AbstractMapBasedMultimap<K extends @Nullable @Immutable Object, V
     }
 
     @Override
-    public boolean remove(@CheckForNull @UnknownSignedness Object o) {
+    public boolean remove(@Mutable  @CheckForNull @UnknownSignedness @Readonly Object o) {
       refreshIfEmpty();
       boolean changed = delegate.remove(o);
       if (changed) {
@@ -608,7 +610,7 @@ abstract class AbstractMapBasedMultimap<K extends @Nullable @Immutable Object, V
   @WeakOuter
   @ReceiverDependentMutable
   class WrappedSet extends WrappedCollection implements Set<V> {
-    WrappedSet(@ParametricNullness K key, Set<V> delegate) {
+    WrappedSet(@ParametricNullness K key, @ReceiverDependentMutable Set<V> delegate) {
       super(key, delegate, null);
     }
 
@@ -638,8 +640,8 @@ abstract class AbstractMapBasedMultimap<K extends @Nullable @Immutable Object, V
   class WrappedSortedSet extends WrappedCollection implements SortedSet<V> {
     WrappedSortedSet(
         @ParametricNullness K key,
-        SortedSet<V> delegate,
-        @CheckForNull WrappedCollection ancestor) {
+        @ReceiverDependentMutable SortedSet<V> delegate,
+        @CheckForNull @ReceiverDependentMutable WrappedCollection ancestor) {
       super(key, delegate, ancestor);
     }
 
@@ -700,8 +702,8 @@ abstract class AbstractMapBasedMultimap<K extends @Nullable @Immutable Object, V
   class WrappedNavigableSet extends WrappedSortedSet implements NavigableSet<V> {
     WrappedNavigableSet(
         @ParametricNullness K key,
-        NavigableSet<V> delegate,
-        @CheckForNull WrappedCollection ancestor) {
+        @ReceiverDependentMutable NavigableSet<V> delegate,
+        @CheckForNull @ReceiverDependentMutable WrappedCollection ancestor) {
       super(key, delegate, ancestor);
     }
 
@@ -1289,7 +1291,7 @@ abstract class AbstractMapBasedMultimap<K extends @Nullable @Immutable Object, V
    * time the entry is returned by a method call to the collection or its iterator.
    */
   @Override
-  public Collection<Entry<K, V>> entries() {
+  public @PolyMutable Collection<Entry<K, V>> entries(@PolyMutable AbstractMapBasedMultimap<K, V> this) {
     return super.entries();
   }
 

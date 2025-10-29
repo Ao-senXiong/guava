@@ -67,7 +67,7 @@ import org.checkerframework.framework.qual.CFComment;
  */
 // When making changes to this class, please also update the copy at
 // com.google.common.base.AbstractIterator
-@AnnotatedFor({"nullness"})
+@AnnotatedFor({"nullness", "pico"})
 @GwtCompatible
 @ElementTypesAreNonnullByDefault
 @CFComment("AOSEN: Is this a design issue?")
@@ -119,7 +119,7 @@ public abstract class AbstractIterator<T extends @Nullable @Readonly Object> ext
    *     IllegalStateException}.
    */
   @CheckForNull
-  protected abstract T computeNext();
+  protected abstract T computeNext(@Mutable AbstractIterator<T> this);
 
   /**
    * Implementations of {@link #computeNext} <b>must</b> invoke this method when there are no
@@ -137,7 +137,7 @@ public abstract class AbstractIterator<T extends @Nullable @Readonly Object> ext
 
   @CanIgnoreReturnValue // TODO(kak): Should we remove this? Some people are using it to prefetch?
   @Override
-  public final boolean hasNext() {
+  public final boolean hasNext(@Readonly AbstractIterator<T> this) {
     checkState(state != State.FAILED);
     switch (state) {
       case DONE:
@@ -181,7 +181,7 @@ public abstract class AbstractIterator<T extends @Nullable @Readonly Object> ext
    * implement {@code PeekingIterator}.
    */
   @ParametricNullness
-  public final T peek() {
+  public final T peek(@Readonly AbstractIterator<T> this) {
     if (!hasNext()) {
       throw new NoSuchElementException();
     }

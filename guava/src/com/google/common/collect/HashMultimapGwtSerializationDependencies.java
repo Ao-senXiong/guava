@@ -18,6 +18,7 @@ package com.google.common.collect;
 
 import com.google.common.annotations.GwtCompatible;
 import org.checkerframework.checker.pico.qual.Immutable;
+import org.checkerframework.checker.pico.qual.Readonly;
 import org.checkerframework.checker.pico.qual.ReceiverDependentMutable;
 import java.util.Collection;
 import java.util.Map;
@@ -33,7 +34,7 @@ import java.util.Map;
  */
 @GwtCompatible(emulated = true)
 @ReceiverDependentMutable
-abstract class HashMultimapGwtSerializationDependencies<K extends @Immutable Object , V extends @Immutable Object> extends AbstractSetMultimap<K, V> {
+abstract class HashMultimapGwtSerializationDependencies<K extends @Immutable Object , V extends @Readonly Object> extends AbstractSetMultimap<K, V> {
   HashMultimapGwtSerializationDependencies(Map<K, Collection<V>> map) {
     super(map);
   }

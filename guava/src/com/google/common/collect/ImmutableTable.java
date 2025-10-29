@@ -34,9 +34,11 @@ import java.util.function.Function;
 import java.util.stream.Collector;
 import javax.annotation.CheckForNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
-import org.checkerframework.checker.pico.qual.Mutable;
 import org.checkerframework.checker.pico.qual.Immutable;
+import org.checkerframework.checker.pico.qual.Mutable;
+import org.checkerframework.checker.pico.qual.Readonly;
 import org.checkerframework.checker.signedness.qual.UnknownSignedness;
+import org.checkerframework.framework.qual.AnnotatedFor;
 
 /**
  * A {@link Table} whose contents will never change, with many other important properties detailed
@@ -50,6 +52,7 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
  */
 @GwtCompatible
 @ElementTypesAreNonnullByDefault
+@AnnotatedFor("pico")
 @Immutable
 public abstract class ImmutableTable<R extends @Immutable Object, C extends @Immutable Object, V> extends AbstractTable<R, C, V>
     implements Serializable {
@@ -64,7 +67,7 @@ public abstract class ImmutableTable<R extends @Immutable Object, C extends @Imm
    *
    * @since 21.0
    */
-  public static <T extends @Nullable Object, R extends @Immutable Object, C extends @Immutable Object, V>
+  public static <T extends @Nullable @Readonly Object, R extends @Immutable Object, C extends @Immutable Object, V>
       Collector<T, ?, ImmutableTable<R, C, V>> toImmutableTable(
           Function<? super T, ? extends R> rowFunction,
           Function<? super T, ? extends C> columnFunction,
@@ -83,7 +86,7 @@ public abstract class ImmutableTable<R extends @Immutable Object, C extends @Imm
    *
    * @since 21.0
    */
-  public static <T extends @Nullable Object, R extends @Immutable Object, C extends @Immutable Object, V>
+  public static <T extends @Nullable @Readonly Object, R extends @Immutable Object, C extends @Immutable Object, V>
       Collector<T, ?, ImmutableTable<R, C, V>> toImmutableTable(
           Function<? super T, ? extends R> rowFunction,
           Function<? super T, ? extends C> columnFunction,
@@ -380,12 +383,12 @@ public abstract class ImmutableTable<R extends @Immutable Object, C extends @Imm
   public abstract ImmutableMap<R, Map<C, V>> rowMap();
 
   @Override
-  public boolean contains(@CheckForNull Object rowKey, @CheckForNull Object columnKey) {
+  public boolean contains(@CheckForNull @Readonly Object rowKey, @CheckForNull @Readonly Object columnKey) {
     return get(rowKey, columnKey) != null;
   }
 
   @Override
-  public boolean containsValue(@CheckForNull @UnknownSignedness Object value) {
+  public boolean containsValue(@CheckForNull @UnknownSignedness @Readonly Object value) {
     return values().contains(value);
   }
 
@@ -452,6 +455,7 @@ public abstract class ImmutableTable<R extends @Immutable Object, C extends @Imm
    * Serialized type for all ImmutableTable instances. It captures the logical contents and
    * preserves iteration order of all views.
    */
+  @Immutable
   static final class SerializedForm implements Serializable {
     private final Object[] rowKeys;
     private final Object[] columnKeys;
@@ -490,7 +494,7 @@ public abstract class ImmutableTable<R extends @Immutable Object, C extends @Imm
       if (cellValues.length == 1) {
         return of(rowKeys[0], columnKeys[0], cellValues[0]);
       }
-      ImmutableList.Builder<Cell<Object, Object, Object>> cellListBuilder =
+      ImmutableList.Builder<Cell<@Immutable Object, @Immutable Object, @Readonly Object>> cellListBuilder =
           new ImmutableList.Builder<>(cellValues.length);
       for (int i = 0; i < cellValues.length; i++) {
         cellListBuilder.add(

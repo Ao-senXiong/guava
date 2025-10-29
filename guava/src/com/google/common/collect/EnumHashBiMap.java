@@ -29,7 +29,10 @@ import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.CheckForNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.checkerframework.checker.pico.qual.Immutable;
+import org.checkerframework.checker.pico.qual.Mutable;
 import org.checkerframework.checker.pico.qual.Readonly;
+import org.checkerframework.checker.pico.qual.ReceiverDependentMutable;
 import org.checkerframework.checker.signedness.qual.UnknownSignedness;
 import org.checkerframework.dataflow.qual.Pure;
 import org.checkerframework.framework.qual.AnnotatedFor;
@@ -45,10 +48,11 @@ import org.checkerframework.framework.qual.AnnotatedFor;
  * @author Mike Bostock
  * @since 2.0
  */
-@AnnotatedFor({"nullness"})
+@AnnotatedFor({"nullness", "pico"})
 @GwtCompatible(emulated = true)
 @ElementTypesAreNonnullByDefault
-public final class EnumHashBiMap<K extends Enum<K>, V extends @Nullable Object>
+@ReceiverDependentMutable
+public final class EnumHashBiMap<K extends Enum<K>, V extends @Nullable @Immutable Object>
     extends AbstractBiMap<K, V> {
   private transient Class<K> keyType;
 
@@ -57,7 +61,7 @@ public final class EnumHashBiMap<K extends Enum<K>, V extends @Nullable Object>
    *
    * @param keyType the key type
    */
-  public static <K extends Enum<K>, V extends @Nullable Object> EnumHashBiMap<K, V> create(
+  public static <K extends Enum<K>, V extends @Nullable @Immutable Object> EnumHashBiMap<K, V> create(
       Class<K> keyType) {
     return new EnumHashBiMap<>(keyType);
   }
@@ -72,7 +76,7 @@ public final class EnumHashBiMap<K extends Enum<K>, V extends @Nullable Object>
    * @throws IllegalArgumentException if map is not an {@code EnumBiMap} or an {@code EnumHashBiMap}
    *     instance and contains no mappings
    */
-  public static <K extends Enum<K>, V extends @Nullable Object> EnumHashBiMap<K, V> create(
+  public static <K extends Enum<K>, V extends @Nullable @Immutable Object> EnumHashBiMap<K, V> create(
       Map<K, ? extends V> map) {
     EnumHashBiMap<K, V> bimap = create(EnumBiMap.inferKeyType(map));
     bimap.putAll(map);
@@ -89,7 +93,7 @@ public final class EnumHashBiMap<K extends Enum<K>, V extends @Nullable Object>
   // Overriding these 3 methods to show that values may be null (but not keys)
 
   @Override
-  K checkKey(K key) {
+  K checkKey(@Readonly EnumHashBiMap<K,V> this, K key) {
     return checkNotNull(key);
   }
 
@@ -98,7 +102,7 @@ public final class EnumHashBiMap<K extends Enum<K>, V extends @Nullable Object>
   @SuppressWarnings("RedundantOverride") // b/192446478: RedundantOverride ignores some annotations.
   // TODO(b/192446998): Remove this override after tools understand nullness better.
   @CheckForNull
-  public V put(K key, @ParametricNullness V value) {
+  public V put(@Mutable EnumHashBiMap<K,V> this, K key, @ParametricNullness V value) {
     return super.put(key, value);
   }
 
@@ -107,12 +111,12 @@ public final class EnumHashBiMap<K extends Enum<K>, V extends @Nullable Object>
   @SuppressWarnings("RedundantOverride") // b/192446478: RedundantOverride ignores some annotations.
   // TODO(b/192446998): Remove this override after tools understand nullness better.
   @CheckForNull
-  public V forcePut(K key, @ParametricNullness V value) {
+  public V forcePut(@Mutable EnumHashBiMap<K,V> this, K key, @ParametricNullness V value) {
     return super.forcePut(key, value);
   }
 
   /** Returns the associated key type. */
-  public Class<K> keyType() {
+  public Class<K> keyType(@Readonly EnumHashBiMap<K,V> this) {
     return keyType;
   }
 
@@ -142,5 +146,5 @@ public final class EnumHashBiMap<K extends Enum<K>, V extends @Nullable Object>
 
 @Pure
 @Override
-public boolean containsValue(@Nullable @UnknownSignedness @Readonly Object arg0) { return super.containsValue(arg0); }
+public boolean containsValue(@Readonly EnumHashBiMap<K,V> this, @Nullable @UnknownSignedness @Readonly Object arg0) { return super.containsValue(arg0); }
 }

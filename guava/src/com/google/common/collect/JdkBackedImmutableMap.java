@@ -31,11 +31,13 @@ import org.checkerframework.checker.pico.qual.Immutable;
 import org.checkerframework.checker.pico.qual.Mutable;
 import org.checkerframework.checker.pico.qual.Readonly;
 import org.checkerframework.checker.signedness.qual.UnknownSignedness;
+import org.checkerframework.framework.qual.AnnotatedFor;
 
 /**
  * Implementation of ImmutableMap backed by a JDK HashMap, which has smartness protecting against
  * hash flooding.
  */
+@AnnotatedFor("pico")
 @GwtCompatible(emulated = true)
 @ElementTypesAreNonnullByDefault
 @Immutable
@@ -46,13 +48,13 @@ final class JdkBackedImmutableMap<K extends @Immutable Object, V> extends Immuta
    * (though they will have the same key/value contents), and will take ownership of entryArray.
    */
   static <K extends @Immutable Object, V> ImmutableMap<K, V> create(
-      int n, @Nullable Entry<K, V> @Mutable [] entryArray, boolean throwIfDuplicateKeys) {
+      int n, @Nullable @Immutable Entry<K, V>[] entryArray, boolean throwIfDuplicateKeys) {
     Map<K, V> delegateMap = Maps.newHashMapWithExpectedSize(n);
     // If duplicates are allowed, this map will track the last value for each duplicated key.
     // A second pass will retain only the first entry for that key, but with this last value. The
     // value will then be replaced by null, signaling that later entries with the same key should
     // be deleted.
-    @Mutable Map<K, @Nullable V> duplicates = null;
+    Map<K, @Nullable V> duplicates = null;
     int dupCount = 0;
     for (int i = 0; i < n; i++) {
       // requireNonNull is safe because the first `n` elements have been filled in.
@@ -73,7 +75,7 @@ final class JdkBackedImmutableMap<K extends @Immutable Object, V> extends Immuta
     }
     if (duplicates != null) {
       @SuppressWarnings({"rawtypes", "unchecked"})
-      Entry<K, V>[] newEntryArray = new Entry @Mutable [n - dupCount];
+      @Immutable Entry<K, V>[] newEntryArray = new @Immutable Entry[n - dupCount];
       for (int inI = 0, outI = 0; inI < n; inI++) {
         Entry<K, V> entry = requireNonNull(entryArray[inI]);
         K key = entry.getKey();
@@ -95,7 +97,7 @@ final class JdkBackedImmutableMap<K extends @Immutable Object, V> extends Immuta
   private final transient Map<K, V> delegateMap;
   private final transient ImmutableList<Entry<K, V>> entries;
 
-  JdkBackedImmutableMap(Map<K, V> delegateMap, ImmutableList<Entry<K, V>> entries) {
+  JdkBackedImmutableMap(@Immutable Map<K, V> delegateMap, ImmutableList<Entry<K, V>> entries) {
     this.delegateMap = delegateMap;
     this.entries = entries;
   }

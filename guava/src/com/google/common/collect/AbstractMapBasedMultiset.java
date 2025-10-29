@@ -327,7 +327,7 @@ abstract class AbstractMapBasedMultiset<E extends @Nullable @Immutable Object> e
   // Roughly a 33% performance improvement over AbstractMultiset.setCount().
   @CanIgnoreReturnValue
   @Override
-  public int setCount(@ParametricNullness E element, int count) {
+  public int setCount(@Mutable AbstractMapBasedMultiset<E> this, @ParametricNullness E element, int count) {
     checkNonnegative(count, "count");
 
     Count existingCounter;

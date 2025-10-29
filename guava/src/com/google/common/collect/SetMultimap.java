@@ -25,6 +25,8 @@ import java.util.Set;
 import javax.annotation.CheckForNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.checker.pico.qual.Immutable;
+import org.checkerframework.checker.pico.qual.Mutable;
+import org.checkerframework.checker.pico.qual.PolyMutable;
 import org.checkerframework.checker.pico.qual.Readonly;
 import org.checkerframework.checker.pico.qual.ReceiverDependentMutable;
 import org.checkerframework.dataflow.qual.Pure;
@@ -57,7 +59,7 @@ import org.checkerframework.framework.qual.AnnotatedFor;
  * @since 2.0
  */
 @GwtCompatible
-@AnnotatedFor({"nullness"})
+@AnnotatedFor({"nullness", "pico"})
 @ElementTypesAreNonnullByDefault
 @ReceiverDependentMutable
 public interface SetMultimap<K extends @Nullable @Immutable Object, V extends @Readonly @Nullable Object>
@@ -70,7 +72,7 @@ public interface SetMultimap<K extends @Nullable @Immutable Object, V extends @R
    * interface.
    */
   @Override
-  Set<V> get(@ParametricNullness K key);
+  Set<V> get(@Readonly SetMultimap<K, V> this, @ParametricNullness K key);
 
   /**
    * {@inheritDoc}
@@ -81,7 +83,7 @@ public interface SetMultimap<K extends @Nullable @Immutable Object, V extends @R
    */
   @CanIgnoreReturnValue
   @Override
-  Set<V> removeAll(@CheckForNull @Readonly Object key);
+  Set<V> removeAll(@Mutable SetMultimap<K, V> this, @CheckForNull @Readonly Object key);
 
   /**
    * {@inheritDoc}
@@ -94,7 +96,7 @@ public interface SetMultimap<K extends @Nullable @Immutable Object, V extends @R
    */
   @CanIgnoreReturnValue
   @Override
-  Set<V> replaceValues(@ParametricNullness K key, Iterable<? extends V> values);
+  Set<V> replaceValues(@Mutable SetMultimap<K, V> this, @ParametricNullness K key, Iterable<? extends V> values);
 
   /**
    * {@inheritDoc}
@@ -104,7 +106,7 @@ public interface SetMultimap<K extends @Nullable @Immutable Object, V extends @R
    * interface.
    */
   @Override
-  Set<Entry<K, V>> entries();
+  @PolyMutable Set<Entry<K, V>> entries(@PolyMutable SetMultimap<K, V> this);
 
   /**
    * {@inheritDoc}
@@ -114,7 +116,7 @@ public interface SetMultimap<K extends @Nullable @Immutable Object, V extends @R
    * Multimaps#asMap(SetMultimap)} instead.
    */
   @Override
-  Map<K, Collection<V>> asMap();
+  @PolyMutable Map<K, Collection<V>> asMap(@PolyMutable SetMultimap<K, V> this);
 
   /**
    * Compares the specified object to this multimap for equality.
@@ -127,5 +129,5 @@ public interface SetMultimap<K extends @Nullable @Immutable Object, V extends @R
    */
   @Pure
   @Override
-  boolean equals(@CheckForNull @Readonly Object obj);
+  boolean equals(@Readonly SetMultimap<K, V> this, @CheckForNull @Readonly Object obj);
 }

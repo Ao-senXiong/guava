@@ -913,7 +913,7 @@ class MapMakerInternalMap<
       private static final Helper<?, ?> INSTANCE = new Helper<>();
 
       @SuppressWarnings("unchecked")
-      static <K, V> Helper<K, V> instance() {
+      static <K extends @Immutable Object, V> Helper<K, V> instance() {
         return (Helper<K, V>) INSTANCE;
       }
 
@@ -996,7 +996,7 @@ class MapMakerInternalMap<
    */
   @ReceiverDependentMutable
   static final class DummyInternalEntry
-      implements InternalEntry<Object, Object, DummyInternalEntry> {
+      implements InternalEntry<@Immutable Object, Object, DummyInternalEntry> {
     private DummyInternalEntry() {
       throw new AssertionError();
     }
@@ -1026,8 +1026,8 @@ class MapMakerInternalMap<
    * A singleton {@link WeakValueReference} used to denote an unset value in a entry with weak
    * values.
    */
-  static final WeakValueReference<Object, Object, DummyInternalEntry> UNSET_WEAK_VALUE_REFERENCE =
-      new WeakValueReference<Object, Object, DummyInternalEntry>() {
+  static final WeakValueReference<@Immutable Object, Object, DummyInternalEntry> UNSET_WEAK_VALUE_REFERENCE =
+      new WeakValueReference<@Immutable Object, Object, DummyInternalEntry>() {
         @Override
         public DummyInternalEntry getEntry() {
           return null;
@@ -2320,7 +2320,7 @@ class MapMakerInternalMap<
   }
 
   @VisibleForTesting
-  Equivalence<Object> valueEquivalence() {
+  Equivalence<@Readonly Object> valueEquivalence() {
     return entryHelper.valueStrength().defaultEquivalence();
   }
 

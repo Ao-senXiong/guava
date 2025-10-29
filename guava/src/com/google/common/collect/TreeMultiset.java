@@ -69,7 +69,8 @@ import org.checkerframework.framework.qual.AnnotatedFor;
 @AnnotatedFor({"nullness"})
 @GwtCompatible(emulated = true)
 @ElementTypesAreNonnullByDefault
-public @ReceiverDependentMutable final class TreeMultiset<E extends @Readonly @Nullable Object> extends AbstractSortedMultiset<E>
+@ReceiverDependentMutable
+public final class TreeMultiset<E extends @Readonly @Nullable Object> extends AbstractSortedMultiset<E>
     implements Serializable {
 
   /**
@@ -84,7 +85,7 @@ public @ReceiverDependentMutable final class TreeMultiset<E extends @Readonly @N
    * <p>The type specification is {@code <E extends Comparable>}, instead of the more specific
    * {@code <E extends Comparable<? super E>>}, to support classes defined without generics.
    */
-  public static <E extends Comparable> TreeMultiset<E> create() {
+  public static <E extends @Readonly Comparable> TreeMultiset<E> create() {
     return new TreeMultiset<E>(Ordering.natural());
   }
 

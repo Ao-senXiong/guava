@@ -23,8 +23,10 @@ import java.util.Iterator;
 import javax.annotation.CheckForNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.checker.pico.qual.Mutable;
+import org.checkerframework.checker.pico.qual.PolyMutable;
 import org.checkerframework.checker.pico.qual.Readonly;
 import org.checkerframework.checker.pico.qual.ReceiverDependentMutable;
+import org.checkerframework.framework.qual.AnnotatedFor;
 
 /**
  * A deque which forwards all its method calls to another deque. Subclasses should override one or
@@ -43,6 +45,7 @@ import org.checkerframework.checker.pico.qual.ReceiverDependentMutable;
  * @author Kurt Alfred Kluever
  * @since 12.0
  */
+@AnnotatedFor("pico")
 @GwtIncompatible
 @ElementTypesAreNonnullByDefault
 @ReceiverDependentMutable
@@ -53,7 +56,7 @@ public abstract class ForwardingDeque<E extends @Nullable @Readonly Object> exte
   protected ForwardingDeque() {}
 
   @Override
-  protected abstract Deque<E> delegate();
+  protected abstract @PolyMutable Deque<E> delegate(@PolyMutable ForwardingDeque<E> this);
 
   @Override
   public void addFirst(@Mutable ForwardingDeque<E> this, @ParametricNullness E e) {
@@ -66,7 +69,7 @@ public abstract class ForwardingDeque<E extends @Nullable @Readonly Object> exte
   }
 
   @Override
-  public Iterator<E> descendingIterator() {
+  public Iterator<E> descendingIterator(@Readonly ForwardingDeque<E> this) {
     return delegate().descendingIterator();
   }
 

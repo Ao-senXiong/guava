@@ -40,6 +40,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.checker.pico.qual.Immutable;
 import org.checkerframework.checker.pico.qual.Readonly;
 import org.checkerframework.checker.signedness.qual.UnknownSignedness;
+import org.checkerframework.framework.qual.AnnotatedFor;
 
 /**
  * A {@link RangeMap} whose contents will never change, with many other important properties
@@ -48,13 +49,14 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
  * @author Louis Wasserman
  * @since 14.0
  */
+@AnnotatedFor("pico")
 @Beta
 @GwtIncompatible // NavigableMap
 @ElementTypesAreNonnullByDefault
 @Immutable
 public class ImmutableRangeMap<K extends @Immutable Comparable<?>, V> implements RangeMap<K, V>, Serializable {
 
-  private static final ImmutableRangeMap<Comparable<?>, Object> EMPTY =
+  private static final ImmutableRangeMap<@Immutable Comparable<?>, Object> EMPTY =
       new ImmutableRangeMap<>(ImmutableList.<Range<Comparable<?>>>of(), ImmutableList.of());
 
   /**
@@ -202,7 +204,7 @@ public class ImmutableRangeMap<K extends @Immutable Comparable<?>, V> implements
 
   @Override
   @CheckForNull
-  public Entry<Range<K>, V> getEntry(K key) {
+  public @Immutable Entry<Range<K>, V> getEntry(K key) {
     int index =
         SortedLists.binarySearch(
             ranges,

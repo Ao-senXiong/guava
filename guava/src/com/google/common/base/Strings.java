@@ -28,7 +28,9 @@ import org.checkerframework.checker.index.qual.IndexOrHigh;
 import org.checkerframework.checker.index.qual.NonNegative;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.checkerframework.checker.pico.qual.Immutable;
 import org.checkerframework.checker.pico.qual.Readonly;
+import org.checkerframework.framework.qual.AnnotatedFor;
 import org.checkerframework.framework.qual.EnsuresQualifierIf;
 
 /**
@@ -37,6 +39,7 @@ import org.checkerframework.framework.qual.EnsuresQualifierIf;
  * @author Kevin Bourrillion
  * @since 3.0
  */
+@AnnotatedFor("pico")
 @GwtCompatible
 @ElementTypesAreNonnullByDefault
 public final class Strings {
@@ -154,6 +157,7 @@ public final class Strings {
    */
   @InlineMe(replacement = "string.repeat(count)")
   @InlineMeValidationDisabled("Java 11+ API only")
+  @SuppressWarnings("pico:argument.type.incompatible") // cast from @Unique @Mutable to @Immutable
   public static String repeat(String string, @NonNegative int count) {
     checkNotNull(string); // eager for GWT.
 
@@ -187,7 +191,7 @@ public final class Strings {
    *
    * @since 11.0
    */
-  public static String commonPrefix(CharSequence a, CharSequence b) {
+  public static String commonPrefix(@Readonly CharSequence a, @Readonly CharSequence b) {
     checkNotNull(a);
     checkNotNull(b);
 
@@ -210,7 +214,7 @@ public final class Strings {
    *
    * @since 11.0
    */
-  public static String commonSuffix(CharSequence a, CharSequence b) {
+  public static String commonSuffix(@Readonly CharSequence a, @Readonly CharSequence b) {
     checkNotNull(a);
     checkNotNull(b);
 
@@ -231,7 +235,7 @@ public final class Strings {
    * Out-of-range indexes return false.
    */
   @VisibleForTesting
-  static boolean validSurrogatePairAt(CharSequence string, int index) {
+  static boolean validSurrogatePairAt(@Readonly CharSequence string, int index) {
     return index >= 0
         && index <= (string.length() - 2)
         && Character.isHighSurrogate(string.charAt(index))
@@ -276,7 +280,7 @@ public final class Strings {
     template = String.valueOf(template); // null -> "null"
 
     if (args == null) {
-      args = new Object[] {"(Object[])null"};
+      args = new @Immutable Object[] {"(Object[])null"};
     } else {
       for (int i = 0; i < args.length; i++) {
         args[i] = lenientToString(args[i]);
@@ -312,7 +316,7 @@ public final class Strings {
     return builder.toString();
   }
 
-  private static String lenientToString(@CheckForNull Object o) {
+  private static String lenientToString(@CheckForNull @Readonly Object o) {
     if (o == null) {
       return "null";
     }

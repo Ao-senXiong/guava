@@ -25,9 +25,12 @@ import com.google.j2objc.annotations.RetainedWith;
 import java.util.function.BiConsumer;
 import javax.annotation.CheckForNull;
 import org.checkerframework.checker.index.qual.NonNegative;
+import org.checkerframework.checker.pico.qual.Assignable;
 import org.checkerframework.checker.pico.qual.Immutable;
 import org.checkerframework.checker.pico.qual.Readonly;
 import org.checkerframework.checker.signedness.qual.UnknownSignedness;
+import org.checkerframework.framework.qual.AnnotatedFor;
+import org.checkerframework.framework.qual.CFComment;
 
 /**
  * Implementation of {@link ImmutableMap} with exactly one entry.
@@ -35,6 +38,7 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
  * @author Jesse Wilson
  * @author Kevin Bourrillion
  */
+@AnnotatedFor("pico")
 @GwtCompatible(serializable = true, emulated = true)
 @SuppressWarnings("serial") // uses writeReplace(), not default serialization
 @ElementTypesAreNonnullByDefault
@@ -79,7 +83,7 @@ final class SingletonImmutableBiMap<K extends @Immutable Object, V extends @Immu
   }
 
   @Override
-  public boolean containsValue(@CheckForNull @UnknownSignedness Object value) {
+  public boolean containsValue(@CheckForNull @UnknownSignedness @Readonly Object value) {
     return singleValue.equals(value);
   }
 
@@ -99,7 +103,8 @@ final class SingletonImmutableBiMap<K extends @Immutable Object, V extends @Immu
   }
 
   @CheckForNull private final transient ImmutableBiMap<V, K> inverse;
-  @LazyInit @RetainedWith @CheckForNull private transient ImmutableBiMap<V, K> lazyInverse;
+  @CFComment("Change to @LazyFinal later")
+  @LazyInit @RetainedWith @CheckForNull private transient @Assignable ImmutableBiMap<V, K> lazyInverse;
 
   @Override
   public ImmutableBiMap<V, K> inverse() {

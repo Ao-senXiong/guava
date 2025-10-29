@@ -29,7 +29,7 @@ import org.checkerframework.dataflow.qual.Pure;
 import org.checkerframework.framework.qual.AnnotatedFor;
 
 /** An ordering for a pre-existing comparator. */
-@AnnotatedFor({"nullness"})
+@AnnotatedFor({"nullness", "pico"})
 @GwtCompatible(serializable = true)
 @ElementTypesAreNonnullByDefault
 final class ComparatorOrdering<T extends @Readonly @Nullable Object> extends Ordering<T>
@@ -48,7 +48,7 @@ final class ComparatorOrdering<T extends @Readonly @Nullable Object> extends Ord
 
   @Pure
   @Override
-  public boolean equals(@CheckForNull Object object) {
+  public boolean equals(@CheckForNull @Readonly Object object) {
     if (object == this) {
       return true;
     }

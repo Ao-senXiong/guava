@@ -26,6 +26,7 @@ import javax.annotation.CheckForNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.checker.pico.qual.Immutable;
 import org.checkerframework.checker.pico.qual.Mutable;
+import org.checkerframework.checker.pico.qual.PolyMutable;
 import org.checkerframework.checker.pico.qual.Readonly;
 import org.checkerframework.checker.pico.qual.ReceiverDependentMutable;
 import org.checkerframework.dataflow.qual.Pure;
@@ -109,7 +110,7 @@ abstract class AbstractListMultimap<K extends @Nullable @Immutable Object, V ext
    */
   @CanIgnoreReturnValue
   @Override
-  public List<V> replaceValues(@Mutable AbstractListMultimap<K,V> this, @ParametricNullness K key, Iterable<? extends V> values) {
+  public List<V> replaceValues(@Mutable AbstractListMultimap<K,V> this, @ParametricNullness K key, @Readonly Iterable<? extends V> values) {
     return (List<V>) super.replaceValues(key, values);
   }
 
@@ -133,7 +134,7 @@ abstract class AbstractListMultimap<K extends @Nullable @Immutable Object, V ext
    * values.
    */
   @Override
-  public Map<K, Collection<V>> asMap() {
+  public @PolyMutable Map<K, Collection<V>> asMap(@PolyMutable AbstractListMultimap<K,V> this) {
     return super.asMap();
   }
 

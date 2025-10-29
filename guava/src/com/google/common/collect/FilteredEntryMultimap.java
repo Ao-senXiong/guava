@@ -199,7 +199,7 @@ class FilteredEntryMultimap<K extends @Nullable @Immutable Object, V extends @Nu
 
     @Override
     @CheckForNull
-    public Collection<V> remove(@CheckForNull @UnknownSignedness @Readonly Object key) {
+    public @Immutable Collection<V> remove(@CheckForNull @UnknownSignedness @Readonly Object key) {
       Collection<V> collection = unfiltered.asMap().get(key);
       if (collection == null) {
         return null;

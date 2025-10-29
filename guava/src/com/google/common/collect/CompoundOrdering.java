@@ -28,7 +28,7 @@ import org.checkerframework.dataflow.qual.Pure;
 import org.checkerframework.framework.qual.AnnotatedFor;
 
 /** An ordering that tries several comparators in order. */
-@AnnotatedFor({"nullness"})
+@AnnotatedFor({"nullness", "pico"})
 @GwtCompatible(serializable = true)
 @ElementTypesAreNonnullByDefault
 final class CompoundOrdering<T extends @Nullable @Readonly Object> extends Ordering<T>
@@ -57,7 +57,7 @@ final class CompoundOrdering<T extends @Nullable @Readonly Object> extends Order
 
   @Pure
   @Override
-  public boolean equals(@CheckForNull Object object) {
+  public boolean equals(@CheckForNull @Readonly Object object) {
     if (object == this) {
       return true;
     }

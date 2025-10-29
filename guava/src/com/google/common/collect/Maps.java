@@ -107,18 +107,18 @@ import org.checkerframework.framework.qual.CFComment;
 public final class Maps {
   private Maps() {}
 
-  private enum EntryFunction implements Function<Entry<?, ?>, @Nullable Object> {
+  private enum EntryFunction implements Function<Entry<?, ?>, @Nullable @Readonly Object> {
     KEY {
       @Override
       @CheckForNull
-      public Object apply(Entry<?, ?> entry) {
+      public @Readonly Object apply(Entry<?, ?> entry) {
         return entry.getKey();
       }
     },
     VALUE {
       @Override
       @CheckForNull
-      public Object apply(Entry<?, ?> entry) {
+      public @Readonly Object apply(Entry<?, ?> entry) {
         return entry.getValue();
       }
     };
@@ -950,19 +950,19 @@ public final class Maps {
     }
 
     @Override
-    public boolean containsKey(@CheckForNull @UnknownSignedness Object key) {
+    public boolean containsKey(@CheckForNull @UnknownSignedness @Readonly Object key) {
       return backingSet().contains(key);
     }
 
     @Override
     @CheckForNull
-    public V get(@CheckForNull @UnknownSignedness Object key) {
+    public V get(@CheckForNull @UnknownSignedness @Readonly Object key) {
       return getOrDefault(key, null);
     }
 
     @Override
     @CheckForNull
-    public V getOrDefault(@CheckForNull @UnknownSignedness Object key, @CheckForNull V defaultValue) {
+    public V getOrDefault(@CheckForNull @UnknownSignedness @Readonly Object key, @CheckForNull V defaultValue) {
       if (Collections2.safeContains(backingSet(), key)) {
         @SuppressWarnings("unchecked") // unsafe, but Javadoc warns about it
         K k = (K) key;
@@ -974,7 +974,7 @@ public final class Maps {
 
     @Override
     @CheckForNull
-    public V remove(@CheckForNull @UnknownSignedness Object key) {
+    public V remove(@CheckForNull @UnknownSignedness @Readonly Object key) {
       if (backingSet().remove(key)) {
         @SuppressWarnings("unchecked") // unsafe, but Javadoc warns about it
         K k = (K) key;
@@ -2233,13 +2233,13 @@ public final class Maps {
     }
 
     @Override
-    public boolean containsKey(@CheckForNull @UnknownSignedness Object key) {
+    public boolean containsKey(@CheckForNull @UnknownSignedness @Readonly Object key) {
       return fromMap.containsKey(key);
     }
 
     @Override
     @CheckForNull
-    public V2 get(@CheckForNull @UnknownSignedness Object key) {
+    public V2 get(@CheckForNull @UnknownSignedness @Readonly Object key) {
       return getOrDefault(key, null);
     }
 
@@ -2247,7 +2247,7 @@ public final class Maps {
     @SuppressWarnings("unchecked")
     @Override
     @CheckForNull
-    public V2 getOrDefault(@CheckForNull @UnknownSignedness Object key, @CheckForNull V2 defaultValue) {
+    public V2 getOrDefault(@CheckForNull @UnknownSignedness @Readonly Object key, @CheckForNull V2 defaultValue) {
       V1 value = fromMap.get(key);
       if (value != null || fromMap.containsKey(key)) {
         // The cast is safe because of the containsKey check.
@@ -2260,7 +2260,7 @@ public final class Maps {
     @SuppressWarnings("unchecked")
     @Override
     @CheckForNull
-    public V2 remove(@CheckForNull @UnknownSignedness Object key) {
+    public V2 remove(@CheckForNull @UnknownSignedness @Readonly Object key) {
       return fromMap.containsKey(key)
           // The cast is safe because of the containsKey check.
           ? transformer.transformEntry((K) key, uncheckedCastNullableTToT(fromMap.remove(key)))
@@ -2941,6 +2941,7 @@ public final class Maps {
     return new FilteredEntryBiMap<>(map.unfiltered(), predicate);
   }
 
+  @ReceiverDependentMutable
   private abstract static class AbstractFilteredMap<
           K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object>
       extends ViewCachingAbstractMap<K, V> {
@@ -2952,7 +2953,7 @@ public final class Maps {
       this.predicate = predicate;
     }
 
-    boolean apply(@CheckForNull Object key, @ParametricNullness V value) {
+    boolean apply(@CheckForNull @Readonly Object key, @ParametricNullness V value) {
       // This method is called only when the key is in the map (or about to be added to the map),
       // implying that key is a K.
       @SuppressWarnings({"unchecked", "nullness"})
@@ -2977,13 +2978,13 @@ public final class Maps {
 
     @Pure
     @Override
-    public boolean containsKey(@CheckForNull @UnknownSignedness Object key) {
+    public boolean containsKey(@CheckForNull @UnknownSignedness @Readonly Object key) {
       return unfiltered.containsKey(key) && apply(key, unfiltered.get(key));
     }
 
     @Override
     @CheckForNull
-    public V get(@CheckForNull @UnknownSignedness Object key) {
+    public V get(@CheckForNull @UnknownSignedness @Readonly Object key) {
       V value = unfiltered.get(key);
       return ((value != null) && apply(key, value)) ? value : null;
     }
@@ -2996,7 +2997,7 @@ public final class Maps {
 
     @Override
     @CheckForNull
-    public V remove(@CheckForNull @UnknownSignedness Object key) {
+    public V remove(@CheckForNull @UnknownSignedness @Readonly Object key) {
       return containsKey(key) ? unfiltered.remove(key) : null;
     }
 
@@ -3100,7 +3101,7 @@ public final class Maps {
     @Pure
     @Override
     @SuppressWarnings("unchecked")
-    public boolean containsKey(@CheckForNull @UnknownSignedness Object key) {
+    public boolean containsKey(@CheckForNull @UnknownSignedness @Readonly Object key) {
       return unfiltered.containsKey(key) && keyPredicate.apply((K) key);
     }
   }
@@ -3159,7 +3160,7 @@ public final class Maps {
     }
 
     static <K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object> boolean removeAllKeys(
-        @Mutable Map<K, V> map, Predicate<? super Entry<K, V>> entryPredicate, Collection<?> keyCollection) {
+        @Mutable Map<K, V> map, Predicate<? super Entry<K, V>> entryPredicate, @Readonly Collection<?> keyCollection) {
       Iterator<Entry<K, V>> entryItr = map.entrySet().iterator();
       boolean result = false;
       while (entryItr.hasNext()) {
@@ -3173,7 +3174,7 @@ public final class Maps {
     }
 
     static <K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object> boolean retainAllKeys(
-        @Mutable Map<K, V> map, Predicate<? super Entry<K, V>> entryPredicate, Collection<?> keyCollection) {
+        @Mutable Map<K, V> map, Predicate<? super Entry<K, V>> entryPredicate, @Readonly Collection<?> keyCollection) {
       Iterator<Entry<K, V>> entryItr = map.entrySet().iterator();
       boolean result = false;
       while (entryItr.hasNext()) {
@@ -3406,12 +3407,12 @@ public final class Maps {
 
     @Override
     @CheckForNull
-    public V get(@CheckForNull @UnknownSignedness Object key) {
+    public V get(@CheckForNull @UnknownSignedness @Readonly Object key) {
       return filteredDelegate.get(key);
     }
 
     @Override
-    public boolean containsKey(@CheckForNull @UnknownSignedness Object key) {
+    public boolean containsKey(@CheckForNull @UnknownSignedness @Readonly Object key) {
       return filteredDelegate.containsKey(key);
     }
 
@@ -3423,7 +3424,7 @@ public final class Maps {
 
     @Override
     @CheckForNull
-    public V remove(@CheckForNull @UnknownSignedness Object key) {
+    public V remove(@CheckForNull @UnknownSignedness @Readonly Object key) {
       return filteredDelegate.remove(key);
     }
 
@@ -4426,6 +4427,7 @@ public final class Maps {
   }
 
   @GwtIncompatible // NavigableMap
+  @ReceiverDependentMutable
   abstract static class DescendingMap<K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object>
       extends ForwardingMap<K, V> implements NavigableMap<K, V> {
 

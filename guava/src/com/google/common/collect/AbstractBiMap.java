@@ -36,12 +36,15 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.BiFunction;
 import javax.annotation.CheckForNull;
+
+import org.checkerframework.checker.initialization.qual.UnderInitialization;
 import org.checkerframework.checker.nullness.qual.KeyFor;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.checker.nullness.qual.PolyNull;
 import org.checkerframework.checker.pico.qual.Assignable;
 import org.checkerframework.checker.pico.qual.Immutable;
 import org.checkerframework.checker.pico.qual.Mutable;
+import org.checkerframework.checker.pico.qual.PolyMutable;
 import org.checkerframework.checker.pico.qual.Readonly;
 import org.checkerframework.checker.pico.qual.ReceiverDependentMutable;
 import org.checkerframework.checker.signedness.qual.PolySigned;
@@ -60,7 +63,7 @@ import org.checkerframework.framework.qual.CFComment;
  * @author Kevin Bourrillion
  * @author Mike Bostock
  */
-@AnnotatedFor({"nullness"})
+@AnnotatedFor({"nullness", "pico"})
 @GwtCompatible(emulated = true)
 @ElementTypesAreNonnullByDefault
 @ReceiverDependentMutable
@@ -82,7 +85,7 @@ abstract class AbstractBiMap<K extends @Nullable @Immutable Object, V extends @N
   }
 
   @Override
-  protected @ReceiverDependentMutable Map<K, V> delegate() {
+  protected @PolyMutable Map<K, V> delegate(@PolyMutable AbstractBiMap<K,V> this) {
     return delegate;
   }
 
@@ -104,7 +107,7 @@ abstract class AbstractBiMap<K extends @Nullable @Immutable Object, V extends @N
    * Specifies the delegate maps going in each direction. Called by the constructor and by
    * subclasses during deserialization.
    */
-  void setDelegates(@Mutable AbstractBiMap<K, V> this, Map<K, V> forward, Map<V, K> backward) {
+  void setDelegates(@UnderInitialization AbstractBiMap<K, V> this, @ReceiverDependentMutable Map<K, V> forward, @ReceiverDependentMutable Map<V, K> backward) {
     checkState(delegate == null);
     checkState(inverse == null);
     checkArgument(forward.isEmpty());
@@ -114,11 +117,11 @@ abstract class AbstractBiMap<K extends @Nullable @Immutable Object, V extends @N
     inverse = makeInverse(backward);
   }
 
-  AbstractBiMap<V, K> makeInverse(@ReceiverDependentMutable Map<V, K> backward) {
+  @ReceiverDependentMutable AbstractBiMap<V, K> makeInverse(@ReceiverDependentMutable Map<V, K> backward) {
     return new @ReceiverDependentMutable Inverse<>(backward, this);
   }
 
-  void setInverse(@Mutable AbstractBiMap<K, V> this, AbstractBiMap<V, K> inverse) {
+  void setInverse(@UnderInitialization AbstractBiMap<K, V> this, @ReceiverDependentMutable AbstractBiMap<V, K> inverse) {
     this.inverse = inverse;
   }
 
@@ -238,7 +241,7 @@ abstract class AbstractBiMap<K extends @Nullable @Immutable Object, V extends @N
   // Views
 
   @Override
-  public BiMap<V, K> inverse() {
+  public @PolyMutable BiMap<V, K> inverse(@PolyMutable AbstractBiMap<K, V> this) {
     return inverse;
   }
 
@@ -247,7 +250,7 @@ abstract class AbstractBiMap<K extends @Nullable @Immutable Object, V extends @N
 
   @SideEffectFree
   @Override
-  public Set<@KeyFor({"this"}) K> keySet() {
+  public @PolyMutable Set<@KeyFor({"this"}) K> keySet(@PolyMutable AbstractBiMap<K, V> this) {
     Set<K> result = keySet;
     return (result == null) ? keySet = new KeySet() : result;
   }
@@ -256,7 +259,7 @@ abstract class AbstractBiMap<K extends @Nullable @Immutable Object, V extends @N
   @ReceiverDependentMutable
   private class KeySet extends ForwardingSet<K> {
     @Override
-    protected Set<K> delegate() {
+    protected @PolyMutable Set<K> delegate(@PolyMutable KeySet this) {
       return delegate.keySet();
     }
 
@@ -285,7 +288,7 @@ abstract class AbstractBiMap<K extends @Nullable @Immutable Object, V extends @N
     }
 
     @Override
-    public Iterator<K> iterator() {
+    public Iterator<K> iterator(@Readonly KeySet this) {
       return Maps.keyIterator(entrySet().iterator());
     }
   }
@@ -295,7 +298,7 @@ abstract class AbstractBiMap<K extends @Nullable @Immutable Object, V extends @N
 
   @SideEffectFree
   @Override
-  public Set<V> values() {
+  public @PolyMutable Set<V> values(@PolyMutable AbstractBiMap<K, V> this) {
     /*
      * We can almost reuse the inverse's keySet, except we have to fix the
      * iteration order so that it is consistent with the forward map.
@@ -310,12 +313,12 @@ abstract class AbstractBiMap<K extends @Nullable @Immutable Object, V extends @N
     final Set<V> valuesDelegate = inverse.keySet();
 
     @Override
-    protected Set<V> delegate() {
+    protected @PolyMutable Set<V> delegate(@PolyMutable ValueSet this) {
       return valuesDelegate;
     }
 
     @Override
-    public Iterator<V> iterator() {
+    public Iterator<V> iterator(@Readonly ValueSet this) {
       return Maps.valueIterator(entrySet().iterator());
     }
 
@@ -343,7 +346,7 @@ abstract class AbstractBiMap<K extends @Nullable @Immutable Object, V extends @N
 
   @SideEffectFree
   @Override
-  public Set<Entry<@KeyFor({"this"}) K, V>> entrySet() {
+  public @PolyMutable Set<Entry<@KeyFor({"this"}) K, V>> entrySet(@PolyMutable AbstractBiMap<K, V> this) {
     Set<Entry<K, V>> result = entrySet;
     return (result == null) ? entrySet = new EntrySet() : result;
   }
@@ -357,12 +360,12 @@ abstract class AbstractBiMap<K extends @Nullable @Immutable Object, V extends @N
     }
 
     @Override
-    protected Entry<K, V> delegate() {
+    protected @PolyMutable Entry<K, V> delegate(@PolyMutable BiMapEntry this) {
       return delegate;
     }
 
     @Override
-    public V setValue(V value) {
+    public V setValue(@Mutable BiMapEntry this, V value) {
       checkValue(value);
       // Preconditions keep the map and inverse consistent.
       checkState(entrySet().contains(this), "entry no longer in map");
@@ -378,7 +381,7 @@ abstract class AbstractBiMap<K extends @Nullable @Immutable Object, V extends @N
     }
   }
 
-  Iterator<Entry<K, V>> entrySetIterator() {
+  Iterator<Entry<K, V>> entrySetIterator(@Readonly AbstractBiMap<K, V> this) {
     final Iterator<Entry<K, V>> iterator = delegate.entrySet().iterator();
     return new Iterator<Entry<K, V>>() {
       @CheckForNull Entry<K, V> entry;
@@ -413,7 +416,7 @@ abstract class AbstractBiMap<K extends @Nullable @Immutable Object, V extends @N
     final Set<Entry<K, V>> esDelegate = delegate.entrySet();
 
     @Override
-    protected Set<Entry<K, V>> delegate() {
+    protected Set<Entry<K, V>> delegate(@PolyMutable EntrySet this) {
       return esDelegate;
     }
 
@@ -444,7 +447,7 @@ abstract class AbstractBiMap<K extends @Nullable @Immutable Object, V extends @N
     }
 
     @Override
-    public Iterator<Entry<K, V>> iterator() {
+    public Iterator<Entry<K, V>> iterator(@Readonly EntrySet this) {
       return entrySetIterator();
     }
 
@@ -511,13 +514,13 @@ abstract class AbstractBiMap<K extends @Nullable @Immutable Object, V extends @N
 
     @Override
     @ParametricNullness
-    K checkKey(@ParametricNullness K key) {
+    K checkKey(@Readonly Inverse<K, V> this, @ParametricNullness K key) {
       return inverse.checkValue(key);
     }
 
     @Override
     @ParametricNullness
-    V checkValue(@ParametricNullness V value) {
+    V checkValue(@Readonly Inverse<K, V> this, @ParametricNullness V value) {
       return inverse.checkKey(value);
     }
 

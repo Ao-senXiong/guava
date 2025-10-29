@@ -19,6 +19,9 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import java.util.concurrent.ExecutionException;
 
+import org.checkerframework.checker.pico.qual.Immutable;
+import org.checkerframework.checker.pico.qual.ReceiverDependentMutable;
+
 /**
  * A cache which forwards all its method calls to another cache. Subclasses should override one or
  * more methods to modify the behavior of the backing cache as desired per the <a
@@ -32,7 +35,8 @@ import java.util.concurrent.ExecutionException;
  */
 @GwtIncompatible
 @ElementTypesAreNonnullByDefault
-public abstract class ForwardingLoadingCache<K, V> extends ForwardingCache<K, V>
+@ReceiverDependentMutable
+public abstract class ForwardingLoadingCache<K extends @Immutable Object, V> extends ForwardingCache<K, V>
     implements LoadingCache<K, V> {
 
   /** Constructor for use by subclasses. */
@@ -72,11 +76,12 @@ public abstract class ForwardingLoadingCache<K, V> extends ForwardingCache<K, V>
    *
    * @since 10.0
    */
-  public abstract static class SimpleForwardingLoadingCache<K, V>
+  @ReceiverDependentMutable
+  public abstract static class SimpleForwardingLoadingCache<K extends @Immutable Object, V>
       extends ForwardingLoadingCache<K, V> {
     private final LoadingCache<K, V> delegate;
 
-    protected SimpleForwardingLoadingCache(LoadingCache<K, V> delegate) {
+    protected SimpleForwardingLoadingCache(@ReceiverDependentMutable LoadingCache<K, V> delegate) {
       this.delegate = Preconditions.checkNotNull(delegate);
     }
 

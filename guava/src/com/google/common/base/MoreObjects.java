@@ -28,6 +28,7 @@ import java.util.OptionalLong;
 import javax.annotation.CheckForNull;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.checkerframework.checker.pico.qual.Readonly;
 
 /**
  * Helper functions that operate on any {@code Object}, and are not already provided in {@link
@@ -130,7 +131,7 @@ public final class MoreObjects {
    *     class name
    * @since 18.0 (since 2.0 as {@code Objects.toStringHelper()}).
    */
-  public static ToStringHelper toStringHelper(Object self) {
+  public static ToStringHelper toStringHelper(@Readonly Object self) {
     return new ToStringHelper(self.getClass().getSimpleName());
   }
 
@@ -421,13 +422,13 @@ public final class MoreObjects {
       return valueHolder;
     }
 
-    private ToStringHelper addHolder(@CheckForNull Object value) {
+    private ToStringHelper addHolder(@CheckForNull @Readonly Object value) {
       ValueHolder valueHolder = addHolder();
       valueHolder.value = value;
       return this;
     }
 
-    private ToStringHelper addHolder(String name, @CheckForNull Object value) {
+    private ToStringHelper addHolder(String name, @CheckForNull @Readonly Object value) {
       ValueHolder valueHolder = addHolder();
       valueHolder.value = value;
       valueHolder.name = checkNotNull(name);
@@ -440,13 +441,13 @@ public final class MoreObjects {
       return valueHolder;
     }
 
-    private ToStringHelper addUnconditionalHolder(Object value) {
+    private ToStringHelper addUnconditionalHolder(@Readonly Object value) {
       UnconditionalValueHolder valueHolder = addUnconditionalHolder();
       valueHolder.value = value;
       return this;
     }
 
-    private ToStringHelper addUnconditionalHolder(String name, Object value) {
+    private ToStringHelper addUnconditionalHolder(String name, @Readonly Object value) {
       UnconditionalValueHolder valueHolder = addUnconditionalHolder();
       valueHolder.value = value;
       valueHolder.name = checkNotNull(name);
@@ -456,7 +457,7 @@ public final class MoreObjects {
     // Holder object for values that might be null and/or empty.
     private static class ValueHolder {
       @CheckForNull String name;
-      @CheckForNull Object value;
+      @CheckForNull @Readonly Object value;
       @CheckForNull ValueHolder next;
     }
 

@@ -44,7 +44,7 @@ import org.checkerframework.checker.index.qual.NonNegative;
 import org.checkerframework.checker.nullness.qual.KeyFor;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.checker.pico.qual.Immutable;
-import org.checkerframework.checker.pico.qual.Mutable;
+import org.checkerframework.checker.pico.qual.PolyMutable;
 import org.checkerframework.checker.pico.qual.Readonly;
 import org.checkerframework.checker.pico.qual.ReceiverDependentMutable;
 import org.checkerframework.checker.signedness.qual.UnknownSignedness;
@@ -64,7 +64,7 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
 @ReceiverDependentMutable
 public final class TreeRangeMap<K extends @Immutable Comparable, V> implements RangeMap<K, V> {
 
-  private final NavigableMap<@Immutable Cut<K>, RangeMapEntry<K, V>> entriesByLowerBound;
+  private final NavigableMap<Cut<K>, RangeMapEntry<K, V>> entriesByLowerBound;
 
   public static <K extends @Immutable Comparable, V> TreeRangeMap<K, V> create() {
     return new TreeRangeMap<>();
@@ -74,6 +74,7 @@ public final class TreeRangeMap<K extends @Immutable Comparable, V> implements R
     this.entriesByLowerBound = Maps.newTreeMap();
   }
 
+  @Immutable
   private static final class RangeMapEntry<K extends @Immutable Comparable, V>
       extends AbstractMapEntry<Range<K>, V> {
     private final Range<K> range;
@@ -89,24 +90,24 @@ public final class TreeRangeMap<K extends @Immutable Comparable, V> implements R
     }
 
     @Override
-    public Range<K> getKey() {
+    public Range<K> getKey(@Readonly RangeMapEntry<K, V> this) {
       return range;
     }
 
     @Override
-    public V getValue() {
+    public V getValue(@Readonly RangeMapEntry<K, V> this) {
       return value;
     }
 
-    public boolean contains(K value) {
+    public boolean contains(@Readonly RangeMapEntry<K, V> this, K value) {
       return range.contains(value);
     }
 
-    Cut<K> getLowerBound() {
+    Cut<K> getLowerBound(@Readonly RangeMapEntry<K, V> this) {
       return range.lowerBound;
     }
 
-    Cut<K> getUpperBound() {
+    Cut<K> getUpperBound(@Readonly RangeMapEntry<K, V> this) {
       return range.upperBound;
     }
   }
@@ -338,12 +339,13 @@ public final class TreeRangeMap<K extends @Immutable Comparable, V> implements R
     return new AsMapOfRanges(entriesByLowerBound.descendingMap().values());
   }
 
+  @ReceiverDependentMutable
   private final class AsMapOfRanges extends IteratorBasedAbstractMap<Range<K>, V> {
 
     final Iterable<Entry<Range<K>, V>> entryIterable;
 
     @SuppressWarnings("unchecked") // it's safe to upcast iterables
-    AsMapOfRanges(Iterable<RangeMapEntry<K, V>> entryIterable) {
+    AsMapOfRanges(@ReceiverDependentMutable Iterable<RangeMapEntry<K, V>> entryIterable) {
       this.entryIterable = (Iterable) entryIterable;
     }
 
@@ -766,7 +768,7 @@ public final class TreeRangeMap<K extends @Immutable Comparable, V> implements R
         };
       }
 
-      Iterator<Entry<Range<K>, V>> entryIterator() {
+      Iterator<Entry<Range<K>, V>> entryIterator(@Readonly SubRangeMapAsMap this) {
         if (subRange.isEmpty()) {
           return Iterators.emptyIterator();
         }
@@ -795,7 +797,7 @@ public final class TreeRangeMap<K extends @Immutable Comparable, V> implements R
       }
 
       @Override
-      public Collection<V> values() {
+      public @PolyMutable Collection<V> values(@PolyMutable SubRangeMapAsMap this) {
         return new Maps.Values<Range<K>, V>(this) {
           @Override
           public boolean removeAll(Collection<?> c) {
@@ -812,7 +814,7 @@ public final class TreeRangeMap<K extends @Immutable Comparable, V> implements R
   }
 
   @Override
-  public boolean equals(@CheckForNull Object o) {
+  public boolean equals(@Readonly TreeRangeMap<K, V> this, @CheckForNull @Readonly Object o) {
     if (o instanceof RangeMap) {
       RangeMap<?, ?> rangeMap = (RangeMap<?, ?>) o;
       return asMapOfRanges().equals(rangeMap.asMapOfRanges());
@@ -821,12 +823,12 @@ public final class TreeRangeMap<K extends @Immutable Comparable, V> implements R
   }
 
   @Override
-  public int hashCode(@UnknownSignedness TreeRangeMap<K, V> this) {
+  public int hashCode(@UnknownSignedness @Readonly TreeRangeMap<K, V> this) {
     return asMapOfRanges().hashCode();
   }
 
   @Override
-  public String toString() {
+  public String toString(@Readonly TreeRangeMap<K, V> this) {
     return entriesByLowerBound.values().toString();
   }
 }

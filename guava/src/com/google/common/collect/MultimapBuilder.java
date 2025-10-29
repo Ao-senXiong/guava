@@ -76,7 +76,7 @@ public abstract class MultimapBuilder<K0 extends @Nullable @Immutable Object, V0
   private static final int DEFAULT_EXPECTED_KEYS = 8;
 
   /** Uses a hash table to map keys to value collections. */
-  public static MultimapBuilderWithKeys<@Nullable Object> hashKeys() {
+  public static MultimapBuilderWithKeys<@Nullable @Immutable Object> hashKeys() {
     return hashKeys(DEFAULT_EXPECTED_KEYS);
   }
 
@@ -86,11 +86,11 @@ public abstract class MultimapBuilder<K0 extends @Nullable @Immutable Object, V0
    *
    * @throws IllegalArgumentException if {@code expectedKeys < 0}
    */
-  public static MultimapBuilderWithKeys<@Nullable Object> hashKeys(int expectedKeys) {
+  public static MultimapBuilderWithKeys<@Nullable @Immutable Object> hashKeys(int expectedKeys) {
     checkNonnegative(expectedKeys, "expectedKeys");
-    return new MultimapBuilderWithKeys<@Nullable Object>() {
+    return new MultimapBuilderWithKeys<@Nullable @Immutable Object>() {
       @Override
-      <K extends @Nullable Object, V extends @Nullable @Readonly Object> Map<K, Collection<V>> createMap() {
+      <K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object> Map<K, Collection<V>> createMap() {
         return Platform.newHashMapWithExpectedSize(expectedKeys);
       }
     };

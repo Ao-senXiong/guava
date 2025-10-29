@@ -26,7 +26,7 @@ import org.checkerframework.dataflow.qual.Pure;
 import org.checkerframework.framework.qual.AnnotatedFor;
 
 /** An ordering that treats {@code null} as greater than all other values. */
-@AnnotatedFor({"nullness"})
+@AnnotatedFor({"nullness", "pico"})
 @GwtCompatible(serializable = true)
 @ElementTypesAreNonnullByDefault
 final class NullsLastOrdering<T extends @Nullable @Readonly Object> extends Ordering<@Nullable T>
@@ -72,7 +72,7 @@ final class NullsLastOrdering<T extends @Nullable @Readonly Object> extends Orde
 
   @Pure
   @Override
-  public boolean equals(@CheckForNull Object object) {
+  public boolean equals(@CheckForNull @Readonly Object object) {
     if (object == this) {
       return true;
     }

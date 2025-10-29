@@ -79,7 +79,7 @@ public interface Predicate<T extends @Nullable @Readonly Object> extends java.ut
    */
   @Pure
   @Override
-  boolean equals(@CheckForNull Object object);
+  boolean equals(@CheckForNull @Readonly Object object);
 
   @Override
   default boolean test(@ParametricNullness T input) {

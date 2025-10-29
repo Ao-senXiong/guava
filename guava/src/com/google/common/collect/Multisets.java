@@ -1002,7 +1002,8 @@ public final class Multisets {
     };
   }
 
-  @ReceiverDependentMutable abstract static class ElementSet<E extends @Nullable @Readonly Object> extends Sets.ImprovedAbstractSet<E> {
+  @ReceiverDependentMutable
+  abstract static class ElementSet<E extends @Nullable @Readonly Object> extends Sets.ImprovedAbstractSet<E> {
     abstract Multiset<E> multiset();
 
     @Override

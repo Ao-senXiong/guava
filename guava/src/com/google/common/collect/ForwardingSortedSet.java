@@ -27,6 +27,7 @@ import java.util.SortedSet;
 import javax.annotation.CheckForNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.checker.pico.qual.Mutable;
+import org.checkerframework.checker.pico.qual.PolyMutable;
 import org.checkerframework.checker.pico.qual.Readonly;
 import org.checkerframework.checker.pico.qual.ReceiverDependentMutable;
 import org.checkerframework.dataflow.qual.SideEffectFree;
@@ -62,14 +63,15 @@ import org.checkerframework.framework.qual.AnnotatedFor;
 @AnnotatedFor({"nullness"})
 @GwtCompatible
 @ElementTypesAreNonnullByDefault
-public @ReceiverDependentMutable abstract class ForwardingSortedSet<E extends @Nullable @Readonly Object> extends ForwardingSet<E>
+@ReceiverDependentMutable
+public abstract class ForwardingSortedSet<E extends @Nullable @Readonly Object> extends ForwardingSet<E>
     implements SortedSet<E> {
 
   /** Constructor for use by subclasses. */
-  protected @ReceiverDependentMutable ForwardingSortedSet() {}
+  protected ForwardingSortedSet() {}
 
   @Override
-  protected abstract @Mutable SortedSet<E> delegate(@Readonly ForwardingSortedSet<E> this);
+  protected abstract @PolyMutable SortedSet<E> delegate(@PolyMutable ForwardingSortedSet<E> this);
 
   @SideEffectFree
   @Override
@@ -100,13 +102,13 @@ public @ReceiverDependentMutable abstract class ForwardingSortedSet<E extends @N
 
   @SideEffectFree
   @Override
-  public SortedSet<E> subSet(@Readonly ForwardingSortedSet<E> this, @ParametricNullness E fromElement, @ParametricNullness E toElement) {
+  public @PolyMutable SortedSet<E> subSet(@PolyMutable ForwardingSortedSet<E> this, @ParametricNullness E fromElement, @ParametricNullness E toElement) {
     return delegate().subSet(fromElement, toElement);
   }
 
   @SideEffectFree
   @Override
-  public SortedSet<E> tailSet(@Readonly ForwardingSortedSet<E> this, @ParametricNullness E fromElement) {
+  public @PolyMutable SortedSet<E> tailSet(@PolyMutable ForwardingSortedSet<E> this, @ParametricNullness E fromElement) {
     return delegate().tailSet(fromElement);
   }
 
@@ -119,7 +121,7 @@ public @ReceiverDependentMutable abstract class ForwardingSortedSet<E extends @N
    */
   @Override
   @Beta
-  protected boolean standardContains(@Readonly ForwardingSortedSet<E> this, @CheckForNull Object object) {
+  protected boolean standardContains(@Readonly ForwardingSortedSet<E> this, @CheckForNull @Readonly Object object) {
     try {
       // any ClassCastExceptions and NullPointerExceptions are caught
       @SuppressWarnings({"unchecked", "nullness"})

@@ -22,6 +22,7 @@ import com.google.common.annotations.GwtCompatible;
 import java.util.Map;
 
 import org.checkerframework.checker.pico.qual.Immutable;
+import org.checkerframework.framework.qual.AnnotatedFor;
 import org.checkerframework.framework.qual.CFComment;
 
 /**
@@ -29,6 +30,7 @@ import org.checkerframework.framework.qual.CFComment;
  *
  * @author Gregory Kick
  */
+@AnnotatedFor("pico")
 @GwtCompatible
 @ElementTypesAreNonnullByDefault
 @CFComment("Value need to be immutable because it is later used for constructing a bimap")

@@ -34,6 +34,7 @@ import javax.annotation.CheckForNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.checker.pico.qual.Immutable;
 import org.checkerframework.checker.pico.qual.Readonly;
+import org.checkerframework.checker.pico.qual.ReceiverDependentMutable;
 import org.checkerframework.checker.signedness.qual.UnknownSignedness;
 
 /**
@@ -43,6 +44,7 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
  */
 @GwtCompatible
 @ElementTypesAreNonnullByDefault
+@ReceiverDependentMutable
 class FilteredKeyMultimap<K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object>
     extends AbstractMultimap<K, V> implements FilteredMultimap<K, V> {
   final Multimap<K, V> unfiltered;
@@ -87,7 +89,7 @@ class FilteredKeyMultimap<K extends @Nullable @Immutable Object, V extends @Null
     return containsKey(key) ? unfiltered.removeAll(key) : unmodifiableEmptyCollection();
   }
 
-  Collection<V> unmodifiableEmptyCollection() {
+  @Immutable Collection<V> unmodifiableEmptyCollection() {
     if (unfiltered instanceof SetMultimap) {
       return emptySet();
     } else {
@@ -141,7 +143,7 @@ class FilteredKeyMultimap<K extends @Nullable @Immutable Object, V extends @Null
     }
   }
 
-  static class AddRejectingList<K extends @Nullable @Immutable Object, V extends @Nullable Object>
+  static class AddRejectingList<K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object>
       extends ForwardingList<V> {
     @ParametricNullness final K key;
 

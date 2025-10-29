@@ -41,7 +41,9 @@ import javax.annotation.CheckForNull;
 import org.checkerframework.checker.index.qual.NonNegative;
 import org.checkerframework.checker.pico.qual.Immutable;
 import org.checkerframework.checker.pico.qual.Mutable;
+import org.checkerframework.checker.pico.qual.Readonly;
 import org.checkerframework.checker.signedness.qual.UnknownSignedness;
+import org.checkerframework.framework.qual.AnnotatedFor;
 
 /**
  * A {@link RangeSet} whose contents will never change, with many other important properties
@@ -50,11 +52,12 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
  * @author Louis Wasserman
  * @since 14.0
  */
+@AnnotatedFor("pico")
 @Beta
 @GwtIncompatible
 @ElementTypesAreNonnullByDefault
 @Immutable
-public final class ImmutableRangeSet<C extends Comparable> extends AbstractRangeSet<C>
+public final class ImmutableRangeSet<C extends @Readonly Comparable> extends AbstractRangeSet<C>
     implements Serializable {
 
   private static final ImmutableRangeSet<Comparable<?>> EMPTY =
@@ -70,7 +73,7 @@ public final class ImmutableRangeSet<C extends Comparable> extends AbstractRange
    *
    * @since 23.1
    */
-  public static <E extends Comparable<? super E>>
+  public static <E extends @Readonly Comparable<? super E>>
       Collector<Range<E>, ?, ImmutableRangeSet<E>> toImmutableRangeSet() {
     return CollectCollectors.toImmutableRangeSet();
   }
@@ -81,7 +84,7 @@ public final class ImmutableRangeSet<C extends Comparable> extends AbstractRange
    * <p><b>Performance note:</b> the instance returned is a singleton.
    */
   @SuppressWarnings("unchecked")
-  public static <C extends Comparable> ImmutableRangeSet<C> of() {
+  public static <C extends @Readonly Comparable> ImmutableRangeSet<C> of() {
     return (ImmutableRangeSet<C>) EMPTY;
   }
 
@@ -89,7 +92,7 @@ public final class ImmutableRangeSet<C extends Comparable> extends AbstractRange
    * Returns an immutable range set containing the specified single range. If {@link Range#isEmpty()
    * range.isEmpty()}, this is equivalent to {@link ImmutableRangeSet#of()}.
    */
-  public static <C extends Comparable> ImmutableRangeSet<C> of(Range<C> range) {
+  public static <C extends @Readonly Comparable> ImmutableRangeSet<C> of(Range<C> range) {
     checkNotNull(range);
     if (range.isEmpty()) {
       return of();
@@ -102,12 +105,12 @@ public final class ImmutableRangeSet<C extends Comparable> extends AbstractRange
 
   /** Returns an immutable range set containing the single range {@link Range#all()}. */
   @SuppressWarnings("unchecked")
-  static <C extends Comparable> ImmutableRangeSet<C> all() {
+  static <C extends @Readonly Comparable> ImmutableRangeSet<C> all() {
     return (ImmutableRangeSet<C>) ALL;
   }
 
   /** Returns an immutable copy of the specified {@code RangeSet}. */
-  public static <C extends Comparable> ImmutableRangeSet<C> copyOf(RangeSet<C> rangeSet) {
+  public static <C extends @Readonly Comparable> ImmutableRangeSet<C> copyOf(RangeSet<C> rangeSet) {
     checkNotNull(rangeSet);
     if (rangeSet.isEmpty()) {
       return of();
@@ -132,7 +135,7 @@ public final class ImmutableRangeSet<C extends Comparable> extends AbstractRange
    * @throws IllegalArgumentException if any ranges overlap or are empty
    * @since 21.0
    */
-  public static <C extends Comparable<?>> ImmutableRangeSet<C> copyOf(Iterable<Range<C>> ranges) {
+  public static <C extends @Readonly Comparable<?>> ImmutableRangeSet<C> copyOf(Iterable<Range<C>> ranges) {
     return new ImmutableRangeSet.Builder<C>().addAll(ranges).build();
   }
 
@@ -144,7 +147,7 @@ public final class ImmutableRangeSet<C extends Comparable> extends AbstractRange
    *
    * @since 21.0
    */
-  public static <C extends Comparable<?>> ImmutableRangeSet<C> unionOf(Iterable<Range<C>> ranges) {
+  public static <C extends @Readonly Comparable<?>> ImmutableRangeSet<C> unionOf(Iterable<Range<C>> ranges) {
     return copyOf(TreeRangeSet.create(ranges));
   }
 
@@ -702,7 +705,8 @@ public final class ImmutableRangeSet<C extends Comparable> extends AbstractRange
     }
   }
 
-  private static class AsSetSerializedForm<C extends Comparable> implements Serializable {
+  @Immutable
+  private static class AsSetSerializedForm<C extends @Readonly Comparable> implements Serializable {
     private final ImmutableList<Range<C>> ranges;
     private final DiscreteDomain<C> domain;
 
@@ -727,7 +731,7 @@ public final class ImmutableRangeSet<C extends Comparable> extends AbstractRange
   }
 
   /** Returns a new builder for an immutable range set. */
-  public static <C extends Comparable<?>> Builder<C> builder() {
+  public static <C extends @Readonly Comparable<?>> Builder<C> builder() {
     return new Builder<C>();
   }
 
@@ -736,7 +740,8 @@ public final class ImmutableRangeSet<C extends Comparable> extends AbstractRange
    *
    * @since 14.0
    */
-  public static @Mutable class Builder<C extends Comparable<?>> {
+  @Mutable
+  public static class Builder<C extends @Readonly Comparable<?>> {
     private final List<Range<C>> ranges;
 
     public Builder() {
@@ -828,14 +833,15 @@ public final class ImmutableRangeSet<C extends Comparable> extends AbstractRange
     }
   }
 
-  private static final class SerializedForm<C extends Comparable> implements Serializable {
+  @Immutable
+  private static final class SerializedForm<C extends @Readonly Comparable> implements Serializable {
     private final ImmutableList<Range<C>> ranges;
 
     SerializedForm(ImmutableList<Range<C>> ranges) {
       this.ranges = ranges;
     }
 
-    Object readResolve() {
+    @Immutable Object readResolve() {
       if (ranges.isEmpty()) {
         return of();
       } else if (ranges.equals(ImmutableList.of(Range.all()))) {
@@ -846,7 +852,7 @@ public final class ImmutableRangeSet<C extends Comparable> extends AbstractRange
     }
   }
 
-  Object writeReplace() {
+  @Immutable Object writeReplace() {
     return new SerializedForm<C>(ranges);
   }
 }

@@ -37,7 +37,7 @@ import org.checkerframework.framework.qual.AnnotatedFor;
  *
  * @author Jared Levy
  */
-@AnnotatedFor({"nullness"})
+@AnnotatedFor({"nullness", "pico"})
 @GwtIncompatible
 @ElementTypesAreNonnullByDefault
 final class Serialization {
@@ -202,7 +202,8 @@ final class Serialization {
   }
 
   // Secret sauce for setting final fields; don't make it public.
-  @ReceiverDependentMutable static final class FieldSetter<T> {
+  @ReceiverDependentMutable
+  static final class FieldSetter<T> {
     private final Field field;
 
     private FieldSetter(Field field) {
@@ -210,7 +211,7 @@ final class Serialization {
       field.setAccessible(true);
     }
 
-    void set(T instance, Object value) {
+    void set(T instance, @Readonly Object value) {
       try {
         field.set(instance, value);
       } catch (IllegalAccessException impossible) {

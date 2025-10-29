@@ -134,11 +134,12 @@ public final class Collections2 {
     }
   }
 
-  @ReceiverDependentMutable static class FilteredCollection<E extends @Nullable @Readonly Object> extends AbstractCollection<E> {
+  @ReceiverDependentMutable
+  static class FilteredCollection<E extends @Nullable @Readonly Object> extends AbstractCollection<E> {
     final Collection<E> unfiltered;
     final Predicate<? super E> predicate;
 
-    FilteredCollection(Collection<E> unfiltered, Predicate<? super E> predicate) {
+    FilteredCollection(@ReceiverDependentMutable Collection<E> unfiltered, Predicate<? super E> predicate) {
       this.unfiltered = unfiltered;
       this.predicate = predicate;
     }

@@ -597,7 +597,7 @@ public abstract class ImmutableMultiset<E> extends ImmutableMultisetGwtSerializa
     @VisibleForTesting
     ImmutableMultiset<E> buildJdkBacked() {
       if (contents.isEmpty()) {
-        return ImmutableMultiset.<@Immutable E>of();
+        return ImmutableMultiset.<E>of();
       }
       return JdkBackedImmutableMultiset.create(contents.entrySet());
     }

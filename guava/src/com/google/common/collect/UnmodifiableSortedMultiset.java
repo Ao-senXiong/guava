@@ -37,13 +37,13 @@ import org.checkerframework.checker.pico.qual.Readonly;
 @Immutable
 final class UnmodifiableSortedMultiset<E extends @Nullable @Readonly Object> extends UnmodifiableMultiset<E>
     implements SortedMultiset<E> {
-  UnmodifiableSortedMultiset(SortedMultiset<E> delegate) {
+  UnmodifiableSortedMultiset(@Immutable SortedMultiset<E> delegate) {
     super(delegate);
   }
 
   @Override
   protected SortedMultiset<E> delegate() {
-    return (SortedMultiset<E>) super.delegate();
+    return (@Immutable SortedMultiset<E>) super.delegate();
   }
 
   @Override
