@@ -47,12 +47,14 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.checker.pico.qual.Assignable;
 import org.checkerframework.checker.pico.qual.Immutable;
 import org.checkerframework.checker.pico.qual.Mutable;
+import org.checkerframework.checker.pico.qual.PolyMutable;
 import org.checkerframework.checker.pico.qual.Readonly;
 import org.checkerframework.checker.pico.qual.ReceiverDependentMutable;
 import org.checkerframework.checker.signedness.qual.UnknownSignedness;
 import org.checkerframework.dataflow.qual.Pure;
 import org.checkerframework.dataflow.qual.SideEffectFree;
 import org.checkerframework.framework.qual.AnnotatedFor;
+import org.checkerframework.framework.qual.CFComment;
 
 /**
  * A {@link BiMap} backed by two hash tables. This implementation allows null keys and values. A
@@ -492,8 +494,8 @@ public final class HashBiMap<K extends @Nullable @Immutable Object, V extends @N
   }
 
   @Override
-  public Set<@KeyFor({"this"}) K> keySet() {
-    return new KeySet();
+  public @PolyMutable Set<@KeyFor({"this"}) K> keySet(@PolyMutable HashBiMap<K,V> this) {
+    return new @PolyMutable KeySet();
   }
 
   @ReceiverDependentMutable
@@ -514,7 +516,7 @@ public final class HashBiMap<K extends @Nullable @Immutable Object, V extends @N
     }
 
     @Override
-    public boolean remove(@Mutable KeySet this, @CheckForNull @UnknownSignedness Object o) {
+    public boolean remove(@Mutable KeySet this, @CheckForNull @UnknownSignedness @Readonly Object o) {
       BiEntry<K, V> entry = seekByKey(o, smearedHash(o));
       if (entry == null) {
         return false;
@@ -528,7 +530,7 @@ public final class HashBiMap<K extends @Nullable @Immutable Object, V extends @N
   }
 
   @Override
-  public Set<V> values() {
+  public @PolyMutable Set<V> values(@PolyMutable HashBiMap<K,V> this) {
     return inverse().keySet();
   }
 
@@ -604,10 +606,11 @@ public final class HashBiMap<K extends @Nullable @Immutable Object, V extends @N
     }
   }
 
-  @LazyInit @RetainedWith @CheckForNull private transient BiMap<V, K> inverse;
+  @CFComment("Change to @LazyFinal later")
+  @LazyInit @RetainedWith @CheckForNull private transient @Assignable BiMap<V, K> inverse;
 
   @Override
-  public BiMap<V, K> inverse() {
+  public @PolyMutable BiMap<V, K> inverse(@PolyMutable HashBiMap<K,V> this) {
     BiMap<V, K> result = inverse;
     return (result == null) ? inverse = new Inverse() : result;
   }
@@ -615,12 +618,12 @@ public final class HashBiMap<K extends @Nullable @Immutable Object, V extends @N
   @ReceiverDependentMutable
   private final class Inverse extends IteratorBasedAbstractMap<V, K>
       implements BiMap<V, K>, Serializable {
-    BiMap<K, V> forward(@Mutable Inverse this) {
+    @PolyMutable BiMap<K, V> forward(@PolyMutable Inverse this) {
       return HashBiMap.this;
     }
 
     @Override
-    public @NonNegative int size() {
+    public @NonNegative int size(@Readonly Inverse this) {
       return size;
     }
 
@@ -668,15 +671,16 @@ public final class HashBiMap<K extends @Nullable @Immutable Object, V extends @N
     }
 
     @Override
-    public BiMap<K, V> inverse() {
+    public @PolyMutable BiMap<K, V> inverse(@PolyMutable Inverse this) {
       return forward();
     }
 
     @Override
-    public Set<@KeyFor({"this"}) V> keySet() {
-      return new InverseKeySet();
+    public @PolyMutable Set<@KeyFor({"this"}) V> keySet(@PolyMutable Inverse this) {
+      return new @PolyMutable InverseKeySet();
     }
 
+    @ReceiverDependentMutable
     private final class InverseKeySet extends Maps.KeySet<V, K> {
       InverseKeySet() {
         super(Inverse.this);

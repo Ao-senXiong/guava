@@ -37,6 +37,7 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
 import org.checkerframework.dataflow.qual.Pure;
 import org.checkerframework.dataflow.qual.SideEffectFree;
 import org.checkerframework.framework.qual.AnnotatedFor;
+import org.checkerframework.framework.qual.CFComment;
 
 /**
  * This class provides a skeletal implementation of the {@link Multiset} interface. A new multiset
@@ -51,7 +52,7 @@ import org.checkerframework.framework.qual.AnnotatedFor;
  * @author Kevin Bourrillion
  * @author Louis Wasserman
  */
-@AnnotatedFor({"nullness"})
+@AnnotatedFor({"nullness", "pico"})
 @GwtCompatible
 @ElementTypesAreNonnullByDefault
 @ReceiverDependentMutable
@@ -144,7 +145,7 @@ abstract class AbstractMultiset<E extends @Nullable @Readonly Object> extends Ab
 
   @SideEffectFree
   @Override
-  public @ReceiverDependentMutable Set<E> elementSet() {
+  public @PolyMutable Set<E> elementSet(@PolyMutable AbstractMultiset<E> this) {
     Set<E> result = elementSet;
     if (result == null) {
       elementSet = result = createElementSet();
@@ -156,32 +157,33 @@ abstract class AbstractMultiset<E extends @Nullable @Readonly Object> extends Ab
    * Creates a new instance of this multiset's element set, which will be returned by {@link
    * #elementSet()}.
    */
-  @ReceiverDependentMutable Set<E> createElementSet() {
-    return new @ReceiverDependentMutable ElementSet();
+  @PolyMutable Set<E> createElementSet(@PolyMutable AbstractMultiset<E> this) {
+    return new @PolyMutable ElementSet();
   }
 
   @WeakOuter
   @ReceiverDependentMutable
   class ElementSet extends Multisets.ElementSet<E> {
     @Override
-    @ReceiverDependentMutable Multiset<E> multiset() {
+    @PolyMutable Multiset<E> multiset(@PolyMutable AbstractMultiset<E>.ElementSet this) {
       return AbstractMultiset.this;
     }
 
     @Override
-    public @ReceiverDependentMutable Iterator<E> iterator() {
+    public Iterator<E> iterator(@Readonly ElementSet this) {
       return elementIterator();
     }
   }
 
-  abstract @ReceiverDependentMutable Iterator<E> elementIterator();
+  abstract Iterator<E> elementIterator(@Readonly AbstractMultiset<E> this);
 
+  @CFComment("Change to @LazyFinal later")
   @LazyInit @CheckForNull private transient @Assignable Set<Entry<E>> entrySet;
 
   @SideEffectFree
   @Override
-  public Set<Entry<E>> entrySet() {
-    Set<Entry<E>> result = entrySet;
+  public @PolyMutable Set<@PolyMutable Entry<E>> entrySet(@PolyMutable AbstractMultiset<E> this) {
+    Set<@PolyMutable Entry<E>> result = entrySet;
     if (result == null) {
       entrySet = result = createEntrySet();
     }
@@ -192,28 +194,28 @@ abstract class AbstractMultiset<E extends @Nullable @Readonly Object> extends Ab
   @ReceiverDependentMutable
   class EntrySet extends Multisets.EntrySet<E> {
     @Override
-    Multiset<E> multiset() {
+    @PolyMutable  Multiset<E> multiset(@PolyMutable AbstractMultiset<E>.EntrySet this) {
       return AbstractMultiset.this;
     }
 
     @Override
-    public Iterator<Entry<E>> iterator() {
+    public Iterator<@PolyMutable Entry<E>> iterator(@PolyMutable AbstractMultiset<E>.EntrySet this) {
       return entryIterator();
     }
 
     @Override
-    public @NonNegative int size() {
+    public @NonNegative int size(@Readonly EntrySet this) {
       return distinctElements();
     }
   }
 
-  Set<Entry<E>> createEntrySet() {
+  @PolyMutable Set<@PolyMutable Entry<E>> createEntrySet(@PolyMutable AbstractMultiset<E> this) {
     return new EntrySet();
   }
 
-  abstract Iterator<Entry<E>> entryIterator();
+  abstract Iterator<@PolyMutable Entry<E>> entryIterator(@PolyMutable AbstractMultiset<E> this);
 
-  abstract int distinctElements();
+  abstract int distinctElements(@Readonly AbstractMultiset<E> this);
 
   // Object methods
 

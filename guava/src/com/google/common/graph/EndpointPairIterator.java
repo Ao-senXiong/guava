@@ -33,6 +33,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  * @author James Sexton
  */
 @ElementTypesAreNonnullByDefault
+@SuppressWarnings("pico")
 abstract class EndpointPairIterator<N> extends AbstractIterator<EndpointPair<N>> {
   private final BaseGraph<N> graph;
   private final Iterator<N> nodeIterator;
