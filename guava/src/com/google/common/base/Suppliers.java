@@ -40,6 +40,7 @@ import org.checkerframework.framework.qual.AnnotatedFor;
 @AnnotatedFor({"nullness"})
 @GwtCompatible
 @ElementTypesAreNonnullByDefault
+@SuppressWarnings("pico")
 public final class Suppliers {
   private Suppliers() {}
 

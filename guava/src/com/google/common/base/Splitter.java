@@ -107,6 +107,7 @@ import org.checkerframework.common.value.qual.MinLen;
  */
 @GwtCompatible(emulated = true)
 @ElementTypesAreNonnullByDefault
+@SuppressWarnings("pico")
 public final class Splitter {
   private final CharMatcher trimmer;
   private final boolean omitEmptyStrings;

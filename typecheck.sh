@@ -43,9 +43,9 @@ elif [[ "$1" == "signature" ]]; then
 elif [[ "$1" == "signedness" ]]; then
   (cd guava && mvn -B compile -P checkerframework-local -Dcheckerframework.checkers=org.checkerframework.checker.signedness.SignednessChecker)
 elif [[ "$1" == "pico" ]]; then
-#      cd guava && mvn -B compile -P checkerframework-local -Dcheckerframework.checkers=org.checkerframework.checker.pico.PICOChecker -Dcheckerframework.extraargs="-AonlyDefs=^com\.google\.common\.collect"
 #    (cd guava && mvn -B compile -P checkerframework-local -Dcheckerframework.checkers=org.checkerframework.checker.pico.PICOChecker -Dcheckerframework.extraargs="-AonlyDefs=^com\.google\.common\.collect" -Dcheckerframework.extraargs="-AonlyAnnotatedFor")
-  (cd guava && mvn -B compile -P checkerframework-local -Dcheckerframework.checkers=org.checkerframework.checker.pico.PICOChecker -Dcheckerframework.extraargs="-AonlyDefs=^com\.google\.common\.collect" -Dcheckerframework.extraargs="-AassumeInitialized")
+ (cd guava && mvn -B clean compile -P checkerframework-local -Dcheckerframework.checkers=org.checkerframework.checker.pico.PICOChecker -Dcheckerframework.extraargs="-AassumeInitialized")
+#  (cd guava && mvn -B compile -P checkerframework-local -Dcheckerframework.checkers=org.checkerframework.checker.pico.PICOChecker -Dcheckerframework.extraargs="-AonlyDefs=^com\.google\.common\.collect" -Dcheckerframework.extraargs="-AassumeInitialized")
 elif [[ "$1" == "nothing" ]]; then
   true
 else

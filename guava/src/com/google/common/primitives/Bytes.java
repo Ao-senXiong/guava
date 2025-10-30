@@ -63,6 +63,7 @@ import org.checkerframework.framework.qual.CFComment;
 @AnnotatedFor({"signedness"})
 @GwtCompatible
 @ElementTypesAreNonnullByDefault
+@SuppressWarnings("pico")
 public final class Bytes {
   private Bytes() {}
 

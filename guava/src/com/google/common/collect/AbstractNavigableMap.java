@@ -29,15 +29,18 @@ import org.checkerframework.checker.nullness.qual.KeyFor;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.checker.pico.qual.Immutable;
 import org.checkerframework.checker.pico.qual.Mutable;
+import org.checkerframework.checker.pico.qual.PolyMutable;
 import org.checkerframework.checker.pico.qual.Readonly;
 import org.checkerframework.checker.pico.qual.ReceiverDependentMutable;
 import org.checkerframework.checker.signedness.qual.UnknownSignedness;
+import org.checkerframework.framework.qual.AnnotatedFor;
 
 /**
  * Skeletal implementation of {@link NavigableMap}.
  *
  * @author Louis Wasserman
  */
+@AnnotatedFor("pico")
 @GwtIncompatible
 @ElementTypesAreNonnullByDefault
 @ReceiverDependentMutable
@@ -46,35 +49,35 @@ abstract class AbstractNavigableMap<K extends @Nullable @Immutable Object, V ext
 
   @Override
   @CheckForNull
-  public abstract V get(@CheckForNull @UnknownSignedness @Readonly Object key);
+  public abstract V get(@Readonly AbstractNavigableMap<K,V> this, @CheckForNull @UnknownSignedness @Readonly Object key);
 
   @Override
   @CheckForNull
-  public Entry<K, V> firstEntry() {
+  public @PolyMutable Entry<K, V> firstEntry(@PolyMutable AbstractNavigableMap<K,V> this) {
     return Iterators.getNext(entryIterator(), null);
   }
 
   @Override
   @CheckForNull
-  public Entry<K, V> lastEntry() {
+  public @PolyMutable Entry<K, V> lastEntry(@PolyMutable AbstractNavigableMap<K,V> this) {
     return Iterators.getNext(descendingEntryIterator(), null);
   }
 
   @Override
   @CheckForNull
-  public Entry<K, V> pollFirstEntry() {
+  public Entry<K, V> pollFirstEntry(@Mutable AbstractNavigableMap<K,V> this) {
     return Iterators.pollNext(entryIterator());
   }
 
   @Override
   @CheckForNull
-  public Entry<K, V> pollLastEntry() {
+  public Entry<K, V> pollLastEntry(@Mutable AbstractNavigableMap<K,V> this) {
     return Iterators.pollNext(descendingEntryIterator());
   }
 
   @Override
   @ParametricNullness
-  public @KeyFor("this") K firstKey() {
+  public @KeyFor("this") K firstKey(@Readonly AbstractNavigableMap<K,V> this) {
     Entry<K, V> entry = firstEntry();
     if (entry == null) {
       throw new NoSuchElementException();
@@ -85,7 +88,7 @@ abstract class AbstractNavigableMap<K extends @Nullable @Immutable Object, V ext
 
   @Override
   @ParametricNullness
-  public @KeyFor("this") K lastKey() {
+  public @KeyFor("this") K lastKey(@Readonly AbstractNavigableMap<K,V> this) {
     Entry<K, V> entry = lastEntry();
     if (entry == null) {
       throw new NoSuchElementException();
@@ -96,98 +99,98 @@ abstract class AbstractNavigableMap<K extends @Nullable @Immutable Object, V ext
 
   @Override
   @CheckForNull
-  public Entry<K, V> lowerEntry(@ParametricNullness K key) {
+  public @PolyMutable Entry<K, V> lowerEntry(@PolyMutable AbstractNavigableMap<K,V> this, @ParametricNullness K key) {
     return headMap(key, false).lastEntry();
   }
 
   @Override
   @CheckForNull
-  public Entry<K, V> floorEntry(@ParametricNullness K key) {
+  public @PolyMutable Entry<K, V> floorEntry(@PolyMutable AbstractNavigableMap<K,V> this, @ParametricNullness K key) {
     return headMap(key, true).lastEntry();
   }
 
   @Override
   @CheckForNull
-  public Entry<K, V> ceilingEntry(@ParametricNullness K key) {
+  public @PolyMutable Entry<K, V> ceilingEntry(@PolyMutable AbstractNavigableMap<K,V> this, @ParametricNullness K key) {
     return tailMap(key, true).firstEntry();
   }
 
   @Override
   @CheckForNull
-  public Entry<K, V> higherEntry(@ParametricNullness K key) {
+  public @PolyMutable Entry<K, V> higherEntry(@PolyMutable AbstractNavigableMap<K,V> this, @ParametricNullness K key) {
     return tailMap(key, false).firstEntry();
   }
 
   @Override
   @CheckForNull
-  public K lowerKey(@ParametricNullness K key) {
+  public K lowerKey(@Readonly AbstractNavigableMap<K,V> this, @ParametricNullness K key) {
     return Maps.keyOrNull(lowerEntry(key));
   }
 
   @Override
   @CheckForNull
-  public K floorKey(@ParametricNullness K key) {
+  public K floorKey(@Readonly AbstractNavigableMap<K,V> this, @ParametricNullness K key) {
     return Maps.keyOrNull(floorEntry(key));
   }
 
   @Override
   @CheckForNull
-  public K ceilingKey(@ParametricNullness K key) {
+  public K ceilingKey(@Readonly AbstractNavigableMap<K,V> this, @ParametricNullness K key) {
     return Maps.keyOrNull(ceilingEntry(key));
   }
 
   @Override
   @CheckForNull
-  public K higherKey(@ParametricNullness K key) {
+  public K higherKey(@Readonly AbstractNavigableMap<K,V> this, @ParametricNullness K key) {
     return Maps.keyOrNull(higherEntry(key));
   }
 
-  abstract Iterator<Entry<K, V>> descendingEntryIterator();
+  abstract Iterator<@PolyMutable Entry<K, V>> descendingEntryIterator(@PolyMutable AbstractNavigableMap<K,V> this);
 
   @Override
-  public SortedMap<K, V> subMap(@ParametricNullness K fromKey, @ParametricNullness K toKey) {
+  public @PolyMutable SortedMap<K, V> subMap(@PolyMutable AbstractNavigableMap<K,V> this, @ParametricNullness K fromKey, @ParametricNullness K toKey) {
     return subMap(fromKey, true, toKey, false);
   }
 
   @Override
-  public SortedMap<K, V> headMap(@ParametricNullness K toKey) {
+  public @PolyMutable SortedMap<K, V> headMap(@PolyMutable AbstractNavigableMap<K,V> this, @ParametricNullness K toKey) {
     return headMap(toKey, false);
   }
 
   @Override
-  public SortedMap<K, V> tailMap(@ParametricNullness K fromKey) {
+  public @PolyMutable SortedMap<K, V> tailMap(@PolyMutable AbstractNavigableMap<K,V> this, @ParametricNullness K fromKey) {
     return tailMap(fromKey, true);
   }
 
   @Override
-  public NavigableSet<@KeyFor({"this"}) K> navigableKeySet() {
+  public @PolyMutable NavigableSet<@KeyFor({"this"}) K> navigableKeySet(@PolyMutable AbstractNavigableMap<K,V> this) {
     return new Maps.NavigableKeySet<>(this);
   }
 
   @Override
-  public Set<@KeyFor({"this"}) K> keySet() {
+  public @PolyMutable Set<@KeyFor({"this"}) K> keySet(@PolyMutable AbstractNavigableMap<K,V> this) {
     return navigableKeySet();
   }
 
   @Override
-  public NavigableSet<@KeyFor({"this"}) K> descendingKeySet() {
+  public @PolyMutable NavigableSet<@KeyFor({"this"}) K> descendingKeySet(@PolyMutable AbstractNavigableMap<K,V> this) {
     return descendingMap().navigableKeySet();
   }
 
   @Override
-  public NavigableMap<K, V> descendingMap() {
-    return new DescendingMap();
+  public @PolyMutable NavigableMap<K, V> descendingMap(@PolyMutable AbstractNavigableMap<K,V> this) {
+    return new @PolyMutable DescendingMap();
   }
 
   @ReceiverDependentMutable
   private final class DescendingMap extends Maps.DescendingMap<K, V> {
     @Override
-    NavigableMap<K, V> forward() {
+    @PolyMutable NavigableMap<K, V> forward(@PolyMutable AbstractNavigableMap<K, V>.DescendingMap this) {
       return AbstractNavigableMap.this;
     }
 
     @Override
-    Iterator<Entry<K, V>> entryIterator() {
+    Iterator<@PolyMutable Entry<K, V>> entryIterator(@PolyMutable AbstractNavigableMap<K, V>.DescendingMap this) {
       return descendingEntryIterator();
     }
   }

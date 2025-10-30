@@ -60,7 +60,7 @@ public abstract class ForwardingMultimap<K extends @Nullable @Immutable Object, 
   protected abstract @PolyMutable Multimap<K, V> delegate(@PolyMutable ForwardingMultimap<K, V> this);
 
   @Override
-  public @PolyMutable Map<K, Collection<V>> asMap(@PolyMutable ForwardingMultimap<K, V> this) {
+  public @PolyMutable Map<K, @PolyMutable Collection<V>> asMap(@PolyMutable ForwardingMultimap<K, V> this) {
     return delegate().asMap();
   }
 
@@ -89,12 +89,12 @@ public abstract class ForwardingMultimap<K extends @Nullable @Immutable Object, 
 
   @SideEffectFree
   @Override
-  public @PolyMutable Collection<Entry<K, V>> entries(@PolyMutable ForwardingMultimap<K, V> this) {
+  public @PolyMutable Collection<@PolyMutable Entry<K, V>> entries(@PolyMutable ForwardingMultimap<K, V> this) {
     return delegate().entries();
   }
 
   @Override
-  public Collection<V> get(@Readonly ForwardingMultimap<K, V> this, @ParametricNullness K key) {
+  public @PolyMutable Collection<V> get(@PolyMutable ForwardingMultimap<K, V> this, @ParametricNullness K key) {
     return delegate().get(key);
   }
 
@@ -141,13 +141,13 @@ public abstract class ForwardingMultimap<K extends @Nullable @Immutable Object, 
 
   @CanIgnoreReturnValue
   @Override
-  public @PolyMutable Collection<V> removeAll(@Mutable ForwardingMultimap<K, V> this, @CheckForNull @Readonly Object key) {
+  public @Readonly Collection<V> removeAll(@Mutable ForwardingMultimap<K, V> this, @CheckForNull @Readonly Object key) {
     return delegate().removeAll(key);
   }
 
   @CanIgnoreReturnValue
   @Override
-  public @PolyMutable Collection<V> replaceValues(@Mutable ForwardingMultimap<K, V> this, @ParametricNullness K key, Iterable<? extends V> values) {
+  public @Readonly Collection<V> replaceValues(@Mutable ForwardingMultimap<K, V> this, @ParametricNullness K key, Iterable<? extends V> values) {
     return delegate().replaceValues(key, values);
   }
 

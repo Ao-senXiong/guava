@@ -78,6 +78,7 @@ import org.checkerframework.checker.nullness.qual.PolyNull;
 import org.checkerframework.checker.pico.qual.Assignable;
 import org.checkerframework.checker.pico.qual.Immutable;
 import org.checkerframework.checker.pico.qual.Mutable;
+import org.checkerframework.checker.pico.qual.PolyMutable;
 import org.checkerframework.checker.pico.qual.Readonly;
 import org.checkerframework.checker.pico.qual.ReceiverDependentMutable;
 import org.checkerframework.checker.signedness.qual.PolySigned;
@@ -130,13 +131,13 @@ public final class Maps {
   }
 
   @SuppressWarnings("unchecked")
-  static <V extends @Readonly @Nullable Object> Function<Entry<?, V>, V> valueFunction() {
+  static <V extends @Nullable @Readonly Object> Function<Entry<?, V>, V> valueFunction() {
     return (Function) EntryFunction.VALUE;
   }
 
   static <K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object> Iterator<K> keyIterator(
-      Iterator<Entry<K, V>> entryIterator) {
-    return new TransformedIterator<Entry<K, V>, K>(entryIterator) {
+      Iterator<@PolyMutable Entry<K, V>> entryIterator) {
+    return new TransformedIterator<@PolyMutable Entry<K, V>, K>(entryIterator) {
       @Override
       @ParametricNullness
       K transform(Entry<K, V> entry) {
@@ -146,8 +147,8 @@ public final class Maps {
   }
 
   static <K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object> Iterator<V> valueIterator(
-      Iterator<Entry<K, V>> entryIterator) {
-    return new TransformedIterator<Entry<K, V>, V>(entryIterator) {
+      Iterator<@PolyMutable Entry<K, V>> entryIterator) {
+    return new TransformedIterator<@PolyMutable Entry<K, V>, V>(entryIterator) {
       @Override
       @ParametricNullness
       V transform(Entry<K, V> entry) {
@@ -169,13 +170,13 @@ public final class Maps {
    */
   @GwtCompatible(serializable = true)
   public static <K extends Enum<K>, V extends @Immutable Object> ImmutableMap<K, V> immutableEnumMap(
-      Map<K, ? extends V> map) {
+      @Readonly Map<K, ? extends V> map) {
     if (map instanceof ImmutableEnumMap) {
       @SuppressWarnings("unchecked") // safe covariant cast
       ImmutableEnumMap<K, V> result = (ImmutableEnumMap<K, V>) map;
       return result;
     }
-    Iterator<? extends Entry<K, ? extends V>> entryItr = map.entrySet().iterator();
+    Iterator<? extends @Readonly Entry<K, ? extends V>> entryItr = map.entrySet().iterator();
     if (!entryItr.hasNext()) {
       return ImmutableMap.of();
     }
@@ -268,9 +269,9 @@ public final class Maps {
    * @param map the mappings to be placed in the new map
    * @return a new {@code HashMap} initialized with the mappings from {@code map}
    */
-  public static <K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object> HashMap<K, V> newHashMap(
-      Map<? extends K, ? extends V> map) {
-    return new HashMap<>(map);
+  public static <K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object> @PolyMutable HashMap<K, V> newHashMap(
+      @PolyMutable Map<? extends K, ? extends V> map) {
+    return new @PolyMutable HashMap<>(map);
   }
 
   /**
@@ -337,8 +338,8 @@ public final class Maps {
    * @return a new, {@code LinkedHashMap} initialized with the mappings from {@code map}
    */
   public static <K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object>
-      LinkedHashMap<K, V> newLinkedHashMap(Map<? extends K, ? extends V> map) {
-    return new LinkedHashMap<>(map);
+    @PolyMutable LinkedHashMap<K, V> newLinkedHashMap(@PolyMutable Map<? extends K, ? extends V> map) {
+    return new @PolyMutable LinkedHashMap<>(map);
   }
 
   /**
@@ -399,9 +400,9 @@ public final class Maps {
    * @return a new {@code TreeMap} initialized with the mappings from {@code map} and using the
    *     comparator of {@code map}
    */
-  public static <K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object> TreeMap<K, V> newTreeMap(
-      SortedMap<K, ? extends V> map) {
-    return new TreeMap<>(map);
+  public static <K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object> @PolyMutable TreeMap<K, V> newTreeMap(
+          @PolyMutable SortedMap<K, ? extends V> map) {
+    return new @PolyMutable TreeMap<>(map);
   }
 
   /**
@@ -450,9 +451,9 @@ public final class Maps {
    * @throws IllegalArgumentException if {@code m} is not an {@code EnumMap} instance and contains
    *     no mappings
    */
-  public static <K extends Enum<K>, V extends @Nullable @Readonly Object> EnumMap<K, V> newEnumMap(
-      Map<K, ? extends V> map) {
-    return new EnumMap<>(map);
+  public static <K extends Enum<K>, V extends @Nullable @Readonly Object> @PolyMutable EnumMap<K, V> newEnumMap(
+          @PolyMutable Map<K, ? extends V> map) {
+    return new @PolyMutable EnumMap<>(map);
   }
 
   /**
@@ -487,7 +488,7 @@ public final class Maps {
   @SuppressWarnings("unchecked")
   public static <K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object>
       MapDifference<K, V> difference(
-          Map<? extends K, ? extends V> left, Map<? extends K, ? extends V> right) {
+          @Readonly Map<? extends K, ? extends V> left, @Readonly Map<? extends K, ? extends V> right) {
     if (left instanceof SortedMap) {
       SortedMap<K, ? extends V> sortedLeft = (SortedMap<K, ? extends V>) left;
       return difference(sortedLeft, right);
@@ -549,8 +550,8 @@ public final class Maps {
    * https://github.com/google/guava/issues/3913)
    */
   public static <K extends @Nullable @Immutable Object, V> MapDifference<K, V> difference(
-      Map<? extends K, ? extends V> left,
-      Map<? extends K, ? extends V> right,
+          @Readonly Map<? extends K, ? extends V> left,
+          @Readonly Map<? extends K, ? extends V> right,
       Equivalence<? super V> valueEquivalence) {
     Preconditions.checkNotNull(valueEquivalence);
 
@@ -581,7 +582,7 @@ public final class Maps {
    */
   public static <K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object>
       SortedMapDifference<K, V> difference(
-          SortedMap<K, ? extends V> left, Map<? extends K, ? extends V> right) {
+          @Readonly SortedMap<K, ? extends V> left, @Readonly Map<? extends K, ? extends V> right) {
     checkNotNull(left);
     checkNotNull(right);
     Comparator<@Immutable ? super K> comparator = orNaturalOrder(left.comparator());
@@ -608,10 +609,10 @@ public final class Maps {
   }
 
   private static <K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object> void doDifference(
-      Map<? extends K, ? extends V> left,
-      Map<? extends K, ? extends V> right,
+      @Readonly Map<? extends K, ? extends V> left,
+      @Readonly Map<? extends K, ? extends V> right,
       Equivalence<? super V> valueEquivalence,
-      Map<K, V> onlyOnLeft,
+      @Readonly Map<K, V> onlyOnLeft,
       Map<K, V> onlyOnRight,
       Map<K, V> onBoth,
       Map<K, MapDifference.ValueDifference<V>> differences) {
@@ -641,8 +642,8 @@ public final class Maps {
     }
   }
 
-  private static <K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object> Map<K, V> unmodifiableMap(
-      Map<K, ? extends V> map) {
+  private static <K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object> @Readonly Map<K, V> unmodifiableMap(
+      @Readonly Map<K, ? extends V> map) {
     if (map instanceof SortedMap) {
       return Collections.unmodifiableSortedMap((SortedMap<K, ? extends V>) map);
     } else {
@@ -650,18 +651,19 @@ public final class Maps {
     }
   }
 
+  @Immutable
   static class MapDifferenceImpl<K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object>
       implements MapDifference<K, V> {
-    final Map<K, V> onlyOnLeft;
-    final Map<K, V> onlyOnRight;
-    final Map<K, V> onBoth;
-    final Map<K, ValueDifference<V>> differences;
+    final @Readonly Map<K, V> onlyOnLeft;
+    final @Readonly Map<K, V> onlyOnRight;
+    final @Readonly Map<K, V> onBoth;
+    final @Readonly Map<K, ValueDifference<V>> differences;
 
     MapDifferenceImpl(
-        Map<K, V> onlyOnLeft,
-        Map<K, V> onlyOnRight,
-        Map<K, V> onBoth,
-        Map<K, ValueDifference<V>> differences) {
+            @Readonly Map<K, V> onlyOnLeft,
+            @Readonly Map<K, V> onlyOnRight,
+            @Readonly Map<K, V> onBoth,
+            @Readonly Map<K, ValueDifference<V>> differences) {
       this.onlyOnLeft = unmodifiableMap(onlyOnLeft);
       this.onlyOnRight = unmodifiableMap(onlyOnRight);
       this.onBoth = unmodifiableMap(onBoth);
@@ -674,22 +676,22 @@ public final class Maps {
     }
 
     @Override
-    public Map<K, V> entriesOnlyOnLeft() {
+    public @Readonly Map<K, V> entriesOnlyOnLeft() {
       return onlyOnLeft;
     }
 
     @Override
-    public Map<K, V> entriesOnlyOnRight() {
+    public @Readonly Map<K, V> entriesOnlyOnRight() {
       return onlyOnRight;
     }
 
     @Override
-    public Map<K, V> entriesInCommon() {
+    public @Readonly Map<K, V> entriesInCommon() {
       return onBoth;
     }
 
     @Override
-    public Map<K, ValueDifference<V>> entriesDiffering() {
+    public @Readonly Map<K, ValueDifference<V>> entriesDiffering() {
       return differences;
     }
 
@@ -737,6 +739,7 @@ public final class Maps {
     }
   }
 
+  @Immutable
   static class ValueDifferenceImpl<V extends @Nullable @Readonly Object>
       implements MapDifference.ValueDifference<V> {
     @ParametricNullness private final V left;
@@ -777,7 +780,7 @@ public final class Maps {
 
     @Pure
     @Override
-    public int hashCode(@UnknownSignedness ValueDifferenceImpl<V> this) {
+    public int hashCode(@UnknownSignedness @Readonly ValueDifferenceImpl<V> this) {
       return Objects.hashCode(left, right);
     }
 
@@ -788,34 +791,35 @@ public final class Maps {
     }
   }
 
+  @Immutable
   static class SortedMapDifferenceImpl<K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object>
       extends MapDifferenceImpl<K, V> implements SortedMapDifference<K, V> {
     SortedMapDifferenceImpl(
-        SortedMap<K, V> onlyOnLeft,
-        SortedMap<K, V> onlyOnRight,
-        SortedMap<K, V> onBoth,
-        SortedMap<K, ValueDifference<V>> differences) {
+            @Readonly SortedMap<K, V> onlyOnLeft,
+            @Readonly SortedMap<K, V> onlyOnRight,
+            @Readonly SortedMap<K, V> onBoth,
+            @Readonly SortedMap<K, ValueDifference<V>> differences) {
       super(onlyOnLeft, onlyOnRight, onBoth, differences);
     }
 
     @Override
-    public SortedMap<K, ValueDifference<V>> entriesDiffering() {
-      return (SortedMap<K, ValueDifference<V>>) super.entriesDiffering();
+    public @Readonly SortedMap<K, ValueDifference<V>> entriesDiffering() {
+      return (@Readonly SortedMap<K, ValueDifference<V>>) super.entriesDiffering();
     }
 
     @Override
-    public SortedMap<K, V> entriesInCommon() {
-      return (SortedMap<K, V>) super.entriesInCommon();
+    public @Readonly SortedMap<K, V> entriesInCommon() {
+      return (@Readonly SortedMap<K, V>) super.entriesInCommon();
     }
 
     @Override
-    public SortedMap<K, V> entriesOnlyOnLeft() {
-      return (SortedMap<K, V>) super.entriesOnlyOnLeft();
+    public @Readonly SortedMap<K, V> entriesOnlyOnLeft() {
+      return (@Readonly SortedMap<K, V>) super.entriesOnlyOnLeft();
     }
 
     @Override
-    public SortedMap<K, V> entriesOnlyOnRight() {
-      return (SortedMap<K, V>) super.entriesOnlyOnRight();
+    public @Readonly SortedMap<K, V> entriesOnlyOnRight() {
+      return (@Readonly SortedMap<K, V>) super.entriesOnlyOnRight();
     }
   }
 
@@ -825,7 +829,7 @@ public final class Maps {
    * ugly type-casting in one place.
    */
   @SuppressWarnings("unchecked")
-  static <E extends @Nullable Object> Comparator<? super E> orNaturalOrder(
+  static <E extends @Nullable @Readonly Object> Comparator<? super E> orNaturalOrder(
       @CheckForNull Comparator<? super E> comparator) {
     if (comparator != null) { // can't use ? : because of javac bug 5080917
       return comparator;
@@ -857,9 +861,9 @@ public final class Maps {
    *
    * @since 14.0
    */
-  public static <K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object> Map<K, V> asMap(
-      Set<K> set, Function<? super K, V> function) {
-    return new AsMapView<>(set, function);
+  public static <K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object> @PolyMutable Map<K, V> asMap(
+          @PolyMutable Set<K> set, Function<? super K, V> function) {
+    return new @PolyMutable AsMapView<>(set, function);
   }
 
   /**
@@ -885,9 +889,9 @@ public final class Maps {
    *
    * @since 14.0
    */
-  public static <K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object> SortedMap<K, V> asMap(
-      SortedSet<K> set, Function<? super K, V> function) {
-    return new SortedAsMapView<>(set, function);
+  public static <K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object> @PolyMutable SortedMap<K, V> asMap(
+      @PolyMutable SortedSet<K> set, Function<? super K, V> function) {
+    return new @PolyMutable SortedAsMapView<>(set, function);
   }
 
   /**
@@ -914,33 +918,34 @@ public final class Maps {
    * @since 14.0
    */
   @GwtIncompatible // NavigableMap
-  public static <K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object> NavigableMap<K, V> asMap(
-      NavigableSet<K> set, Function<? super K, V> function) {
-    return new NavigableAsMapView<>(set, function);
+  public static <K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object> @PolyMutable NavigableMap<K, V> asMap(
+      @PolyMutable NavigableSet<K> set, Function<? super K, V> function) {
+    return new @PolyMutable NavigableAsMapView<>(set, function);
   }
 
+  @ReceiverDependentMutable
   private static class AsMapView<K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object>
       extends ViewCachingAbstractMap<K, V> {
 
-    private final @Mutable Set<K> set;
+    private final Set<K> set;
     final Function<? super K, V> function;
 
-    @Mutable Set<K> backingSet() {
+    @PolyMutable Set<K> backingSet(@PolyMutable AsMapView<K, V> this) {
       return set;
     }
 
-    AsMapView(Set<K> set, Function<? super K, V> function) {
+    AsMapView(@ReceiverDependentMutable Set<K> set, Function<? super K, V> function) {
       this.set = checkNotNull(set);
       this.function = checkNotNull(function);
     }
 
     @Override
-    public Set<K> createKeySet() {
+    public @PolyMutable Set<K> createKeySet(@PolyMutable AsMapView<K, V> this) {
       return removeOnlySet(backingSet());
     }
 
     @Override
-    Collection<V> createValues() {
+    @PolyMutable Collection<V> createValues(@PolyMutable AsMapView<K, V> this) {
       return Collections2.transform(set, function);
     }
 
@@ -990,7 +995,7 @@ public final class Maps {
     }
 
     @Override
-    protected Set<Entry<K, V>> createEntrySet() {
+    protected @PolyMutable Set<@PolyMutable Entry<K, V>> createEntrySet(@PolyMutable AsMapView<K, V> this) {
       @WeakOuter
       class EntrySetImpl extends EntrySet<K, V> {
         @Override
@@ -1015,8 +1020,8 @@ public final class Maps {
   }
 
   static <K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object>
-      Iterator<Entry<K, V>> asMapEntryIterator(Set<K> set, final Function<? super K, V> function) {
-    return new TransformedIterator<K, Entry<K, V>>(set.iterator()) {
+      Iterator<@PolyMutable Entry<K, V>> asMapEntryIterator(@PolyMutable Set<K> set, final Function<? super K, V> function) {
+    return new TransformedIterator<K, @PolyMutable Entry<K, V>>(set.iterator()) {
       @Override
       Entry<K, V> transform(@ParametricNullness final K key) {
         return immutableEntry(key, function.apply(key));
@@ -1024,58 +1029,60 @@ public final class Maps {
     };
   }
 
+  @ReceiverDependentMutable
   private static class SortedAsMapView<K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object>
       extends AsMapView<K, V> implements SortedMap<K, V> {
 
-    SortedAsMapView(SortedSet<K> set, Function<? super K, V> function) {
+    SortedAsMapView(@ReceiverDependentMutable SortedSet<K> set, Function<? super K, V> function) {
       super(set, function);
     }
 
     @Override
-    SortedSet<K> backingSet() {
+    @PolyMutable SortedSet<K> backingSet(@PolyMutable SortedAsMapView<K, V> this) {
       return (SortedSet<K>) super.backingSet();
     }
 
     @Override
     @CheckForNull
-    public Comparator<? super K> comparator() {
+    public Comparator<? super K> comparator(@Readonly SortedAsMapView<K, V> this) {
       return backingSet().comparator();
     }
 
     @Override
-    public Set<@KeyFor({"this"}) K> keySet() {
+    public @PolyMutable Set<@KeyFor({"this"}) K> keySet(@PolyMutable SortedAsMapView<K, V> this) {
       return removeOnlySortedSet(backingSet());
     }
 
     @Override
-    public SortedMap<K, V> subMap(@ParametricNullness K fromKey, @ParametricNullness K toKey) {
+    public @PolyMutable SortedMap<K, V> subMap(@PolyMutable SortedAsMapView<K, V> this, @ParametricNullness K fromKey, @ParametricNullness K toKey) {
       return asMap(backingSet().subSet(fromKey, toKey), function);
     }
 
     @Override
-    public SortedMap<K, V> headMap(@ParametricNullness K toKey) {
+    public @PolyMutable SortedMap<K, V> headMap(@PolyMutable SortedAsMapView<K, V> this, @ParametricNullness K toKey) {
       return asMap(backingSet().headSet(toKey), function);
     }
 
     @Override
-    public SortedMap<K, V> tailMap(@ParametricNullness K fromKey) {
+    public @PolyMutable SortedMap<K, V> tailMap(@PolyMutable SortedAsMapView<K, V> this, @ParametricNullness K fromKey) {
       return asMap(backingSet().tailSet(fromKey), function);
     }
 
     @Override
     @ParametricNullness
-    public @KeyFor("this") K firstKey() {
+    public @KeyFor("this") K firstKey(@Readonly SortedAsMapView<K, V> this) {
       return backingSet().first();
     }
 
     @Override
     @ParametricNullness
-    public @KeyFor("this") K lastKey() {
+    public @KeyFor("this") K lastKey(@Readonly SortedAsMapView<K, V> this) {
       return backingSet().last();
     }
   }
 
   @GwtIncompatible // NavigableMap
+  @ReceiverDependentMutable
   private static final class NavigableAsMapView<
           K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object>
       extends AbstractNavigableMap<K, V> {
@@ -1087,13 +1094,14 @@ public final class Maps {
     private final NavigableSet<K> set;
     private final Function<? super K, V> function;
 
-    NavigableAsMapView(NavigableSet<K> ks, Function<? super K, V> vFunction) {
+    NavigableAsMapView(@ReceiverDependentMutable NavigableSet<K> ks, Function<? super K, V> vFunction) {
       this.set = checkNotNull(ks);
       this.function = checkNotNull(vFunction);
     }
 
     @Override
-    public NavigableMap<K, V> subMap(
+    public @PolyMutable NavigableMap<K, V> subMap(
+            @PolyMutable NavigableAsMapView<K, V> this,
         @ParametricNullness K fromKey,
         boolean fromInclusive,
         @ParametricNullness K toKey,
@@ -1102,30 +1110,30 @@ public final class Maps {
     }
 
     @Override
-    public NavigableMap<K, V> headMap(@ParametricNullness K toKey, boolean inclusive) {
+    public @PolyMutable NavigableMap<K, V> headMap(@PolyMutable NavigableAsMapView<K, V> this, @ParametricNullness K toKey, boolean inclusive) {
       return asMap(set.headSet(toKey, inclusive), function);
     }
 
     @Override
-    public NavigableMap<K, V> tailMap(@ParametricNullness K fromKey, boolean inclusive) {
+    public @PolyMutable NavigableMap<K, V> tailMap(@PolyMutable NavigableAsMapView<K, V> this, @ParametricNullness K fromKey, boolean inclusive) {
       return asMap(set.tailSet(fromKey, inclusive), function);
     }
 
     @Override
     @CheckForNull
-    public Comparator<? super K> comparator() {
+    public Comparator<? super K> comparator(@Readonly NavigableAsMapView<K, V> this) {
       return set.comparator();
     }
 
     @Override
     @CheckForNull
-    public V get(@CheckForNull @UnknownSignedness Object key) {
+    public V get(@Readonly NavigableAsMapView<K, V> this, @CheckForNull @UnknownSignedness @Readonly Object key) {
       return getOrDefault(key, null);
     }
 
     @Override
     @CheckForNull
-    public V getOrDefault(@CheckForNull @UnknownSignedness Object key, @CheckForNull V defaultValue) {
+    public V getOrDefault(@Readonly NavigableAsMapView<K, V> this, @CheckForNull @UnknownSignedness @Readonly Object key, @CheckForNull V defaultValue) {
       if (Collections2.safeContains(set, key)) {
         @SuppressWarnings("unchecked") // unsafe, but Javadoc warns about it
         K k = (K) key;
@@ -1136,17 +1144,17 @@ public final class Maps {
     }
 
     @Override
-    public void clear() {
+    public void clear(@Mutable NavigableAsMapView<K, V> this) {
       set.clear();
     }
 
     @Override
-    Iterator<Entry<K, V>> entryIterator() {
+    Iterator<@PolyMutable Entry<K, V>> entryIterator(@PolyMutable NavigableAsMapView<K, V> this) {
       return asMapEntryIterator(set, function);
     }
 
     @Override
-    Spliterator<Entry<K, V>> entrySpliterator() {
+    Spliterator<@PolyMutable Entry<K, V>> entrySpliterator(@PolyMutable NavigableAsMapView<K, V> this) {
       return CollectSpliterators.map(set.spliterator(), e -> immutableEntry(e, function.apply(e)));
     }
 
@@ -1156,22 +1164,22 @@ public final class Maps {
     }
 
     @Override
-    Iterator<Entry<K, V>> descendingEntryIterator() {
+    Iterator<@PolyMutable Entry<K, V>> descendingEntryIterator(@PolyMutable NavigableAsMapView<K, V> this) {
       return descendingMap().entrySet().iterator();
     }
 
     @Override
-    public NavigableSet<@KeyFor({"this"}) K> navigableKeySet() {
+    public @PolyMutable NavigableSet<@KeyFor({"this"}) K> navigableKeySet(@PolyMutable NavigableAsMapView<K, V> this) {
       return removeOnlyNavigableSet(set);
     }
 
     @Override
-    public @NonNegative int size() {
+    public @NonNegative int size(@Readonly NavigableAsMapView<K, V> this) {
       return set.size();
     }
 
     @Override
-    public NavigableMap<K, V> descendingMap() {
+    public @PolyMutable NavigableMap<K, V> descendingMap(@PolyMutable NavigableAsMapView<K, V> this) {
       return asMap(set.descendingSet(), function);
     }
   }
@@ -1482,7 +1490,7 @@ public final class Maps {
    * @param value the value to be associated with the returned entry
    */
   @GwtCompatible(serializable = true)
-  public static <K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object> Entry<K, V> immutableEntry(
+  public static <K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object> @Immutable Entry<K, V> immutableEntry(
       @ParametricNullness K key, @ParametricNullness V value) {
     return new ImmutableEntry<>(key, value);
   }
@@ -1496,7 +1504,7 @@ public final class Maps {
    * @return an unmodifiable view of the entries
    */
   static <K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object>
-      Set<Entry<K, V>> unmodifiableEntrySet(Set<Entry<K, V>> entrySet) {
+    @Readonly Set<@Readonly Entry<K, V>> unmodifiableEntrySet(@Readonly Set<@PolyMutable Entry<K, V>> entrySet) {
     return new UnmodifiableEntrySet<>(Collections.unmodifiableSet(entrySet));
   }
 
@@ -1509,8 +1517,8 @@ public final class Maps {
    * @param entry the entry for which to return an unmodifiable view
    * @return an unmodifiable view of the entry
    */
-  static <K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object> Entry<K, V> unmodifiableEntry(
-      final Entry<? extends K, ? extends V> entry) {
+  static <K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object> @Readonly Entry<K, V> unmodifiableEntry(
+      final @Readonly Entry<? extends K, ? extends V> entry) {
     checkNotNull(entry);
     return new AbstractMapEntry<K, V>() {
       @Override
@@ -1528,8 +1536,8 @@ public final class Maps {
   }
 
   static <K extends @Nullable @Immutable Object, V extends @Nullable @Readonly  Object>
-      UnmodifiableIterator<Entry<K, V>> unmodifiableEntryIterator(
-          final Iterator<Entry<K, V>> entryIterator) {
+    @Readonly UnmodifiableIterator<Entry<K, V>> unmodifiableEntryIterator(
+          final @Readonly Iterator<Entry<K, V>> entryIterator) {
     return new UnmodifiableIterator<Entry<K, V>>() {
       @Override
       public boolean hasNext() {
@@ -1544,21 +1552,22 @@ public final class Maps {
   }
 
   /** @see Multimaps#unmodifiableEntries */
+  @Immutable
   static class UnmodifiableEntries<K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object>
-      extends ForwardingCollection<Entry<K, V>> {
-    private final Collection<Entry<K, V>> entries;
+      extends ForwardingCollection<@Readonly Entry<K, V>> {
+    private final @Readonly Collection<@Readonly Entry<K, V>> entries;
 
-    UnmodifiableEntries(Collection<Entry<K, V>> entries) {
+    UnmodifiableEntries(@Readonly Collection<@Readonly Entry<K, V>> entries) {
       this.entries = entries;
     }
 
     @Override
-    protected Collection<Entry<K, V>> delegate() {
+    protected @Readonly Collection<@Readonly Entry<K, V>> delegate() {
       return entries;
     }
 
     @Override
-    public Iterator<Entry<K, V>> iterator() {
+    public Iterator<@Readonly Entry<K, V>> iterator() {
       return unmodifiableEntryIterator(entries.iterator());
     }
 
@@ -1580,23 +1589,24 @@ public final class Maps {
 
     @Override
     @SuppressWarnings("nullness") // b/192354773 in our checker affects toArray declarations
-    public <T extends @Nullable @UnknownSignedness Object> T[] toArray(@PolyNull T[] array) {
+    public <T extends @Nullable @UnknownSignedness @Readonly Object> T[] toArray(@PolyNull T[] array) {
       return standardToArray(array);
     }
 
   @Pure
   @Override
-  public boolean contains(@Nullable @UnknownSignedness Object arg0) { return super.contains(arg0); }
+  public boolean contains(@Nullable @UnknownSignedness @Readonly Object arg0) { return super.contains(arg0); }
 
   @Pure
   @Override
-  public boolean containsAll(Collection<?> arg0) { return super.containsAll(arg0); }
+  public boolean containsAll(@Readonly Collection<?> arg0) { return super.containsAll(arg0); }
   }
 
   /** @see Maps#unmodifiableEntrySet(Set) */
+  @Immutable
   static class UnmodifiableEntrySet<K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object>
-      extends UnmodifiableEntries<K, V> implements Set<Entry<K, V>> {
-    UnmodifiableEntrySet(Set<Entry<K, V>> entries) {
+      extends UnmodifiableEntries<K, V> implements Set<@Readonly Entry<K, V>> {
+    UnmodifiableEntrySet(@Readonly Set<@Readonly Entry<K, V>> entries) {
       super(entries);
     }
 
@@ -1604,13 +1614,13 @@ public final class Maps {
 
     @Pure
     @Override
-    public boolean equals(@CheckForNull @UnknownSignedness Object object) {
+    public boolean equals(@CheckForNull @UnknownSignedness @Readonly Object object) {
       return Sets.equalsImpl(this, object);
     }
 
     @Pure
     @Override
-    public int hashCode(@UnknownSignedness UnmodifiableEntrySet<K, V> this) {
+    public int hashCode(@UnknownSignedness @Readonly UnmodifiableEntrySet<K, V> this) {
       return Sets.hashCodeImpl(this);
     }
   }
@@ -1629,10 +1639,11 @@ public final class Maps {
     return new BiMapConverter<>(bimap);
   }
 
+  @ReceiverDependentMutable
   private static final class BiMapConverter<A extends @Immutable Object, B extends @Immutable Object> extends Converter<A, B> implements Serializable {
     private final BiMap<A, B> bimap;
 
-    BiMapConverter(BiMap<A, B> bimap) {
+    BiMapConverter(@ReceiverDependentMutable BiMap<A, B> bimap) {
       this.bimap = checkNotNull(bimap);
     }
 
@@ -1647,14 +1658,14 @@ public final class Maps {
     }
 
     @SuppressWarnings("signedness:argument")  // diagnostic output
-    private static <X extends @Immutable Object, Y extends @Immutable Object> Y convert(BiMap<X, Y> bimap, X input) {
+    private static <X extends @Immutable Object, Y extends @Immutable Object> Y convert(@Readonly BiMap<X, Y> bimap, X input) {
       Y output = bimap.get(input);
       checkArgument(output != null, "No non-null mapping present for input: %s", input);
       return output;
     }
 
     @Override
-    public boolean equals(@CheckForNull Object object) {
+    public boolean equals(@Readonly BiMapConverter<A, B> this, @CheckForNull @Readonly Object object) {
       if (object instanceof BiMapConverter) {
         BiMapConverter<?, ?> that = (BiMapConverter<?, ?>) object;
         return this.bimap.equals(that.bimap);
@@ -1663,13 +1674,13 @@ public final class Maps {
     }
 
     @Override
-    public int hashCode(@UnknownSignedness BiMapConverter<A, B> this) {
+    public int hashCode(@UnknownSignedness @Readonly BiMapConverter<A, B> this) {
       return bimap.hashCode();
     }
 
     // There's really no good way to implement toString() without printing the entire BiMap, right?
     @Override
-    public String toString() {
+    public String toString(@Readonly BiMapConverter<A, B> this) {
       return "Maps.asConverter(" + bimap + ")";
     }
 
@@ -1727,21 +1738,22 @@ public final class Maps {
   }
 
   /** @see Maps#unmodifiableBiMap(BiMap) */
+  @Immutable
   private static class UnmodifiableBiMap<K extends @Nullable @Immutable Object, V extends @Nullable @Immutable Object>
       extends ForwardingMap<K, V> implements BiMap<K, V>, Serializable {
-    final Map<K, V> unmodifiableMap;
-    final BiMap<? extends K, ? extends V> delegate;
-    @RetainedWith @CheckForNull BiMap<V, K> inverse;
-    @CheckForNull transient Set<V> values;
+    final @Readonly Map<K, V> unmodifiableMap;
+    final @Readonly BiMap<? extends K, ? extends V> delegate;
+    @RetainedWith @CheckForNull @Readonly BiMap<V, K> inverse;
+    @CheckForNull transient @Readonly Set<V> values;
 
-    UnmodifiableBiMap(BiMap<? extends K, ? extends V> delegate, @CheckForNull BiMap<V, K> inverse) {
+    UnmodifiableBiMap(@Readonly BiMap<? extends K, ? extends V> delegate, @CheckForNull @Readonly BiMap<V, K> inverse) {
       unmodifiableMap = Collections.unmodifiableMap(delegate);
       this.delegate = delegate;
       this.inverse = inverse;
     }
 
     @Override
-    protected Map<K, V> delegate() {
+    protected @Readonly Map<K, V> delegate() {
       return unmodifiableMap;
     }
 
@@ -1763,7 +1775,7 @@ public final class Maps {
     }
 
     @Override
-    public boolean remove(@Nullable @UnknownSignedness Object key, @Nullable @UnknownSignedness Object value) {
+    public boolean remove(@Nullable @UnknownSignedness @Readonly Object key, @Nullable @UnknownSignedness @Readonly Object value) {
       throw new UnsupportedOperationException();
     }
 
@@ -1803,7 +1815,7 @@ public final class Maps {
     }
 
     @Override
-    public BiMap<V, K> inverse() {
+    public @Readonly BiMap<V, K> inverse() {
       BiMap<V, K> result = inverse;
       return (result == null)
           ? inverse = new UnmodifiableBiMap<>(delegate.inverse(), this)
@@ -1812,7 +1824,7 @@ public final class Maps {
 
     @SideEffectFree
     @Override
-    public Set<V> values() {
+    public @Readonly Set<V> values() {
       Set<V> result = values;
       return (result == null) ? values = Collections.unmodifiableSet(delegate.values()) : result;
     }
@@ -1855,7 +1867,7 @@ public final class Maps {
    */
   public static <
           K extends @Nullable @Immutable Object, V1 extends @Nullable @Readonly Object, V2 extends @Nullable @Readonly Object>
-      Map<K, V2> transformValues(Map<K, V1> fromMap, Function<? super V1, V2> function) {
+      @PolyMutable Map<K, V2> transformValues(@PolyMutable Map<K, V1> fromMap, Function<? super V1, V2> function) {
     return transformEntries(fromMap, asEntryTransformer(function));
   }
 
@@ -1997,9 +2009,9 @@ public final class Maps {
    */
   public static <
           K extends @Nullable @Immutable Object, V1 extends @Nullable @Readonly Object, V2 extends @Nullable @Readonly Object>
-      Map<K, V2> transformEntries(
-          Map<K, V1> fromMap, EntryTransformer<? super K, ? super V1, V2> transformer) {
-    return new TransformedEntriesMap<>(fromMap, transformer);
+    @PolyMutable Map<K, V2> transformEntries(
+          @PolyMutable Map<K, V1> fromMap, EntryTransformer<? super K, ? super V1, V2> transformer) {
+    return new @PolyMutable TransformedEntriesMap<>(fromMap, transformer);
   }
 
   /**
@@ -2122,6 +2134,7 @@ public final class Maps {
    * @since 7.0
    */
   @FunctionalInterface
+  @ReceiverDependentMutable
   public interface EntryTransformer<
       K extends @Nullable @Immutable Object, V1 extends @Nullable @Readonly Object, V2 extends @Nullable @Readonly Object> {
     /**
@@ -2215,31 +2228,32 @@ public final class Maps {
     };
   }
 
+  @ReceiverDependentMutable
   static class TransformedEntriesMap<
           K extends @Nullable @Immutable Object, V1 extends @Nullable @Readonly Object, V2 extends @Nullable @Readonly Object>
       extends IteratorBasedAbstractMap<K, V2> {
-    final @Mutable Map<K, V1> fromMap;
+    final Map<K, V1> fromMap;
     final EntryTransformer<? super K, ? super V1, V2> transformer;
 
     TransformedEntriesMap(
-        Map<K, V1> fromMap, EntryTransformer<? super K, ? super V1, V2> transformer) {
+            @ReceiverDependentMutable Map<K, V1> fromMap, EntryTransformer<? super K, ? super V1, V2> transformer) {
       this.fromMap = checkNotNull(fromMap);
       this.transformer = checkNotNull(transformer);
     }
 
     @Override
-    public @NonNegative int size() {
+    public @NonNegative int size(@Readonly TransformedEntriesMap<K, V1, V2> this) {
       return fromMap.size();
     }
 
     @Override
-    public boolean containsKey(@CheckForNull @UnknownSignedness @Readonly Object key) {
+    public boolean containsKey(@Readonly TransformedEntriesMap<K, V1, V2> this, @CheckForNull @UnknownSignedness @Readonly Object key) {
       return fromMap.containsKey(key);
     }
 
     @Override
     @CheckForNull
-    public V2 get(@CheckForNull @UnknownSignedness @Readonly Object key) {
+    public V2 get(@Readonly TransformedEntriesMap<K, V1, V2> this, @CheckForNull @UnknownSignedness @Readonly Object key) {
       return getOrDefault(key, null);
     }
 
@@ -2247,7 +2261,7 @@ public final class Maps {
     @SuppressWarnings("unchecked")
     @Override
     @CheckForNull
-    public V2 getOrDefault(@CheckForNull @UnknownSignedness @Readonly Object key, @CheckForNull V2 defaultValue) {
+    public V2 getOrDefault(@Readonly TransformedEntriesMap<K, V1, V2> this, @CheckForNull @UnknownSignedness @Readonly Object key, @CheckForNull V2 defaultValue) {
       V1 value = fromMap.get(key);
       if (value != null || fromMap.containsKey(key)) {
         // The cast is safe because of the containsKey check.
@@ -2260,7 +2274,7 @@ public final class Maps {
     @SuppressWarnings("unchecked")
     @Override
     @CheckForNull
-    public V2 remove(@CheckForNull @UnknownSignedness @Readonly Object key) {
+    public V2 remove(@Mutable TransformedEntriesMap<K, V1, V2> this, @CheckForNull @UnknownSignedness @Readonly Object key) {
       return fromMap.containsKey(key)
           // The cast is safe because of the containsKey check.
           ? transformer.transformEntry((K) key, uncheckedCastNullableTToT(fromMap.remove(key)))
@@ -2268,23 +2282,23 @@ public final class Maps {
     }
 
     @Override
-    public void clear() {
+    public void clear(@Mutable TransformedEntriesMap<K, V1, V2> this) {
       fromMap.clear();
     }
 
     @Override
-    public Set<@KeyFor({"this"}) K> keySet() {
+    public @PolyMutable Set<@KeyFor({"this"}) K> keySet(@PolyMutable TransformedEntriesMap<K, V1, V2> this) {
       return fromMap.keySet();
     }
 
     @Override
-    Iterator<Entry<K, V2>> entryIterator() {
+    Iterator<@PolyMutable Entry<K, V2>> entryIterator(@PolyMutable TransformedEntriesMap<K, V1, V2> this) {
       return Iterators.transform(
           fromMap.entrySet().iterator(), Maps.<K, V1, V2>asEntryToEntryFunction(transformer));
     }
 
     @Override
-    Spliterator<Entry<K, V2>> entrySpliterator() {
+    Spliterator<@PolyMutable Entry<K, V2>> entrySpliterator(@PolyMutable TransformedEntriesMap<K, V1, V2> this) {
       return CollectSpliterators.map(
           fromMap.entrySet().spliterator(), Maps.<K, V1, V2>asEntryToEntryFunction(transformer));
     }
@@ -2297,167 +2311,170 @@ public final class Maps {
     }
 
     @Override
-    public Collection<V2> values() {
-      return new Values<>(this);
+    public @PolyMutable Collection<V2> values(@PolyMutable TransformedEntriesMap<K, V1, V2> this) {
+      return new @PolyMutable Values<>(this);
     }
   }
 
+  @ReceiverDependentMutable
   static class TransformedEntriesSortedMap<
           K extends @Nullable @Immutable Object, V1 extends @Nullable @Readonly Object, V2 extends @Nullable @Readonly Object>
       extends TransformedEntriesMap<K, V1, V2> implements SortedMap<K, V2> {
 
-    protected SortedMap<K, V1> fromMap() {
-      return (SortedMap<K, V1>) fromMap;
+    protected @PolyMutable SortedMap<K, V1> fromMap(@PolyMutable TransformedEntriesSortedMap<K, V1, V2> this) {
+      return (@PolyMutable SortedMap<K, V1>) fromMap;
     }
 
     TransformedEntriesSortedMap(
-        SortedMap<K, V1> fromMap, EntryTransformer<? super K, ? super V1, V2> transformer) {
+            @ReceiverDependentMutable SortedMap<K, V1> fromMap, EntryTransformer<? super K, ? super V1, V2> transformer) {
       super(fromMap, transformer);
     }
 
     @Override
     @CheckForNull
-    public Comparator<? super K> comparator() {
+    public Comparator<? super K> comparator(@Readonly TransformedEntriesSortedMap<K, V1, V2> this) {
       return fromMap().comparator();
     }
 
     @Override
     @ParametricNullness
-    public @KeyFor("this") K firstKey() {
+    public @KeyFor("this") K firstKey(@Readonly TransformedEntriesSortedMap<K, V1, V2> this) {
       return fromMap().firstKey();
     }
 
     @Override
-    public SortedMap<K, V2> headMap(@ParametricNullness K toKey) {
+    public @PolyMutable SortedMap<K, V2> headMap(@PolyMutable TransformedEntriesSortedMap<K, V1, V2> this, @ParametricNullness K toKey) {
       return transformEntries(fromMap().headMap(toKey), transformer);
     }
 
     @Override
     @ParametricNullness
-    public @KeyFor("this") K lastKey() {
+    public @KeyFor("this") K lastKey(@Readonly TransformedEntriesSortedMap<K, V1, V2> this) {
       return fromMap().lastKey();
     }
 
     @Override
-    public SortedMap<K, V2> subMap(@ParametricNullness K fromKey, @ParametricNullness K toKey) {
+    public @PolyMutable SortedMap<K, V2> subMap(@PolyMutable TransformedEntriesSortedMap<K, V1, V2> this, @ParametricNullness K fromKey, @ParametricNullness K toKey) {
       return transformEntries(fromMap().subMap(fromKey, toKey), transformer);
     }
 
     @Override
-    public SortedMap<K, V2> tailMap(@ParametricNullness K fromKey) {
+    public @PolyMutable SortedMap<K, V2> tailMap(@PolyMutable TransformedEntriesSortedMap<K, V1, V2> this, @ParametricNullness K fromKey) {
       return transformEntries(fromMap().tailMap(fromKey), transformer);
     }
   }
 
   @GwtIncompatible // NavigableMap
+  @ReceiverDependentMutable
   private static class TransformedEntriesNavigableMap<
           K extends @Nullable @Immutable Object, V1 extends @Nullable @Readonly Object, V2 extends @Nullable @Readonly Object>
       extends TransformedEntriesSortedMap<K, V1, V2> implements NavigableMap<K, V2> {
 
     TransformedEntriesNavigableMap(
-        NavigableMap<K, V1> fromMap, EntryTransformer<? super K, ? super V1, V2> transformer) {
+            @ReceiverDependentMutable NavigableMap<K, V1> fromMap, EntryTransformer<? super K, ? super V1, V2> transformer) {
       super(fromMap, transformer);
     }
 
     @Override
     @CheckForNull
-    public Entry<K, V2> ceilingEntry(@ParametricNullness K key) {
+    public @PolyMutable Entry<K, V2> ceilingEntry(@PolyMutable TransformedEntriesNavigableMap<K, V1, V2> this,  @ParametricNullness K key) {
       return transformEntry(fromMap().ceilingEntry(key));
     }
 
     @Override
     @CheckForNull
-    public K ceilingKey(@ParametricNullness K key) {
+    public K ceilingKey(@Readonly TransformedEntriesNavigableMap<K, V1, V2> this, @ParametricNullness K key) {
       return fromMap().ceilingKey(key);
     }
 
     @Override
-    public NavigableSet<@KeyFor({"this"}) K> descendingKeySet() {
+    public @PolyMutable NavigableSet<@KeyFor({"this"}) K> descendingKeySet(@PolyMutable TransformedEntriesNavigableMap<K, V1, V2> this) {
       return fromMap().descendingKeySet();
     }
 
     @Override
-    public NavigableMap<K, V2> descendingMap() {
+    public @PolyMutable NavigableMap<K, V2> descendingMap(@PolyMutable TransformedEntriesNavigableMap<K, V1, V2> this) {
       return transformEntries(fromMap().descendingMap(), transformer);
     }
 
     @Override
     @CheckForNull
-    public Entry<K, V2> firstEntry() {
+    public @PolyMutable Entry<K, V2> firstEntry(@PolyMutable TransformedEntriesNavigableMap<K, V1, V2> this) {
       return transformEntry(fromMap().firstEntry());
     }
 
     @Override
     @CheckForNull
-    public Entry<K, V2> floorEntry(@ParametricNullness K key) {
+    public @PolyMutable Entry<K, V2> floorEntry(@PolyMutable TransformedEntriesNavigableMap<K, V1, V2> this, @ParametricNullness K key) {
       return transformEntry(fromMap().floorEntry(key));
     }
 
     @Override
     @CheckForNull
-    public K floorKey(@ParametricNullness K key) {
+    public K floorKey(@Readonly TransformedEntriesNavigableMap<K, V1, V2> this, @ParametricNullness K key) {
       return fromMap().floorKey(key);
     }
 
     @Override
-    public NavigableMap<K, V2> headMap(@ParametricNullness K toKey) {
+    public @PolyMutable NavigableMap<K, V2> headMap(@PolyMutable TransformedEntriesNavigableMap<K, V1, V2> this, @ParametricNullness K toKey) {
       return headMap(toKey, false);
     }
 
     @Override
-    public NavigableMap<K, V2> headMap(@ParametricNullness K toKey, boolean inclusive) {
+    public @PolyMutable NavigableMap<K, V2> headMap(@PolyMutable TransformedEntriesNavigableMap<K, V1, V2> this, @ParametricNullness K toKey, boolean inclusive) {
       return transformEntries(fromMap().headMap(toKey, inclusive), transformer);
     }
 
     @Override
     @CheckForNull
-    public Entry<K, V2> higherEntry(@ParametricNullness K key) {
+    public @PolyMutable Entry<K, V2> higherEntry(@PolyMutable TransformedEntriesNavigableMap<K, V1, V2> this, @ParametricNullness K key) {
       return transformEntry(fromMap().higherEntry(key));
     }
 
     @Override
     @CheckForNull
-    public K higherKey(@ParametricNullness K key) {
+    public K higherKey(@Readonly TransformedEntriesNavigableMap<K, V1, V2> this, @ParametricNullness K key) {
       return fromMap().higherKey(key);
     }
 
     @Override
     @CheckForNull
-    public Entry<K, V2> lastEntry() {
+    public @PolyMutable Entry<K, V2> lastEntry(@PolyMutable TransformedEntriesNavigableMap<K, V1, V2> this) {
       return transformEntry(fromMap().lastEntry());
     }
 
     @Override
     @CheckForNull
-    public Entry<K, V2> lowerEntry(@ParametricNullness K key) {
+    public @PolyMutable Entry<K, V2> lowerEntry(@PolyMutable TransformedEntriesNavigableMap<K, V1, V2> this, @ParametricNullness K key) {
       return transformEntry(fromMap().lowerEntry(key));
     }
 
     @Override
     @CheckForNull
-    public K lowerKey(@ParametricNullness K key) {
+    public K lowerKey(@Readonly TransformedEntriesNavigableMap<K, V1, V2> this, @ParametricNullness K key) {
       return fromMap().lowerKey(key);
     }
 
     @Override
-    public NavigableSet<@KeyFor({"this"}) K> navigableKeySet() {
+    public @PolyMutable NavigableSet<@KeyFor({"this"}) K> navigableKeySet(@PolyMutable TransformedEntriesNavigableMap<K, V1, V2> this) {
       return fromMap().navigableKeySet();
     }
 
     @Override
     @CheckForNull
-    public Entry<K, V2> pollFirstEntry() {
+    public Entry<K, V2> pollFirstEntry(@Mutable TransformedEntriesNavigableMap<K, V1, V2> this) {
       return transformEntry(fromMap().pollFirstEntry());
     }
 
     @Override
     @CheckForNull
-    public Entry<K, V2> pollLastEntry() {
+    public Entry<K, V2> pollLastEntry(@Mutable TransformedEntriesNavigableMap<K, V1, V2> this) {
       return transformEntry(fromMap().pollLastEntry());
     }
 
     @Override
-    public NavigableMap<K, V2> subMap(
+    public @PolyMutable NavigableMap<K, V2> subMap(
+            @PolyMutable TransformedEntriesNavigableMap<K, V1, V2> this,
         @ParametricNullness K fromKey,
         boolean fromInclusive,
         @ParametricNullness K toKey,
@@ -2467,27 +2484,27 @@ public final class Maps {
     }
 
     @Override
-    public NavigableMap<K, V2> subMap(@ParametricNullness K fromKey, @ParametricNullness K toKey) {
+    public @PolyMutable NavigableMap<K, V2> subMap(@PolyMutable TransformedEntriesNavigableMap<K, V1, V2> this, @ParametricNullness K fromKey, @ParametricNullness K toKey) {
       return subMap(fromKey, true, toKey, false);
     }
 
     @Override
-    public NavigableMap<K, V2> tailMap(@ParametricNullness K fromKey) {
+    public @PolyMutable NavigableMap<K, V2> tailMap(@PolyMutable TransformedEntriesNavigableMap<K, V1, V2> this, @ParametricNullness K fromKey) {
       return tailMap(fromKey, true);
     }
 
     @Override
-    public NavigableMap<K, V2> tailMap(@ParametricNullness K fromKey, boolean inclusive) {
+    public @PolyMutable NavigableMap<K, V2> tailMap(@PolyMutable TransformedEntriesNavigableMap<K, V1, V2> this, @ParametricNullness K fromKey, boolean inclusive) {
       return transformEntries(fromMap().tailMap(fromKey, inclusive), transformer);
     }
 
     @CheckForNull
-    private Entry<K, V2> transformEntry(@CheckForNull Entry<K, V1> entry) {
+    private @PolyMutable Entry<K, V2> transformEntry(@PolyMutable TransformedEntriesNavigableMap<K, V1, V2> this, @CheckForNull Entry<K, V1> entry) {
       return (entry == null) ? null : Maps.transformEntry(transformer, entry);
     }
 
     @Override
-    protected NavigableMap<K, V1> fromMap() {
+    protected @PolyMutable NavigableMap<K, V1> fromMap(@PolyMutable TransformedEntriesNavigableMap<K, V1, V2> this) {
       return (NavigableMap<K, V1>) super.fromMap();
     }
   }
@@ -2945,10 +2962,10 @@ public final class Maps {
   private abstract static class AbstractFilteredMap<
           K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object>
       extends ViewCachingAbstractMap<K, V> {
-    final @Mutable Map<K, V> unfiltered;
+    final Map<K, V> unfiltered;
     final Predicate<? super Entry<K, V>> predicate;
 
-    AbstractFilteredMap(Map<K, V> unfiltered, Predicate<? super Entry<K, V>> predicate) {
+    AbstractFilteredMap(@ReceiverDependentMutable Map<K, V> unfiltered, Predicate<? super Entry<K, V>> predicate) {
       this.unfiltered = unfiltered;
       this.predicate = predicate;
     }
@@ -2963,13 +2980,13 @@ public final class Maps {
 
     @Override
     @CheckForNull
-    public V put(@ParametricNullness K key, @ParametricNullness V value) {
+    public V put(@Mutable AbstractFilteredMap<K, V> this, @ParametricNullness K key, @ParametricNullness V value) {
       checkArgument(apply(key, value));
       return unfiltered.put(key, value);
     }
 
     @Override
-    public void putAll(Map<? extends K, ? extends V> map) {
+    public void putAll(@Mutable AbstractFilteredMap<K, V> this, @Readonly Map<? extends K, ? extends V> map) {
       for (Entry<? extends K, ? extends V> entry : map.entrySet()) {
         checkArgument(apply(entry.getKey(), entry.getValue()));
       }
@@ -2978,108 +2995,110 @@ public final class Maps {
 
     @Pure
     @Override
-    public boolean containsKey(@CheckForNull @UnknownSignedness @Readonly Object key) {
+    public boolean containsKey(@Readonly AbstractFilteredMap<K, V> this, @CheckForNull @UnknownSignedness @Readonly Object key) {
       return unfiltered.containsKey(key) && apply(key, unfiltered.get(key));
     }
 
     @Override
     @CheckForNull
-    public V get(@CheckForNull @UnknownSignedness @Readonly Object key) {
+    public V get(@Readonly AbstractFilteredMap<K, V> this, @CheckForNull @UnknownSignedness @Readonly Object key) {
       V value = unfiltered.get(key);
       return ((value != null) && apply(key, value)) ? value : null;
     }
 
     @Pure
     @Override
-    public boolean isEmpty() {
+    public boolean isEmpty(@Readonly AbstractFilteredMap<K, V>this) {
       return entrySet().isEmpty();
     }
 
     @Override
     @CheckForNull
-    public V remove(@CheckForNull @UnknownSignedness @Readonly Object key) {
+    public V remove(@Mutable AbstractFilteredMap<K, V> this, @CheckForNull @UnknownSignedness @Readonly Object key) {
       return containsKey(key) ? unfiltered.remove(key) : null;
     }
 
     @Override
-    Collection<V> createValues() {
-      return new FilteredMapValues<>(this, unfiltered, predicate);
+    @PolyMutable Collection<V> createValues(@PolyMutable AbstractFilteredMap<K, V> this) {
+      return new @PolyMutable FilteredMapValues<>(this, unfiltered, predicate);
     }
   }
 
+  @ReceiverDependentMutable
   private static final class FilteredMapValues<
           K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object>
       extends Maps.Values<K, V> {
-    final Map<K, V> unfiltered;
-    final Predicate<? super Entry<K, V>> predicate;
+      final Map<K, V> unfiltered;
+      final Predicate<? super Entry<K, V>> predicate;
 
-    FilteredMapValues(
-        Map<K, V> filteredMap, Map<K, V> unfiltered, Predicate<? super Entry<K, V>> predicate) {
-      super(filteredMap);
-      this.unfiltered = unfiltered;
-      this.predicate = predicate;
-    }
-
-    @Override
-    public boolean remove(@Mutable FilteredMapValues<K,V> this, @Readonly @CheckForNull @UnknownSignedness Object o) {
-      Iterator<Entry<K, V>> entryItr = unfiltered.entrySet().iterator();
-      while (entryItr.hasNext()) {
-        Entry<K, V> entry = entryItr.next();
-        if (predicate.apply(entry) && Objects.equal(entry.getValue(), o)) {
-          entryItr.remove();
-          return true;
-        }
+      FilteredMapValues(
+              @ReceiverDependentMutable Map<K, V> filteredMap, Map<K, V> unfiltered, Predicate<? super Entry<K, V>> predicate) {
+          super(filteredMap);
+          this.unfiltered = unfiltered;
+          this.predicate = predicate;
       }
-      return false;
-    }
 
-    @Override
-    public boolean removeAll(@Mutable FilteredMapValues<K,V> this, @Readonly Collection<?> collection) {
-      Iterator<Entry<K, V>> entryItr = unfiltered.entrySet().iterator();
-      boolean result = false;
-      while (entryItr.hasNext()) {
-        Entry<K, V> entry = entryItr.next();
-        if (predicate.apply(entry) && collection.contains(entry.getValue())) {
-          entryItr.remove();
-          result = true;
-        }
+      @Override
+      public boolean remove(@Mutable FilteredMapValues<K, V>this, @Readonly @CheckForNull @UnknownSignedness Object o) {
+          Iterator<Entry<K, V>> entryItr = unfiltered.entrySet().iterator();
+          while (entryItr.hasNext()) {
+              Entry<K, V> entry = entryItr.next();
+              if (predicate.apply(entry) && Objects.equal(entry.getValue(), o)) {
+                  entryItr.remove();
+                  return true;
+              }
+          }
+          return false;
       }
-      return result;
-    }
 
-    @Override
-    public boolean retainAll(@Mutable FilteredMapValues<K,V> this, @Readonly Collection<?> collection) {
-      Iterator<Entry<K, V>> entryItr = unfiltered.entrySet().iterator();
-      boolean result = false;
-      while (entryItr.hasNext()) {
-        Entry<K, V> entry = entryItr.next();
-        if (predicate.apply(entry) && !collection.contains(entry.getValue())) {
-          entryItr.remove();
-          result = true;
-        }
+      @Override
+      public boolean removeAll(@Mutable FilteredMapValues<K, V>this, @Readonly Collection<?> collection) {
+          Iterator<Entry<K, V>> entryItr = unfiltered.entrySet().iterator();
+          boolean result = false;
+          while (entryItr.hasNext()) {
+              Entry<K, V> entry = entryItr.next();
+              if (predicate.apply(entry) && collection.contains(entry.getValue())) {
+                  entryItr.remove();
+                  result = true;
+              }
+          }
+          return result;
       }
-      return result;
-    }
 
-    @Override
-    public @PolyNull @PolySigned Object[] toArray(FilteredMapValues<@PolyNull @PolySigned K, V> this) {
-      // creating an ArrayList so filtering happens once
-      return Lists.newArrayList(iterator()).toArray();
-    }
+      @Override
+      public boolean retainAll(@Mutable FilteredMapValues<K, V>this, @Readonly Collection<?> collection) {
+          Iterator<Entry<K, V>> entryItr = unfiltered.entrySet().iterator();
+          boolean result = false;
+          while (entryItr.hasNext()) {
+              Entry<K, V> entry = entryItr.next();
+              if (predicate.apply(entry) && !collection.contains(entry.getValue())) {
+                  entryItr.remove();
+                  result = true;
+              }
+          }
+          return result;
+      }
 
-    @Override
-    @SuppressWarnings("nullness") // b/192354773 in our checker affects toArray declarations
-    public <T extends @Nullable @UnknownSignedness Object> T[] toArray(T[] array) {
-      return Lists.newArrayList(iterator()).toArray(array);
-    }
+      @Override
+      public @PolyNull @PolySigned @PolyMutable Object[] toArray(FilteredMapValues<@PolyNull @PolySigned @PolyMutable K, V>this) {
+          // creating an ArrayList so filtering happens once
+          return Lists.newArrayList(iterator()).toArray();
+      }
+
+      @Override
+      @SuppressWarnings("nullness") // b/192354773 in our checker affects toArray declarations
+      public <T extends @Nullable @UnknownSignedness @Readonly Object> T[] toArray(T[] array) {
+          return Lists.newArrayList(iterator()).toArray(array);
+      }
   }
 
+  @ReceiverDependentMutable
   private static class FilteredKeyMap<K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object>
       extends AbstractFilteredMap<K, V> {
     final Predicate<? super K> keyPredicate;
 
     FilteredKeyMap(
-        Map<K, V> unfiltered,
+            @ReceiverDependentMutable Map<K, V> unfiltered,
         Predicate<? super K> keyPredicate,
         Predicate<? super Entry<K, V>> entryPredicate) {
       super(unfiltered, entryPredicate);
@@ -3087,12 +3106,12 @@ public final class Maps {
     }
 
     @Override
-    protected Set<Entry<K, V>> createEntrySet() {
+    protected @PolyMutable Set<@PolyMutable Entry<K, V>> createEntrySet(@PolyMutable FilteredKeyMap<K, V> this) {
       return Sets.filter(unfiltered.entrySet(), predicate);
     }
 
     @Override
-    Set<K> createKeySet() {
+    @PolyMutable Set<K> createKeySet(@PolyMutable FilteredKeyMap<K, V> this) {
       return Sets.filter(unfiltered.keySet(), keyPredicate);
     }
 
@@ -3101,38 +3120,41 @@ public final class Maps {
     @Pure
     @Override
     @SuppressWarnings("unchecked")
-    public boolean containsKey(@CheckForNull @UnknownSignedness @Readonly Object key) {
+    public boolean containsKey(@Readonly FilteredKeyMap<K, V> this, @CheckForNull @UnknownSignedness @Readonly Object key) {
       return unfiltered.containsKey(key) && keyPredicate.apply((K) key);
     }
   }
 
+  @ReceiverDependentMutable
   static class FilteredEntryMap<K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object>
       extends AbstractFilteredMap<K, V> {
     /**
      * Entries in this set satisfy the predicate, but they don't validate the input to {@code
      * Entry.setValue()}.
      */
-    final Set<Entry<K, V>> filteredEntrySet;
+    final Set<@ReceiverDependentMutable Entry<K, V>> filteredEntrySet;
 
-    FilteredEntryMap(Map<K, V> unfiltered, Predicate<? super Entry<K, V>> entryPredicate) {
+    FilteredEntryMap(@ReceiverDependentMutable Map<K, V> unfiltered, Predicate<? super @ReceiverDependentMutable Entry<K, V>> entryPredicate) {
       super(unfiltered, entryPredicate);
       filteredEntrySet = Sets.filter(unfiltered.entrySet(), predicate);
     }
 
     @Override
-    protected Set<Entry<K, V>> createEntrySet() {
+    protected @PolyMutable Set<@PolyMutable Entry<K, V>> createEntrySet(@PolyMutable FilteredEntryMap<K, V> this) {
       return new EntrySet();
     }
 
     @WeakOuter
-    private class EntrySet extends ForwardingSet<Entry<K, V>> {
+    @ReceiverDependentMutable
+    @CFComment("PICO: outer receiver dependency")
+    private class EntrySet extends ForwardingSet<@Readonly Entry<K, V>> {
       @Override
-      protected Set<Entry<K, V>> delegate() {
+      protected Set<@Readonly Entry<K, V>> delegate() {
         return filteredEntrySet;
       }
 
       @Override
-      public Iterator<Entry<K, V>> iterator() {
+      public Iterator<@Readonly Entry<K, V>> iterator() {
         return new TransformedIterator<Entry<K, V>, Entry<K, V>>(filteredEntrySet.iterator()) {
           @Override
           Entry<K, V> transform(final Entry<K, V> entry) {
@@ -3237,21 +3259,21 @@ public final class Maps {
       extends FilteredEntryMap<K, V> implements SortedMap<K, V> {
 
     FilteredEntrySortedMap(
-        SortedMap<K, V> unfiltered, Predicate<? super Entry<K, V>> entryPredicate) {
+            @ReceiverDependentMutable SortedMap<K, V> unfiltered, Predicate<? super Entry<K, V>> entryPredicate) {
       super(unfiltered, entryPredicate);
     }
 
-    SortedMap<K, V> sortedMap() {
-      return (SortedMap<K, V>) unfiltered;
+      @PolyMutable SortedMap<K, V> sortedMap(@PolyMutable FilteredEntrySortedMap<K, V> this) {
+      return (@PolyMutable SortedMap<K, V>) unfiltered;
     }
 
     @Override
-    public SortedSet<@KeyFor({"this"}) K> keySet() {
-      return (SortedSet<K>) super.keySet();
+    public @PolyMutable SortedSet<@KeyFor({"this"}) K> keySet(@PolyMutable FilteredEntrySortedMap<K, V> this) {
+      return (@PolyMutable SortedSet<K>) super.keySet();
     }
 
     @Override
-    SortedSet<K> createKeySet() {
+    @PolyMutable SortedSet<K> createKeySet(@PolyMutable FilteredEntrySortedMap<K, V> this) {
       return new SortedKeySet();
     }
 
@@ -3265,30 +3287,31 @@ public final class Maps {
       }
 
       @Override
-      public SortedSet<K> subSet(
+      public @PolyMutable SortedSet<K> subSet(
+              @PolyMutable SortedKeySet this,
           @ParametricNullness K fromElement, @ParametricNullness K toElement) {
-        return (SortedSet<K>) subMap(fromElement, toElement).keySet();
+        return (@PolyMutable SortedSet<K>) subMap(fromElement, toElement).keySet();
       }
 
       @Override
-      public SortedSet<K> headSet(@ParametricNullness K toElement) {
-        return (SortedSet<K>) headMap(toElement).keySet();
+      public @PolyMutable SortedSet<K> headSet(@PolyMutable SortedKeySet this, @ParametricNullness K toElement) {
+        return (@PolyMutable SortedSet<K>) headMap(toElement).keySet();
       }
 
       @Override
-      public SortedSet<K> tailSet(@ParametricNullness K fromElement) {
-        return (SortedSet<K>) tailMap(fromElement).keySet();
+      public @PolyMutable SortedSet<K> tailSet(@PolyMutable SortedKeySet this, @ParametricNullness K fromElement) {
+        return (@PolyMutable SortedSet<K>) tailMap(fromElement).keySet();
       }
 
       @Override
       @ParametricNullness
-      public K first() {
+      public K first(@Readonly SortedKeySet this) {
         return firstKey();
       }
 
       @Override
       @ParametricNullness
-      public K last() {
+      public K last(@Readonly SortedKeySet this) {
         return lastKey();
       }
     }
@@ -3301,14 +3324,14 @@ public final class Maps {
 
     @Override
     @ParametricNullness
-    public @KeyFor("this") K firstKey() {
+    public @KeyFor("this") K firstKey(@Readonly FilteredEntrySortedMap<K, V> this) {
       // correctly throws NoSuchElementException when filtered map is empty.
       return keySet().iterator().next();
     }
 
     @Override
     @ParametricNullness
-    public @KeyFor("this") K lastKey() {
+    public @KeyFor("this") K lastKey(@Readonly FilteredEntrySortedMap<K, V> this) {
       SortedMap<K, V> headMap = sortedMap();
       while (true) {
         // correctly throws NoSuchElementException when filtered map is empty.
@@ -3322,18 +3345,18 @@ public final class Maps {
     }
 
     @Override
-    public SortedMap<K, V> headMap(@ParametricNullness K toKey) {
-      return new FilteredEntrySortedMap<>(sortedMap().headMap(toKey), predicate);
+    public @PolyMutable SortedMap<K, V> headMap(@PolyMutable FilteredEntrySortedMap<K, V> this, @ParametricNullness K toKey) {
+      return new @PolyMutable FilteredEntrySortedMap<>(sortedMap().headMap(toKey), predicate);
     }
 
     @Override
-    public SortedMap<K, V> subMap(@ParametricNullness K fromKey, @ParametricNullness K toKey) {
-      return new FilteredEntrySortedMap<>(sortedMap().subMap(fromKey, toKey), predicate);
+    public @PolyMutable SortedMap<K, V> subMap(@PolyMutable FilteredEntrySortedMap<K, V> this, @ParametricNullness K fromKey, @ParametricNullness K toKey) {
+      return new @PolyMutable FilteredEntrySortedMap<>(sortedMap().subMap(fromKey, toKey), predicate);
     }
 
     @Override
-    public SortedMap<K, V> tailMap(@ParametricNullness K fromKey) {
-      return new FilteredEntrySortedMap<>(sortedMap().tailMap(fromKey), predicate);
+    public @PolyMutable SortedMap<K, V> tailMap(@PolyMutable FilteredEntrySortedMap<K, V> this, @ParametricNullness K fromKey) {
+      return new @PolyMutable FilteredEntrySortedMap<>(sortedMap().tailMap(fromKey), predicate);
     }
   }
 
@@ -3349,11 +3372,11 @@ public final class Maps {
      */
 
     private final NavigableMap<K, V> unfiltered;
-    private final Predicate<? super Entry<K, V>> entryPredicate;
+    private final Predicate<? super @ReceiverDependentMutable Entry<K, V>> entryPredicate;
     private final Map<K, V> filteredDelegate;
 
     FilteredEntryNavigableMap(
-        NavigableMap<K, V> unfiltered, Predicate<? super Entry<K, V>> entryPredicate) {
+            @ReceiverDependentMutable NavigableMap<K, V> unfiltered, Predicate<? super @ReceiverDependentMutable Entry<K, V>> entryPredicate) {
       this.unfiltered = checkNotNull(unfiltered);
       this.entryPredicate = entryPredicate;
       this.filteredDelegate = new FilteredEntryMap<>(unfiltered, entryPredicate);
@@ -3366,102 +3389,103 @@ public final class Maps {
     }
 
     @Override
-    public NavigableSet<@KeyFor({"this"}) K> navigableKeySet() {
+    public @PolyMutable NavigableSet<@KeyFor({"this"}) K> navigableKeySet(@PolyMutable FilteredEntryNavigableMap<K, V> this) {
       return new Maps.NavigableKeySet<K, V>(this) {
         @Override
-        public boolean removeAll(Collection<?> collection) {
+        public boolean removeAll(@Readonly Collection<?> collection) {
           return FilteredEntryMap.removeAllKeys(unfiltered, entryPredicate, collection);
         }
 
         @Override
-        public boolean retainAll(Collection<?> collection) {
+        public boolean retainAll(@Readonly Collection<?> collection) {
           return FilteredEntryMap.retainAllKeys(unfiltered, entryPredicate, collection);
         }
       };
     }
 
     @Override
-    public Collection<V> values() {
-      return new FilteredMapValues<>(this, unfiltered, entryPredicate);
+    public @PolyMutable Collection<V> values(@PolyMutable FilteredEntryNavigableMap<K, V> this) {
+      return new @PolyMutable FilteredMapValues<>(this, unfiltered, entryPredicate);
     }
 
     @Override
-    Iterator<Entry<K, V>> entryIterator() {
+    @Readonly Iterator<@PolyMutable Entry<K, V>> entryIterator(@PolyMutable FilteredEntryNavigableMap<K, V> this) {
       return Iterators.filter(unfiltered.entrySet().iterator(), entryPredicate);
     }
 
     @Override
-    Iterator<Entry<K, V>> descendingEntryIterator() {
+    @Readonly Iterator<@PolyMutable Entry<K, V>> descendingEntryIterator(@PolyMutable FilteredEntryNavigableMap<K, V> this) {
       return Iterators.filter(unfiltered.descendingMap().entrySet().iterator(), entryPredicate);
     }
 
     @Override
-    public @NonNegative int size() {
+    public @NonNegative int size(@Readonly FilteredEntryNavigableMap<K, V> this) {
       return filteredDelegate.size();
     }
 
     @Override
-    public boolean isEmpty() {
+    public boolean isEmpty(@Readonly FilteredEntryNavigableMap<K, V> this) {
       return !Iterables.any(unfiltered.entrySet(), entryPredicate);
     }
 
     @Override
     @CheckForNull
-    public V get(@CheckForNull @UnknownSignedness @Readonly Object key) {
+    public V get(@Readonly FilteredEntryNavigableMap<K, V> this, @CheckForNull @UnknownSignedness @Readonly Object key) {
       return filteredDelegate.get(key);
     }
 
     @Override
-    public boolean containsKey(@CheckForNull @UnknownSignedness @Readonly Object key) {
+    public boolean containsKey(@Readonly FilteredEntryNavigableMap<K, V> this, @CheckForNull @UnknownSignedness @Readonly Object key) {
       return filteredDelegate.containsKey(key);
     }
 
     @Override
     @CheckForNull
-    public V put(@ParametricNullness K key, @ParametricNullness V value) {
+    public V put(@Mutable FilteredEntryNavigableMap<K, V> this, @ParametricNullness K key, @ParametricNullness V value) {
       return filteredDelegate.put(key, value);
     }
 
     @Override
     @CheckForNull
-    public V remove(@CheckForNull @UnknownSignedness @Readonly Object key) {
+    public V remove(@Mutable FilteredEntryNavigableMap<K, V> this, @CheckForNull @UnknownSignedness @Readonly Object key) {
       return filteredDelegate.remove(key);
     }
 
     @Override
-    public void putAll(Map<? extends K, ? extends V> m) {
+    public void putAll(@Mutable FilteredEntryNavigableMap<K, V> this, @Readonly Map<? extends K, ? extends V> m) {
       filteredDelegate.putAll(m);
     }
 
     @Override
-    public void clear() {
+    public void clear(@Mutable FilteredEntryNavigableMap<K, V> this) {
       filteredDelegate.clear();
     }
 
     @Override
-    public Set<Entry<@KeyFor({"this"}) K, V>> entrySet() {
+    public @PolyMutable Set<@PolyMutable Entry<@KeyFor({"this"}) K, V>> entrySet(@PolyMutable FilteredEntryNavigableMap<K, V> this) {
       return filteredDelegate.entrySet();
     }
 
     @Override
     @CheckForNull
-    public Entry<K, V> pollFirstEntry() {
+    public Entry<K, V> pollFirstEntry(@Mutable FilteredEntryNavigableMap<K, V> this) {
       return Iterables.removeFirstMatching(unfiltered.entrySet(), entryPredicate);
     }
 
     @Override
     @CheckForNull
-    public Entry<K, V> pollLastEntry() {
+    public Entry<K, V> pollLastEntry(@Mutable FilteredEntryNavigableMap<K, V> this) {
       return Iterables.removeFirstMatching(unfiltered.descendingMap().entrySet(), entryPredicate);
     }
 
     @Override
-    public NavigableMap<K, V> descendingMap() {
+    public @PolyMutable NavigableMap<K, V> descendingMap(@PolyMutable FilteredEntryNavigableMap<K, V> this) {
       return filterEntries(unfiltered.descendingMap(), entryPredicate);
     }
 
     @Override
-    public NavigableMap<K, V> subMap(
+    public @PolyMutable NavigableMap<K, V> subMap(
+            @PolyMutable FilteredEntryNavigableMap<K, V> this,
         @ParametricNullness K fromKey,
         boolean fromInclusive,
         @ParametricNullness K toKey,
@@ -3471,16 +3495,17 @@ public final class Maps {
     }
 
     @Override
-    public NavigableMap<K, V> headMap(@ParametricNullness K toKey, boolean inclusive) {
+    public @PolyMutable NavigableMap<K, V> headMap(@PolyMutable FilteredEntryNavigableMap<K, V> this, @ParametricNullness K toKey, boolean inclusive) {
       return filterEntries(unfiltered.headMap(toKey, inclusive), entryPredicate);
     }
 
     @Override
-    public NavigableMap<K, V> tailMap(@ParametricNullness K fromKey, boolean inclusive) {
+    public @PolyMutable NavigableMap<K, V> tailMap(@PolyMutable FilteredEntryNavigableMap<K, V> this, @ParametricNullness K fromKey, boolean inclusive) {
       return filterEntries(unfiltered.tailMap(fromKey, inclusive), entryPredicate);
     }
   }
 
+  @ReceiverDependentMutable
   static final class FilteredEntryBiMap<K extends @Nullable @Immutable Object, V extends @Nullable @Immutable Object>
       extends FilteredEntryMap<K, V> implements BiMap<K, V> {
     @RetainedWith private final BiMap<V, K> inverse;
@@ -3496,31 +3521,31 @@ public final class Maps {
       };
     }
 
-    FilteredEntryBiMap(BiMap<K, V> delegate, Predicate<? super Entry<K, V>> predicate) {
+    FilteredEntryBiMap(@ReceiverDependentMutable BiMap<K, V> delegate, Predicate<? super @ReceiverDependentMutable Entry<K, V>> predicate) {
       super(delegate, predicate);
       this.inverse =
-          new FilteredEntryBiMap<>(delegate.inverse(), inversePredicate(predicate), this);
+          new @ReceiverDependentMutable FilteredEntryBiMap<>(delegate.inverse(), inversePredicate(predicate), this);
     }
 
     private FilteredEntryBiMap(
-        BiMap<K, V> delegate, Predicate<? super Entry<K, V>> predicate, BiMap<V, K> inverse) {
+            @ReceiverDependentMutable BiMap<K, V> delegate, Predicate<? super @ReceiverDependentMutable Entry<K, V>> predicate, @ReceiverDependentMutable BiMap<V, K> inverse) {
       super(delegate, predicate);
       this.inverse = inverse;
     }
 
-    BiMap<K, V> unfiltered() {
-      return (BiMap<K, V>) unfiltered;
+    @PolyMutable BiMap<K, V> unfiltered(@PolyMutable FilteredEntryBiMap<K, V> this) {
+      return (@PolyMutable BiMap<K, V>) unfiltered;
     }
 
     @Override
     @CheckForNull
-    public V forcePut(@ParametricNullness K key, @ParametricNullness V value) {
+    public V forcePut(@Mutable FilteredEntryBiMap<K, V> this, @ParametricNullness K key, @ParametricNullness V value) {
       checkArgument(apply(key, value));
       return unfiltered().forcePut(key, value);
     }
 
     @Override
-    public void replaceAll(BiFunction<? super K, ? super V, ? extends V> function) {
+    public void replaceAll(@Mutable FilteredEntryBiMap<K, V> this, BiFunction<? super K, ? super V, ? extends V> function) {
       unfiltered()
           .replaceAll(
               (key, value) ->
@@ -3530,12 +3555,12 @@ public final class Maps {
     }
 
     @Override
-    public BiMap<V, K> inverse() {
+    public @PolyMutable BiMap<V, K> inverse(@PolyMutable FilteredEntryBiMap<K, V> this) {
       return inverse;
     }
 
     @Override
-    public Set<V> values() {
+    public @PolyMutable Set<V> values(@PolyMutable FilteredEntryBiMap<K, V> this) {
       return inverse.keySet();
     }
   }
@@ -3578,28 +3603,29 @@ public final class Maps {
   }
 
   @GwtIncompatible // NavigableMap
+  @Immutable
   static class UnmodifiableNavigableMap<K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object>
       extends ForwardingSortedMap<K, V> implements NavigableMap<K, V>, Serializable {
-    private final NavigableMap<K, ? extends V> delegate;
+    private final @Readonly NavigableMap<K, ? extends V> delegate;
 
-    UnmodifiableNavigableMap(NavigableMap<K, ? extends V> delegate) {
+    UnmodifiableNavigableMap(@Readonly NavigableMap<K, ? extends V> delegate) {
       this.delegate = delegate;
     }
 
     UnmodifiableNavigableMap(
-        NavigableMap<K, ? extends V> delegate, UnmodifiableNavigableMap<K, V> descendingMap) {
+            @Readonly NavigableMap<K, ? extends V> delegate, @Readonly UnmodifiableNavigableMap<K, V> descendingMap) {
       this.delegate = delegate;
       this.descendingMap = descendingMap;
     }
 
     @Override
-    protected SortedMap<K, V> delegate() {
+    protected @Readonly SortedMap<K, V> delegate() {
       return Collections.unmodifiableSortedMap(delegate);
     }
 
     @Override
     @CheckForNull
-    public Entry<K, V> lowerEntry(@ParametricNullness K key) {
+    public @Readonly Entry<K, V> lowerEntry(@ParametricNullness K key) {
       return unmodifiableOrNull(delegate.lowerEntry(key));
     }
 
@@ -3611,7 +3637,7 @@ public final class Maps {
 
     @Override
     @CheckForNull
-    public Entry<K, V> floorEntry(@ParametricNullness K key) {
+    public @Readonly Entry<K, V> floorEntry(@ParametricNullness K key) {
       return unmodifiableOrNull(delegate.floorEntry(key));
     }
 
@@ -3623,7 +3649,7 @@ public final class Maps {
 
     @Override
     @CheckForNull
-    public Entry<K, V> ceilingEntry(@ParametricNullness K key) {
+    public @Readonly Entry<K, V> ceilingEntry(@ParametricNullness K key) {
       return unmodifiableOrNull(delegate.ceilingEntry(key));
     }
 
@@ -3635,7 +3661,7 @@ public final class Maps {
 
     @Override
     @CheckForNull
-    public Entry<K, V> higherEntry(@ParametricNullness K key) {
+    public @Readonly Entry<K, V> higherEntry(@ParametricNullness K key) {
       return unmodifiableOrNull(delegate.higherEntry(key));
     }
 
@@ -3647,25 +3673,25 @@ public final class Maps {
 
     @Override
     @CheckForNull
-    public Entry<K, V> firstEntry() {
+    public @Readonly Entry<K, V> firstEntry() {
       return unmodifiableOrNull(delegate.firstEntry());
     }
 
     @Override
     @CheckForNull
-    public Entry<K, V> lastEntry() {
+    public @Readonly Entry<K, V> lastEntry() {
       return unmodifiableOrNull(delegate.lastEntry());
     }
 
     @Override
     @CheckForNull
-    public final Entry<K, V> pollFirstEntry() {
+    public final @Readonly Entry<K, V> pollFirstEntry() {
       throw new UnsupportedOperationException();
     }
 
     @Override
     @CheckForNull
-    public final Entry<K, V> pollLastEntry() {
+    public final @Readonly Entry<K, V> pollLastEntry() {
       throw new UnsupportedOperationException();
     }
 
@@ -3681,7 +3707,7 @@ public final class Maps {
     }
 
     @Override
-    public boolean remove(@Nullable @UnknownSignedness Object key, @Nullable @UnknownSignedness Object value) {
+    public boolean remove(@Nullable @UnknownSignedness @Readonly Object key, @Nullable @UnknownSignedness @Readonly Object value) {
       throw new UnsupportedOperationException();
     }
 
@@ -3723,7 +3749,7 @@ public final class Maps {
     @CheckForNull private transient UnmodifiableNavigableMap<K, V> descendingMap;
 
     @Override
-    public NavigableMap<K, V> descendingMap() {
+    public @Readonly NavigableMap<K, V> descendingMap() {
       UnmodifiableNavigableMap<K, V> result = descendingMap;
       return (result == null)
           ? descendingMap = new UnmodifiableNavigableMap<>(delegate.descendingMap(), this)
@@ -3731,27 +3757,27 @@ public final class Maps {
     }
 
     @Override
-    public Set<@KeyFor({"this"}) K> keySet() {
+    public @Readonly Set<@KeyFor({"this"}) K> keySet() {
       return navigableKeySet();
     }
 
     @Override
-    public NavigableSet<@KeyFor({"this"}) K> navigableKeySet() {
+    public @Readonly NavigableSet<@KeyFor({"this"}) K> navigableKeySet() {
       return Sets.unmodifiableNavigableSet(delegate.navigableKeySet());
     }
 
     @Override
-    public NavigableSet<@KeyFor({"this"}) K> descendingKeySet() {
+    public @Readonly NavigableSet<@KeyFor({"this"}) K> descendingKeySet() {
       return Sets.unmodifiableNavigableSet(delegate.descendingKeySet());
     }
 
     @Override
-    public SortedMap<K, V> subMap(@ParametricNullness K fromKey, @ParametricNullness K toKey) {
+    public @Readonly SortedMap<K, V> subMap(@ParametricNullness K fromKey, @ParametricNullness K toKey) {
       return subMap(fromKey, true, toKey, false);
     }
 
     @Override
-    public NavigableMap<K, V> subMap(
+    public @Readonly NavigableMap<K, V> subMap(
         @ParametricNullness K fromKey,
         boolean fromInclusive,
         @ParametricNullness K toKey,
@@ -3761,22 +3787,22 @@ public final class Maps {
     }
 
     @Override
-    public SortedMap<K, V> headMap(@ParametricNullness K toKey) {
+    public @Readonly SortedMap<K, V> headMap(@ParametricNullness K toKey) {
       return headMap(toKey, false);
     }
 
     @Override
-    public NavigableMap<K, V> headMap(@ParametricNullness K toKey, boolean inclusive) {
+    public @Readonly NavigableMap<K, V> headMap(@ParametricNullness K toKey, boolean inclusive) {
       return Maps.unmodifiableNavigableMap(delegate.headMap(toKey, inclusive));
     }
 
     @Override
-    public SortedMap<K, V> tailMap(@ParametricNullness K fromKey) {
+    public @Readonly SortedMap<K, V> tailMap(@ParametricNullness K fromKey) {
       return tailMap(fromKey, true);
     }
 
     @Override
-    public NavigableMap<K, V> tailMap(@ParametricNullness K fromKey, boolean inclusive) {
+    public @Readonly NavigableMap<K, V> tailMap(@ParametricNullness K fromKey, boolean inclusive) {
       return Maps.unmodifiableNavigableMap(delegate.tailMap(fromKey, inclusive));
     }
   }
@@ -3841,45 +3867,48 @@ public final class Maps {
    * entrySet views.
    */
   @GwtCompatible
-  abstract static @ReceiverDependentMutable class ViewCachingAbstractMap<
+  @ReceiverDependentMutable
+  abstract static class ViewCachingAbstractMap<
           K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object>
       extends AbstractMap<K, V> {
     /**
      * Creates the entry set to be returned by {@link #entrySet()}. This method is invoked at most
      * once on a given map, at the time when {@code entrySet} is first called.
      */
-    abstract Set<Entry<K, V>> createEntrySet(@Readonly ViewCachingAbstractMap<K, V> this);
+    abstract @PolyMutable Set<@PolyMutable Entry<K, V>> createEntrySet(@PolyMutable ViewCachingAbstractMap<K, V> this);
 
-    @CheckForNull private transient Set<Entry<K, V>> entrySet;
+    @CheckForNull private transient Set<@ReceiverDependentMutable Entry<K, V>> entrySet;
 
     @Override
-    public Set<Entry<@KeyFor({"this"}) K, V>> entrySet(@Readonly ViewCachingAbstractMap<K, V> this) {
+    public @PolyMutable Set<@PolyMutable Entry<@KeyFor({"this"}) K, V>> entrySet(@PolyMutable ViewCachingAbstractMap<K, V> this) {
       Set<Entry<K, V>> result = entrySet;
       return (result == null) ? entrySet = createEntrySet() : result;
     }
 
+    @CFComment("Change to @LazyFinal later")
     @CheckForNull private transient @Assignable Set<K> keySet;
 
     @Override
-    public Set<@KeyFor({"this"}) K> keySet(@Readonly ViewCachingAbstractMap<K, V> this) {
+    public @PolyMutable Set<@KeyFor({"this"}) K> keySet(@PolyMutable ViewCachingAbstractMap<K, V> this) {
       Set<K> result = keySet;
       return (result == null) ? keySet = createKeySet() : result;
     }
 
-    Set<K> createKeySet() {
+    @PolyMutable Set<K> createKeySet(@PolyMutable ViewCachingAbstractMap<K, V> this) {
       return new KeySet<>(this);
     }
 
+    @CFComment("Change to @LazyFinal later")
     @CheckForNull private transient @Assignable Collection<V> values;
 
     @Override
-    public Collection<V> values(@Readonly ViewCachingAbstractMap<K, V> this) {
+    public @PolyMutable Collection<V> values(@PolyMutable ViewCachingAbstractMap<K, V> this) {
       Collection<V> result = values;
       return (result == null) ? values = createValues() : result;
     }
 
-    Collection<V> createValues(@Readonly ViewCachingAbstractMap<K, V> this) {
-      return new Values<>(this);
+    @PolyMutable Collection<V> createValues(@PolyMutable ViewCachingAbstractMap<K, V> this) {
+      return new @PolyMutable Values<>(this);
     }
   }
 
@@ -3890,28 +3919,28 @@ public final class Maps {
     @Override
     public abstract @NonNegative int size();
 
-    abstract @Mutable Iterator<Entry<K, V>> entryIterator();
+    abstract Iterator<@PolyMutable Entry<K, V>> entryIterator(@PolyMutable IteratorBasedAbstractMap<K, V> this);
 
-    @Mutable Spliterator<Entry<K, V>> entrySpliterator() {
+    Spliterator<@PolyMutable Entry<K, V>> entrySpliterator(@PolyMutable IteratorBasedAbstractMap<K, V> this) {
       return Spliterators.spliterator(
           entryIterator(), size(), Spliterator.SIZED | Spliterator.DISTINCT);
     }
 
     @Override
-    public @Mutable Set<Entry<@KeyFor({"this"}) K, V>> entrySet() {
-      return new @Mutable EntrySet<K, V>() {
+    public Set<@PolyMutable Entry<@KeyFor({"this"}) K, V>> entrySet(@PolyMutable IteratorBasedAbstractMap<K, V> this) {
+      return new @PolyMutable EntrySet<K, V>() {
         @Override
-        @Mutable Map<K, V> map() {
+        Map<K, V> map() {
           return IteratorBasedAbstractMap.this;
         }
 
         @Override
-        public @Mutable Iterator<Entry<K, V>> iterator() {
+        public Iterator<Entry<K, V>> iterator() {
           return entryIterator();
         }
 
         @Override
-        public @Mutable Spliterator<Entry<K, V>> spliterator() {
+        public Spliterator<Entry<K, V>> spliterator() {
           return entrySpliterator();
         }
 
@@ -3927,7 +3956,7 @@ public final class Maps {
     }
 
     @Override
-    public void clear() {
+    public void clear(@Mutable IteratorBasedAbstractMap<K, V> this) {
       Iterators.clear(entryIterator());
     }
   }
@@ -3974,12 +4003,12 @@ public final class Maps {
   }
 
   /** An admittedly inefficient implementation of {@link Map#containsKey}. */
-  static boolean containsKeyImpl(Map<?, ?> map, @CheckForNull @UnknownSignedness @Readonly Object key) {
+  static boolean containsKeyImpl(@Readonly Map<?, ?> map, @CheckForNull @UnknownSignedness @Readonly Object key) {
     return Iterators.contains(keyIterator(map.entrySet().iterator()), key);
   }
 
   /** An implementation of {@link Map#containsValue}. */
-  static boolean containsValueImpl(Map<?, ?> map, @CheckForNull @UnknownSignedness @Readonly Object value) {
+  static boolean containsValueImpl(@Readonly Map<?, ?> map, @CheckForNull @UnknownSignedness @Readonly Object value) {
     return Iterators.contains(valueIterator(map.entrySet().iterator()), value);
   }
 
@@ -3997,11 +4026,11 @@ public final class Maps {
    */
   @Pure
   static <K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object> boolean containsEntryImpl(
-          @Readonly Collection<Entry<K, V>> c, @CheckForNull @Readonly Object o) {
+          @Readonly Collection<@PolyMutable Entry<K, V>> c, @CheckForNull @Readonly Object o) {
     if (!(o instanceof Entry)) {
       return false;
     }
-    return c.contains(unmodifiableEntry((Entry<?, ?>) o));
+    return c.contains(unmodifiableEntry((@PolyMutable Entry<?, ?>) o));
   }
 
   /**
@@ -4015,11 +4044,11 @@ public final class Maps {
    * @param o the object to remove from {@code c}
    * @return {@code true} if {@code c} was changed
    */
-  static <K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object> boolean removeEntryImpl(Collection<Entry<K, V>> c, @CheckForNull @Readonly Object o) {
+  static <K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object> boolean removeEntryImpl(Collection<@PolyMutable Entry<K, V>> c, @CheckForNull @Readonly Object o) {
     if (!(o instanceof Entry)) {
       return false;
     }
-    return c.remove(unmodifiableEntry((Entry<?, ?>) o));
+    return c.remove(unmodifiableEntry((@PolyMutable Entry<?, ?>) o));
   }
 
   /** An implementation of {@link Map#equals}. */
@@ -4060,16 +4089,16 @@ public final class Maps {
       extends Sets.ImprovedAbstractSet<K> {
     @Weak final Map<K, V> map;
 
-    @ReceiverDependentMutable KeySet(Map<K, V> map) {
+    KeySet(@ReceiverDependentMutable Map<K, V> map) {
       this.map = checkNotNull(map);
     }
 
-    @Mutable Map<K, V> map(@Readonly KeySet<K, V> this) {
+    @PolyMutable Map<K, V> map(@PolyMutable KeySet<K, V> this) {
       return map;
     }
 
     @Override
-    public Iterator<K> iterator(@Readonly KeySet<K, V> this) {
+    public Iterator<K> iterator(@PolyMutable KeySet<K, V> this) {
       return keyIterator(map().entrySet().iterator());
     }
 
@@ -4123,13 +4152,13 @@ public final class Maps {
   @ReceiverDependentMutable
   static class SortedKeySet<K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object>
       extends KeySet<K, V> implements SortedSet<K> {
-    SortedKeySet(SortedMap<K, V> map) {
+    SortedKeySet(@ReceiverDependentMutable SortedMap<K, V> map) {
       super(map);
     }
 
     @Override
-    SortedMap<K, V> map() {
-      return (SortedMap<K, V>) super.map();
+    @PolyMutable SortedMap<K, V> map(@PolyMutable SortedKeySet<K, V> this) {
+      return (@PolyMutable SortedMap<K, V>) super.map();
     }
 
     @Override
@@ -4139,18 +4168,18 @@ public final class Maps {
     }
 
     @Override
-    public SortedSet<K> subSet(@ParametricNullness K fromElement, @ParametricNullness K toElement) {
-      return new SortedKeySet<>(map().subMap(fromElement, toElement));
+    public @PolyMutable SortedSet<K> subSet(@PolyMutable SortedKeySet<K, V> this, @ParametricNullness K fromElement, @ParametricNullness K toElement) {
+      return new @PolyMutable SortedKeySet<>(map().subMap(fromElement, toElement));
     }
 
     @Override
-    public SortedSet<K> headSet(@ParametricNullness K toElement) {
-      return new SortedKeySet<>(map().headMap(toElement));
+    public @PolyMutable SortedSet<K> headSet(@PolyMutable SortedKeySet<K, V> this, @ParametricNullness K toElement) {
+      return new @PolyMutable SortedKeySet<>(map().headMap(toElement));
     }
 
     @Override
-    public SortedSet<K> tailSet(@ParametricNullness K fromElement) {
-      return new SortedKeySet<>(map().tailMap(fromElement));
+    public @PolyMutable SortedSet<K> tailSet(@PolyMutable SortedKeySet<K, V> this, @ParametricNullness K fromElement) {
+      return new @PolyMutable SortedKeySet<>(map().tailMap(fromElement));
     }
 
     @Override
@@ -4167,65 +4196,67 @@ public final class Maps {
   }
 
   @GwtIncompatible // NavigableMap
+  @ReceiverDependentMutable
   static class NavigableKeySet<K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object>
       extends SortedKeySet<K, V> implements NavigableSet<K> {
-    NavigableKeySet(NavigableMap<K, V> map) {
+    NavigableKeySet(@ReceiverDependentMutable NavigableMap<K, V> map) {
       super(map);
     }
 
     @Override
-    NavigableMap<K, V> map() {
-      return (NavigableMap<K, V>) map;
+    @PolyMutable NavigableMap<K, V> map(@PolyMutable NavigableKeySet<K, V> this) {
+      return (@PolyMutable NavigableMap<K, V>) map;
     }
 
     @Override
     @CheckForNull
-    public K lower(@ParametricNullness K e) {
+    public K lower(@Readonly NavigableKeySet<K, V> this, @ParametricNullness K e) {
       return map().lowerKey(e);
     }
 
     @Override
     @CheckForNull
-    public K floor(@ParametricNullness K e) {
+    public K floor(@Readonly NavigableKeySet<K, V> this, @ParametricNullness K e) {
       return map().floorKey(e);
     }
 
     @Override
     @CheckForNull
-    public K ceiling(@ParametricNullness K e) {
+    public K ceiling(@Readonly NavigableKeySet<K, V> this, @ParametricNullness K e) {
       return map().ceilingKey(e);
     }
 
     @Override
     @CheckForNull
-    public K higher(@ParametricNullness K e) {
+    public K higher(@Readonly NavigableKeySet<K, V> this, @ParametricNullness K e) {
       return map().higherKey(e);
     }
 
     @Override
     @CheckForNull
-    public K pollFirst() {
+    public K pollFirst(@Mutable NavigableKeySet<K, V> this) {
       return keyOrNull(map().pollFirstEntry());
     }
 
     @Override
     @CheckForNull
-    public K pollLast() {
+    public K pollLast(@Mutable NavigableKeySet<K, V> this) {
       return keyOrNull(map().pollLastEntry());
     }
 
     @Override
-    public NavigableSet<K> descendingSet() {
+    public @PolyMutable NavigableSet<K> descendingSet(@PolyMutable NavigableKeySet<K, V> this) {
       return map().descendingKeySet();
     }
 
     @Override
-    public Iterator<K> descendingIterator() {
+    public Iterator<K> descendingIterator(@PolyMutable NavigableKeySet<K, V> this) {
       return descendingSet().iterator();
     }
 
     @Override
-    public NavigableSet<K> subSet(
+    public @PolyMutable NavigableSet<K> subSet(
+            @PolyMutable NavigableKeySet<K, V> this,
         @ParametricNullness K fromElement,
         boolean fromInclusive,
         @ParametricNullness K toElement,
@@ -4234,27 +4265,27 @@ public final class Maps {
     }
 
     @Override
-    public SortedSet<K> subSet(@ParametricNullness K fromElement, @ParametricNullness K toElement) {
+    public @PolyMutable SortedSet<K> subSet(@PolyMutable NavigableKeySet<K, V> this, @ParametricNullness K fromElement, @ParametricNullness K toElement) {
       return subSet(fromElement, true, toElement, false);
     }
 
     @Override
-    public NavigableSet<K> headSet(@ParametricNullness K toElement, boolean inclusive) {
+    public @PolyMutable NavigableSet<K> headSet(@PolyMutable NavigableKeySet<K, V> this, @ParametricNullness K toElement, boolean inclusive) {
       return map().headMap(toElement, inclusive).navigableKeySet();
     }
 
     @Override
-    public SortedSet<K> headSet(@ParametricNullness K toElement) {
+    public @PolyMutable SortedSet<K> headSet(@PolyMutable NavigableKeySet<K, V> this, @ParametricNullness K toElement) {
       return headSet(toElement, false);
     }
 
     @Override
-    public NavigableSet<K> tailSet(@ParametricNullness K fromElement, boolean inclusive) {
+    public @PolyMutable NavigableSet<K> tailSet(@PolyMutable NavigableKeySet<K, V> this, @ParametricNullness K fromElement, boolean inclusive) {
       return map().tailMap(fromElement, inclusive).navigableKeySet();
     }
 
     @Override
-    public SortedSet<K> tailSet(@ParametricNullness K fromElement) {
+    public @PolyMutable SortedSet<K> tailSet(@PolyMutable NavigableKeySet<K, V> this, @ParametricNullness K fromElement) {
       return tailSet(fromElement, true);
     }
   }
@@ -4262,18 +4293,18 @@ public final class Maps {
   @ReceiverDependentMutable
   static class Values<K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object>
       extends AbstractCollection<V> {
-    @Weak final @Mutable Map<K, V> map;
+    @Weak final Map<K, V> map;
 
-    @ReceiverDependentMutable Values(@Mutable Map<K, V> map) {
+    Values(@ReceiverDependentMutable Map<K, V> map) {
       this.map = checkNotNull(map);
     }
 
-    final @ReceiverDependentMutable Map<K, V> map(@ReceiverDependentMutable Values<K, V> this) {
+    final @PolyMutable Map<K, V> map(@PolyMutable Values<K, V> this) {
       return map;
     }
 
     @Override
-    public Iterator<V> iterator(@Readonly Values<K, V> this) {
+    public Iterator<V> iterator(@PolyMutable Values<K, V> this) {
       return valueIterator(map().entrySet().iterator());
     }
 
@@ -4300,7 +4331,7 @@ public final class Maps {
     }
 
     @Override
-    public boolean removeAll(@Mutable Values<K, V> this, Collection<?> c) {
+    public boolean removeAll(@Mutable Values<K, V> this, @Readonly Collection<?> c) {
       try {
         return super.removeAll(checkNotNull(c));
       } catch (UnsupportedOperationException e) {
@@ -4330,17 +4361,17 @@ public final class Maps {
     }
 
     @Override
-    public @NonNegative int size() {
+    public @NonNegative int size(@Readonly Values<K, V> this) {
       return map().size();
     }
 
     @Override
-    public boolean isEmpty() {
+    public boolean isEmpty(@Readonly Values<K, V> this) {
       return map().isEmpty();
     }
 
     @Override
-    public boolean contains(@CheckForNull @UnknownSignedness @Readonly Object o) {
+    public boolean contains(@Readonly Values<K, V> this, @CheckForNull @UnknownSignedness @Readonly Object o) {
       return map().containsValue(o);
     }
 
@@ -4352,8 +4383,8 @@ public final class Maps {
 
   @ReceiverDependentMutable
   abstract static class EntrySet<K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object>
-      extends Sets.ImprovedAbstractSet<Entry<K, V>> {
-    abstract @Mutable Map<K, V> map();
+      extends Sets.ImprovedAbstractSet<@ReceiverDependentMutable Entry<K, V>> {
+    abstract @PolyMutable Map<K, V> map(@PolyMutable EntrySet<K, V> this);
 
     @Override
     public @NonNegative int size(@Readonly EntrySet<K, V> this) {
@@ -4361,7 +4392,7 @@ public final class Maps {
     }
 
     @Override
-    public void clear() {
+    public void clear(@Mutable EntrySet<K, V> this) {
       map().clear();
     }
 
@@ -4382,7 +4413,7 @@ public final class Maps {
     }
 
     @Override
-    public boolean remove(@CheckForNull @UnknownSignedness Object o) {
+    public boolean remove(@Mutable EntrySet<K, V> this, @CheckForNull @UnknownSignedness @Readonly Object o) {
       /*
        * `o instanceof Entry` is guaranteed by `contains`, but we check it here to satisfy our
        * nullness checker.
@@ -4395,7 +4426,7 @@ public final class Maps {
     }
 
     @Override
-    public boolean removeAll(Collection<?> c) {
+    public boolean removeAll(@Mutable EntrySet<K, V> this, @Readonly Collection<?> c) {
       try {
         return super.removeAll(checkNotNull(c));
       } catch (UnsupportedOperationException e) {
@@ -4405,7 +4436,7 @@ public final class Maps {
     }
 
     @Override
-    public boolean retainAll(Collection<?> c) {
+    public boolean retainAll(@Mutable EntrySet<K, V> this, @Readonly Collection<?> c) {
       try {
         return super.retainAll(checkNotNull(c));
       } catch (UnsupportedOperationException e) {
@@ -4431,14 +4462,14 @@ public final class Maps {
   abstract static class DescendingMap<K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object>
       extends ForwardingMap<K, V> implements NavigableMap<K, V> {
 
-    abstract NavigableMap<K, V> forward();
+    abstract @PolyMutable NavigableMap<K, V> forward(@PolyMutable DescendingMap<K, V> this);
 
     @Override
-    protected final Map<K, V> delegate() {
+    protected final @PolyMutable Map<K, V> delegate(@PolyMutable DescendingMap<K, V> this) {
       return forward();
     }
 
-    @CheckForNull private transient Comparator<? super K> comparator;
+    @CheckForNull private transient @Mutable Comparator<? super K> comparator;
 
     @SuppressWarnings("unchecked")
     @Override
@@ -4461,104 +4492,104 @@ public final class Maps {
 
     @Override
     @ParametricNullness
-    public @KeyFor("this") K firstKey() {
+    public @KeyFor("this") K firstKey(@Readonly DescendingMap<K, V> this) {
       return forward().lastKey();
     }
 
     @Override
     @ParametricNullness
-    public @KeyFor("this") K lastKey() {
+    public @KeyFor("this") K lastKey(@Readonly DescendingMap<K, V> this) {
       return forward().firstKey();
     }
 
     @Override
     @CheckForNull
-    public Entry<K, V> lowerEntry(@ParametricNullness K key) {
+    public @PolyMutable Entry<K, V> lowerEntry(@PolyMutable DescendingMap<K, V> this, @ParametricNullness K key) {
       return forward().higherEntry(key);
     }
 
     @Override
     @CheckForNull
-    public K lowerKey(@ParametricNullness K key) {
+    public K lowerKey(@Readonly DescendingMap<K, V> this, @ParametricNullness K key) {
       return forward().higherKey(key);
     }
 
     @Override
     @CheckForNull
-    public Entry<K, V> floorEntry(@ParametricNullness K key) {
+    public @PolyMutable Entry<K, V> floorEntry(@PolyMutable DescendingMap<K, V> this, @ParametricNullness K key) {
       return forward().ceilingEntry(key);
     }
 
     @Override
     @CheckForNull
-    public K floorKey(@ParametricNullness K key) {
+    public K floorKey(@PolyMutable DescendingMap<K, V> this, @ParametricNullness K key) {
       return forward().ceilingKey(key);
     }
 
     @Override
     @CheckForNull
-    public Entry<K, V> ceilingEntry(@ParametricNullness K key) {
+    public @PolyMutable Entry<K, V> ceilingEntry(@PolyMutable DescendingMap<K, V> this, @ParametricNullness K key) {
       return forward().floorEntry(key);
     }
 
     @Override
     @CheckForNull
-    public K ceilingKey(@ParametricNullness K key) {
+    public K ceilingKey(@Readonly DescendingMap<K, V> this, @ParametricNullness K key) {
       return forward().floorKey(key);
     }
 
     @Override
     @CheckForNull
-    public Entry<K, V> higherEntry(@ParametricNullness K key) {
+    public @PolyMutable Entry<K, V> higherEntry(@PolyMutable DescendingMap<K, V> this, @ParametricNullness K key) {
       return forward().lowerEntry(key);
     }
 
     @Override
     @CheckForNull
-    public K higherKey(@ParametricNullness K key) {
+    public K higherKey(@Readonly DescendingMap<K, V> this, @ParametricNullness K key) {
       return forward().lowerKey(key);
     }
 
     @Override
     @CheckForNull
-    public Entry<K, V> firstEntry() {
+    public @PolyMutable Entry<K, V> firstEntry(@PolyMutable DescendingMap<K, V> this) {
       return forward().lastEntry();
     }
 
     @Override
     @CheckForNull
-    public Entry<K, V> lastEntry() {
+    public @PolyMutable Entry<K, V> lastEntry(@PolyMutable DescendingMap<K, V> this) {
       return forward().firstEntry();
     }
 
     @Override
     @CheckForNull
-    public Entry<K, V> pollFirstEntry() {
+    public Entry<K, V> pollFirstEntry(@Mutable DescendingMap<K, V> this) {
       return forward().pollLastEntry();
     }
 
     @Override
     @CheckForNull
-    public Entry<K, V> pollLastEntry() {
+    public Entry<K, V> pollLastEntry(@Mutable DescendingMap<K, V> this) {
       return forward().pollFirstEntry();
     }
 
     @Override
-    public NavigableMap<K, V> descendingMap() {
+    public @PolyMutable NavigableMap<K, V> descendingMap(@PolyMutable DescendingMap<K, V> this) {
       return forward();
     }
 
-    @CheckForNull private transient @Assignable Set<Entry<K, V>> entrySet;
+    @CheckForNull private transient @Assignable Set<@ReceiverDependentMutable Entry<K, V>> entrySet;
 
     @Override
-    public Set<Entry<@KeyFor({"this"}) K, V>> entrySet() {
-      Set<Entry<K, V>> result = entrySet;
+    public @PolyMutable Set<@PolyMutable Entry<@KeyFor({"this"}) K, V>> entrySet(@PolyMutable DescendingMap<K, V> this) {
+      Set<@PolyMutable Entry<K, V>> result = entrySet;
       return (result == null) ? entrySet = createEntrySet() : result;
     }
 
-    abstract Iterator<Entry<K, V>> entryIterator();
+    abstract Iterator<@PolyMutable Entry<K, V>> entryIterator(@PolyMutable DescendingMap<K, V> this);
 
-    Set<Entry<K, V>> createEntrySet() {
+      @PolyMutable Set<@PolyMutable Entry<K, V>> createEntrySet(@PolyMutable DescendingMap<K, V> this) {
       @WeakOuter
       class EntrySetImpl extends EntrySet<K, V> {
         @Override
@@ -4575,25 +4606,26 @@ public final class Maps {
     }
 
     @Override
-    public Set<@KeyFor({"this"}) K> keySet() {
+    public @PolyMutable Set<@KeyFor({"this"}) K> keySet(@PolyMutable DescendingMap<K, V> this) {
       return navigableKeySet();
     }
 
     @CheckForNull private transient @Assignable NavigableSet<K> navigableKeySet;
 
     @Override
-    public NavigableSet<@KeyFor({"this"}) K> navigableKeySet() {
+    public @PolyMutable NavigableSet<@KeyFor({"this"}) K> navigableKeySet(@PolyMutable DescendingMap<K, V> this) {
       NavigableSet<K> result = navigableKeySet;
       return (result == null) ? navigableKeySet = new NavigableKeySet<>(this) : result;
     }
 
     @Override
-    public NavigableSet<@KeyFor({"this"}) K> descendingKeySet() {
+    public @PolyMutable NavigableSet<@KeyFor({"this"}) K> descendingKeySet(@PolyMutable DescendingMap<K, V> this) {
       return forward().navigableKeySet();
     }
 
     @Override
-    public NavigableMap<K, V> subMap(
+    public @PolyMutable NavigableMap<K, V> subMap(
+            @PolyMutable DescendingMap<K, V> this,
         @ParametricNullness K fromKey,
         boolean fromInclusive,
         @ParametricNullness K toKey,
@@ -4602,37 +4634,37 @@ public final class Maps {
     }
 
     @Override
-    public SortedMap<K, V> subMap(@ParametricNullness K fromKey, @ParametricNullness K toKey) {
+    public @PolyMutable SortedMap<K, V> subMap(@PolyMutable DescendingMap<K, V> this, @ParametricNullness K fromKey, @ParametricNullness K toKey) {
       return subMap(fromKey, true, toKey, false);
     }
 
     @Override
-    public NavigableMap<K, V> headMap(@ParametricNullness K toKey, boolean inclusive) {
+    public @PolyMutable NavigableMap<K, V> headMap(@PolyMutable DescendingMap<K, V> this, @ParametricNullness K toKey, boolean inclusive) {
       return forward().tailMap(toKey, inclusive).descendingMap();
     }
 
     @Override
-    public SortedMap<K, V> headMap(@ParametricNullness K toKey) {
+    public @PolyMutable SortedMap<K, V> headMap(@PolyMutable DescendingMap<K, V> this, @ParametricNullness K toKey) {
       return headMap(toKey, false);
     }
 
     @Override
-    public NavigableMap<K, V> tailMap(@ParametricNullness K fromKey, boolean inclusive) {
+    public @PolyMutable NavigableMap<K, V> tailMap(@PolyMutable DescendingMap<K, V> this, @ParametricNullness K fromKey, boolean inclusive) {
       return forward().headMap(fromKey, inclusive).descendingMap();
     }
 
     @Override
-    public SortedMap<K, V> tailMap(@ParametricNullness K fromKey) {
+    public @PolyMutable SortedMap<K, V> tailMap(@PolyMutable DescendingMap<K, V> this, @ParametricNullness K fromKey) {
       return tailMap(fromKey, true);
     }
 
     @Override
-    public Collection<V> values() {
-      return new Values<>(this);
+    public @PolyMutable Collection<V> values(@PolyMutable DescendingMap<K, V> this) {
+      return new @PolyMutable Values<>(this);
     }
 
     @Override
-    public String toString() {
+    public String toString(@Readonly DescendingMap<K, V> this) {
       return standardToString();
     }
   }
@@ -4666,7 +4698,7 @@ public final class Maps {
   @Beta
   @GwtIncompatible // NavigableMap
   public static <K extends @Immutable Comparable<? super K>, V extends @Nullable @Readonly Object>
-      NavigableMap<K, V> subMap(NavigableMap<K, V> map, Range<K> range) {
+    @PolyMutable NavigableMap<K, V> subMap(@PolyMutable NavigableMap<K, V> map, Range<K> range) {
     if (map.comparator() != null
         && map.comparator() != Ordering.natural()
         && range.hasLowerBound()

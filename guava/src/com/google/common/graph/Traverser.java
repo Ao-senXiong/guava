@@ -65,6 +65,7 @@ import javax.annotation.CheckForNull;
     "Call forGraph or forTree, passing a lambda or a Graph with the desired edges (built with"
         + " GraphBuilder)")
 @ElementTypesAreNonnullByDefault
+@SuppressWarnings("pico")
 public abstract class Traverser<N> {
   private final SuccessorsFunction<N> successorFunction;
 

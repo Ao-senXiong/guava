@@ -72,7 +72,7 @@ public interface SetMultimap<K extends @Nullable @Immutable Object, V extends @R
    * interface.
    */
   @Override
-  Set<V> get(@Readonly SetMultimap<K, V> this, @ParametricNullness K key);
+  @PolyMutable Set<V> get(@PolyMutable SetMultimap<K, V> this, @ParametricNullness K key);
 
   /**
    * {@inheritDoc}
@@ -83,7 +83,7 @@ public interface SetMultimap<K extends @Nullable @Immutable Object, V extends @R
    */
   @CanIgnoreReturnValue
   @Override
-  Set<V> removeAll(@Mutable SetMultimap<K, V> this, @CheckForNull @Readonly Object key);
+  @Readonly Set<V> removeAll(@Mutable SetMultimap<K, V> this, @CheckForNull @Readonly Object key);
 
   /**
    * {@inheritDoc}
@@ -96,7 +96,7 @@ public interface SetMultimap<K extends @Nullable @Immutable Object, V extends @R
    */
   @CanIgnoreReturnValue
   @Override
-  Set<V> replaceValues(@Mutable SetMultimap<K, V> this, @ParametricNullness K key, Iterable<? extends V> values);
+  @Readonly Set<V> replaceValues(@Mutable SetMultimap<K, V> this, @ParametricNullness K key, Iterable<? extends V> values);
 
   /**
    * {@inheritDoc}
@@ -106,7 +106,7 @@ public interface SetMultimap<K extends @Nullable @Immutable Object, V extends @R
    * interface.
    */
   @Override
-  @PolyMutable Set<Entry<K, V>> entries(@PolyMutable SetMultimap<K, V> this);
+  @PolyMutable Set<@PolyMutable Entry<K, V>> entries(@PolyMutable SetMultimap<K, V> this);
 
   /**
    * {@inheritDoc}
@@ -116,7 +116,7 @@ public interface SetMultimap<K extends @Nullable @Immutable Object, V extends @R
    * Multimaps#asMap(SetMultimap)} instead.
    */
   @Override
-  @PolyMutable Map<K, Collection<V>> asMap(@PolyMutable SetMultimap<K, V> this);
+  @PolyMutable Map<K, @PolyMutable Collection<V>> asMap(@PolyMutable SetMultimap<K, V> this);
 
   /**
    * Compares the specified object to this multimap for equality.

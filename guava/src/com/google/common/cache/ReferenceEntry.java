@@ -40,6 +40,7 @@ import javax.annotation.CheckForNull;
  */
 @GwtIncompatible
 @ElementTypesAreNonnullByDefault
+@SuppressWarnings("pico")
 interface ReferenceEntry<K, V> {
   /** Returns the value reference from this entry. */
   @CheckForNull

@@ -92,6 +92,7 @@ final class DenseImmutableTable<R extends @Immutable Object, C extends @Immutabl
   }
 
   /** An immutable map implementation backed by an indexed nullable array. */
+  @Immutable
   private abstract static class ImmutableArrayMap<K extends @Immutable Object, V> extends IteratorBasedImmutableMap<K, V> {
     private final int size;
 
@@ -151,6 +152,7 @@ final class DenseImmutableTable<R extends @Immutable Object, C extends @Immutabl
     }
   }
 
+  @Immutable
   private final class Row extends ImmutableArrayMap<C, V> {
     private final int rowIndex;
 
@@ -176,6 +178,7 @@ final class DenseImmutableTable<R extends @Immutable Object, C extends @Immutabl
     }
   }
 
+  @Immutable
   private final class Column extends ImmutableArrayMap<R, V> {
     private final int columnIndex;
 
@@ -202,6 +205,7 @@ final class DenseImmutableTable<R extends @Immutable Object, C extends @Immutabl
   }
 
   @WeakOuter
+  @Immutable
   private final class RowMap extends ImmutableArrayMap<R, ImmutableMap<C, V>> {
     private RowMap() {
       super(rowCounts.length);
@@ -224,6 +228,7 @@ final class DenseImmutableTable<R extends @Immutable Object, C extends @Immutabl
   }
 
   @WeakOuter
+  @Immutable
   private final class ColumnMap extends ImmutableArrayMap<C, ImmutableMap<R, V>> {
     private ColumnMap() {
       super(columnCounts.length);

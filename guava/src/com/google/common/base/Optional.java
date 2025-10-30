@@ -91,6 +91,7 @@ import org.checkerframework.framework.qual.Covariant;
 @DoNotMock("Use Optional.of(value) or Optional.absent()")
 @GwtCompatible(serializable = true)
 @ElementTypesAreNonnullByDefault
+@SuppressWarnings("pico")
 public abstract class Optional<T> implements Serializable {
   /**
    * Returns an {@code Optional} instance with no contained reference.

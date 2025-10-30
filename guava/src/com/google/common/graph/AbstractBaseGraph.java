@@ -44,6 +44,7 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
  * @param <N> Node parameter type
  */
 @ElementTypesAreNonnullByDefault
+@SuppressWarnings("pico")
 abstract class AbstractBaseGraph<N> implements BaseGraph<N> {
 
   /**

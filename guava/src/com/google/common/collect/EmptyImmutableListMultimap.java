@@ -30,11 +30,11 @@ import org.checkerframework.framework.qual.AnnotatedFor;
 @GwtCompatible(serializable = true)
 @ElementTypesAreNonnullByDefault
 @Immutable
-class EmptyImmutableListMultimap extends ImmutableListMultimap<@Immutable Object, @Readonly Object> {
+class EmptyImmutableListMultimap extends ImmutableListMultimap<@Immutable Object, @Immutable Object> {
   static final EmptyImmutableListMultimap INSTANCE = new EmptyImmutableListMultimap();
 
   private EmptyImmutableListMultimap() {
-    super(ImmutableMap.<@Immutable Object, ImmutableList<Object>>of(), 0);
+    super(ImmutableMap.<@Immutable Object, ImmutableList<@Readonly Object>>of(), 0);
   }
 
   private @Immutable Object readResolve() {

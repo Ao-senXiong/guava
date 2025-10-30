@@ -120,11 +120,11 @@ public final class ImmutableSortedMap<K extends @Immutable Object, V> extends Im
    * TODO(kevinb): Confirm that ImmutableSortedMap is faster to construct and
    * uses less memory than TreeMap; then say so in the class Javadoc.
    */
-  private static final Comparator<Comparable> NATURAL_ORDER = Ordering.natural();
+  private static final Comparator<@Readonly Comparable> NATURAL_ORDER = Ordering.natural();
 
-  private static final ImmutableSortedMap<Comparable, Object> NATURAL_EMPTY_MAP =
+  private static final ImmutableSortedMap<@Immutable Comparable, @Readonly Object> NATURAL_EMPTY_MAP =
       new ImmutableSortedMap<>(
-          ImmutableSortedSet.emptySet(Ordering.natural()), ImmutableList.<Object>of());
+          ImmutableSortedSet.emptySet(Ordering.natural()), ImmutableList.<@Readonly Object>of());
 
   static <K extends @Immutable Object, V> ImmutableSortedMap<K, V> emptyMap(Comparator<? super K> comparator) {
     if (Ordering.natural().equals(comparator)) {
@@ -178,7 +178,7 @@ public final class ImmutableSortedMap<K extends @Immutable Object, V> extends Im
    * @throws IllegalArgumentException if any two keys are equal according to their natural ordering
    */
   @SuppressWarnings("unchecked")
-  public static <K extends Comparable<? super K>, V> ImmutableSortedMap<K, V> of(
+  public static <K extends @Immutable Comparable<? super K>, V> ImmutableSortedMap<K, V> of(
       K k1, V v1, K k2, V v2, K k3, V v3) {
     return fromEntries(entryOf(k1, v1), entryOf(k2, v2), entryOf(k3, v3));
   }
@@ -190,7 +190,7 @@ public final class ImmutableSortedMap<K extends @Immutable Object, V> extends Im
    * @throws IllegalArgumentException if any two keys are equal according to their natural ordering
    */
   @SuppressWarnings("unchecked")
-  public static <K extends Comparable<? super K>, V> ImmutableSortedMap<K, V> of(
+  public static <K extends @Immutable Comparable<? super K>, V> ImmutableSortedMap<K, V> of(
       K k1, V v1, K k2, V v2, K k3, V v3, K k4, V v4) {
     return fromEntries(entryOf(k1, v1), entryOf(k2, v2), entryOf(k3, v3), entryOf(k4, v4));
   }

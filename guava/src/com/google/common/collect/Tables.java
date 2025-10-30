@@ -45,6 +45,7 @@ import org.checkerframework.checker.pico.qual.PolyMutable;
 import org.checkerframework.checker.pico.qual.Readonly;
 import org.checkerframework.checker.pico.qual.ReceiverDependentMutable;
 import org.checkerframework.checker.signedness.qual.UnknownSignedness;
+import org.checkerframework.framework.qual.AnnotatedFor;
 
 /**
  * Provides static methods that involve a {@code Table}.
@@ -56,6 +57,7 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
  * @author Louis Wasserman
  * @since 7.0
  */
+@AnnotatedFor("pico")
 @GwtCompatible
 @ElementTypesAreNonnullByDefault
 public final class Tables {
@@ -337,13 +339,13 @@ public final class Tables {
 
     @SuppressWarnings("unchecked")
     @Override
-    Iterator<Cell<C, R, V>> cellIterator() {
+    Iterator<Cell<C, R, V>> cellIterator(@Readonly TransposeTable<C, R, V> this) {
       return Iterators.transform(original.cellSet().iterator(), (Function) TRANSPOSE_CELL);
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    Spliterator<Cell<C, R, V>> cellSpliterator() {
+    Spliterator<Cell<C, R, V>> cellSpliterator(@Readonly TransposeTable<C, R, V> this) {
       return CollectSpliterators.map(original.cellSet().spliterator(), (Function) TRANSPOSE_CELL);
     }
   }
@@ -437,19 +439,19 @@ public final class Tables {
     final Table<R, C, V1> fromTable;
     final Function<? super V1, V2> function;
 
-    TransformedTable(Table<R, C, V1> fromTable, Function<? super V1, V2> function) {
+    TransformedTable(@ReceiverDependentMutable Table<R, C, V1> fromTable, Function<? super V1, V2> function) {
       this.fromTable = checkNotNull(fromTable);
       this.function = checkNotNull(function);
     }
 
     @Override
-    public boolean contains(@CheckForNull @Readonly Object rowKey, @CheckForNull @Readonly Object columnKey) {
+    public boolean contains(@Readonly TransformedTable<R, C, V1, V2> this, @CheckForNull @Readonly Object rowKey, @CheckForNull @Readonly Object columnKey) {
       return fromTable.contains(rowKey, columnKey);
     }
 
     @Override
     @CheckForNull
-    public V2 get(@CheckForNull @Readonly Object rowKey, @CheckForNull @Readonly Object columnKey) {
+    public V2 get(@Readonly TransformedTable<R, C, V1, V2> this, @CheckForNull @Readonly Object rowKey, @CheckForNull @Readonly Object columnKey) {
       // The function is passed a null input only when the table contains a null
       // value.
       // The cast is safe because of the contains() check.
@@ -459,12 +461,12 @@ public final class Tables {
     }
 
     @Override
-    public int size() {
+    public int size(@Readonly TransformedTable<R, C, V1, V2> this) {
       return fromTable.size();
     }
 
     @Override
-    public void clear() {
+    public void clear(@Mutable TransformedTable<R, C, V1, V2> this) {
       fromTable.clear();
     }
 
@@ -478,7 +480,7 @@ public final class Tables {
     }
 
     @Override
-    public void putAll(Table<? extends R, ? extends C, ? extends V2> table) {
+    public void putAll(@Readonly Table<? extends R, ? extends C, ? extends V2> table) {
       throw new UnsupportedOperationException();
     }
 
@@ -492,12 +494,12 @@ public final class Tables {
     }
 
     @Override
-    public Map<C, V2> row(@ParametricNullness R rowKey) {
+    public @PolyMutable Map<C, V2> row(@PolyMutable TransformedTable<R, C, V1, V2> this, @ParametricNullness R rowKey) {
       return Maps.transformValues(fromTable.row(rowKey), function);
     }
 
     @Override
-    public Map<R, V2> column(@ParametricNullness C columnKey) {
+    public @PolyMutable Map<R, V2> column(@PolyMutable TransformedTable<R, C, V1, V2> this, @ParametricNullness C columnKey) {
       return Maps.transformValues(fromTable.column(columnKey), function);
     }
 
@@ -512,32 +514,32 @@ public final class Tables {
     }
 
     @Override
-    Iterator<Cell<R, C, V2>> cellIterator() {
+    Iterator<Cell<R, C, V2>> cellIterator(@Readonly TransformedTable<R, C, V1, V2> this) {
       return Iterators.transform(fromTable.cellSet().iterator(), cellFunction());
     }
 
     @Override
-    Spliterator<Cell<R, C, V2>> cellSpliterator() {
+    Spliterator<Cell<R, C, V2>> cellSpliterator(@Readonly TransformedTable<R, C, V1, V2> this) {
       return CollectSpliterators.map(fromTable.cellSet().spliterator(), cellFunction());
     }
 
     @Override
-    public Set<R> rowKeySet() {
+    public @PolyMutable Set<R> rowKeySet(@PolyMutable TransformedTable<R, C, V1, V2> this) {
       return fromTable.rowKeySet();
     }
 
     @Override
-    public Set<C> columnKeySet() {
+    public @PolyMutable Set<C> columnKeySet(@PolyMutable TransformedTable<R, C, V1, V2> this) {
       return fromTable.columnKeySet();
     }
 
     @Override
-    Collection<V2> createValues() {
+    @PolyMutable Collection<V2> createValues(@PolyMutable TransformedTable<R, C, V1, V2> this) {
       return Collections2.transform(fromTable.values(), function);
     }
 
     @Override
-    public Map<R, Map<C, V2>> rowMap() {
+    public @PolyMutable Map<R, Map<C, V2>> rowMap(@PolyMutable TransformedTable<R, C, V1, V2> this) {
       Function<Map<C, V1>, Map<C, V2>> rowFunction =
           new Function<Map<C, V1>, Map<C, V2>>() {
             @Override
@@ -549,7 +551,7 @@ public final class Tables {
     }
 
     @Override
-    public Map<C, Map<R, V2>> columnMap() {
+    public @PolyMutable Map<C, Map<R, V2>> columnMap(@PolyMutable TransformedTable<R, C, V1, V2> this) {
       Function<Map<R, V1>, Map<R, V2>> columnFunction =
           new Function<Map<R, V1>, Map<R, V2>>() {
             @Override
@@ -574,7 +576,7 @@ public final class Tables {
    * @since 11.0
    */
   public static <R extends @Nullable @Immutable Object, C extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object>
-      Table<R, C, V> unmodifiableTable(Table<? extends R, ? extends C, ? extends V> table) {
+    @Readonly Table<R, C, V> unmodifiableTable(Table<? extends R, ? extends C, ? extends V> table) {
     return new UnmodifiableTable<>(table);
   }
 
@@ -582,20 +584,20 @@ public final class Tables {
   private static class UnmodifiableTable<
           R extends @Nullable @Immutable Object, C extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object>
       extends ForwardingTable<R, C, V> implements Serializable {
-    final Table<? extends R, ? extends C, ? extends V> delegate;
+    final @Readonly Table<? extends R, ? extends C, ? extends V> delegate;
 
-    UnmodifiableTable(Table<? extends R, ? extends C, ? extends V> delegate) {
+    UnmodifiableTable(@Readonly Table<? extends R, ? extends C, ? extends V> delegate) {
       this.delegate = checkNotNull(delegate);
     }
 
     @SuppressWarnings("unchecked") // safe, covariant cast
     @Override
-    protected Table<R, C, V> delegate() {
+    protected @Readonly Table<R, C, V> delegate() {
       return (Table<R, C, V>) delegate;
     }
 
     @Override
-    public @Immutable Set<Cell<R, C, V>> cellSet() {
+    public @Readonly Set<@Readonly Cell<R, C, V>> cellSet() {
       return Collections.unmodifiableSet(super.cellSet());
     }
 
@@ -605,17 +607,17 @@ public final class Tables {
     }
 
     @Override
-    public @Immutable Map<R, V> column(@ParametricNullness C columnKey) {
+    public @Readonly Map<R, V> column(@ParametricNullness C columnKey) {
       return Collections.unmodifiableMap(super.column(columnKey));
     }
 
     @Override
-    public Set<C> columnKeySet() {
+    public @Readonly Set<C> columnKeySet() {
       return Collections.unmodifiableSet(super.columnKeySet());
     }
 
     @Override
-    public @Immutable Map<C, Map<R, V>> columnMap() {
+    public @Readonly Map<C, @Readonly Map<R, V>> columnMap() {
       Function<Map<R, V>, Map<R, V>> wrapper = unmodifiableWrapper();
       return Collections.unmodifiableMap(Maps.transformValues(super.columnMap(), wrapper));
     }
@@ -678,7 +680,7 @@ public final class Tables {
    */
   @Beta
   public static <R extends @Nullable @Immutable Object, C extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object>
-      RowSortedTable<R, C, V> unmodifiableRowSortedTable(
+    @Readonly RowSortedTable<R, C, V> unmodifiableRowSortedTable(
           RowSortedTable<R, ? extends C, ? extends V> table) {
     /*
      * It's not ? extends R, because it's technically not covariant in R. Specifically,
@@ -693,23 +695,23 @@ public final class Tables {
           R extends @Nullable @Immutable Object, C extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object>
       extends UnmodifiableTable<R, C, V> implements RowSortedTable<R, C, V> {
 
-    public UnmodifiableRowSortedMap(RowSortedTable<R, ? extends C, ? extends V> delegate) {
+    public UnmodifiableRowSortedMap(@Readonly RowSortedTable<R, ? extends C, ? extends V> delegate) {
       super(delegate);
     }
 
     @Override
-    protected RowSortedTable<R, C, V> delegate() {
+    protected @Readonly RowSortedTable<R, C, V> delegate() {
       return (RowSortedTable<R, C, V>) super.delegate();
     }
 
     @Override
-    public SortedMap<R, Map<C, V>> rowMap() {
+    public @Readonly SortedMap<R, Map<C, V>> rowMap() {
       Function<Map<C, V>, Map<C, V>> wrapper = unmodifiableWrapper();
       return Collections.unmodifiableSortedMap(Maps.transformValues(delegate().rowMap(), wrapper));
     }
 
     @Override
-    public SortedSet<R> rowKeySet() {
+    public @Readonly SortedSet<R> rowKeySet() {
       return Collections.unmodifiableSortedSet(delegate().rowKeySet());
     }
 
@@ -723,9 +725,9 @@ public final class Tables {
   }
 
   private static final Function<? extends Map<?, ?>, ? extends Map<?, ?>> UNMODIFIABLE_WRAPPER =
-      new Function<Map<Object, Object>, Map<Object, Object>>() {
+      new Function<Map<@Immutable Object, @Readonly Object>, Map<@Immutable Object, @Readonly Object>>() {
         @Override
-        public Map<Object, Object> apply(Map<Object, Object> input) {
+        public @Readonly Map<@Immutable Object, @Readonly Object> apply(Map<@Immutable Object, @Readonly Object> input) {
           return Collections.unmodifiableMap(input);
         }
       };
@@ -764,7 +766,7 @@ public final class Tables {
     return Synchronized.table(table, null);
   }
 
-  static boolean equalsImpl(Table<?, ?, ?> table, @CheckForNull @UnknownSignedness @Readonly Object obj) {
+  static boolean equalsImpl(@Readonly Table<?, ?, ?> table, @CheckForNull @UnknownSignedness @Readonly Object obj) {
     if (obj == table) {
       return true;
     } else if (obj instanceof Table) {

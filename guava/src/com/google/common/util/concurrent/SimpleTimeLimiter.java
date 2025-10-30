@@ -49,6 +49,7 @@ import org.checkerframework.checker.pico.qual.Readonly;
 @Beta
 @GwtIncompatible
 @ElementTypesAreNonnullByDefault
+@SuppressWarnings("pico")
 public final class SimpleTimeLimiter implements TimeLimiter {
 
   private final ExecutorService executor;

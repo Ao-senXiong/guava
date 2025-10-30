@@ -45,6 +45,7 @@ import org.checkerframework.checker.pico.qual.Readonly;
 import org.checkerframework.checker.pico.qual.ReceiverDependentMutable;
 import org.checkerframework.dataflow.qual.Pure;
 import org.checkerframework.framework.qual.AnnotatedFor;
+import org.checkerframework.framework.qual.CFComment;
 
 /**
  * A comparator, with additional methods to support common operations. This is an "enriched" version
@@ -224,7 +225,8 @@ public abstract class Ordering<T extends @Nullable @Readonly Object> implements 
    */
   // TODO(kevinb): provide replacement
   @GwtCompatible(serializable = true)
-  public static <T extends @Readonly Object> Ordering<T> explicit(List<T> valuesInOrder) {
+  @CFComment("T is Immutable because ExplicitOrdering requires an immutable T")
+  public static <T extends @Immutable Object> Ordering<T> explicit(List<T> valuesInOrder) {
     return new ExplicitOrdering<T>(valuesInOrder);
   }
 

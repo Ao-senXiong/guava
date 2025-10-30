@@ -60,9 +60,9 @@ class RegularImmutableBiMap<K extends @Immutable Object , V extends @Immutable O
 
   static final double MAX_LOAD_FACTOR = 1.2;
 
-  @CheckForNull private final transient @Nullable ImmutableMapEntry<K, V>[] keyTable;
-  @CheckForNull private final transient @Nullable ImmutableMapEntry<K, V>[] valueTable;
-  @VisibleForTesting final transient Entry<K, V>[] entries;
+  @CheckForNull private final transient @Nullable ImmutableMapEntry<K, V> @Immutable [] keyTable;
+  @CheckForNull private final transient @Nullable ImmutableMapEntry<K, V> @Immutable [] valueTable;
+  @VisibleForTesting final transient @Immutable Entry<K, V> @Immutable [] entries;
   private final transient int mask;
   private final transient int hashCode;
 
@@ -70,7 +70,7 @@ class RegularImmutableBiMap<K extends @Immutable Object , V extends @Immutable O
     return fromEntryArray(entries.length, entries);
   }
 
-  static <K extends @Immutable Object, V extends @Immutable Object> ImmutableBiMap<K, V> fromEntryArray(int n, @Nullable @Immutable Entry<K, V> @Mutable [] entryArray) {
+  static <K extends @Immutable Object, V extends @Immutable Object> ImmutableBiMap<K, V> fromEntryArray(int n, @Nullable @Immutable Entry<K, V> @Immutable [] entryArray) {
     checkPositionIndex(n, entryArray.length);
     int tableSize = Hashing.closedTableSize(n, MAX_LOAD_FACTOR);
     int mask = tableSize - 1;
@@ -119,9 +119,9 @@ class RegularImmutableBiMap<K extends @Immutable Object , V extends @Immutable O
   }
 
   private RegularImmutableBiMap(
-      @CheckForNull @Nullable ImmutableMapEntry<K, V>[] keyTable,
-      @CheckForNull @Nullable ImmutableMapEntry<K, V>[] valueTable,
-      Entry<K, V>[] entries,
+      @CheckForNull @Nullable ImmutableMapEntry<K, V> @Immutable  [] keyTable,
+      @CheckForNull @Nullable ImmutableMapEntry<K, V> @Immutable  [] valueTable,
+      @Immutable  Entry<K, V> @Immutable  [] entries,
       int mask,
       int hashCode) {
     this.keyTable = keyTable;
@@ -139,7 +139,7 @@ class RegularImmutableBiMap<K extends @Immutable Object , V extends @Immutable O
    *     flooding attack
    */
   private static void checkNoConflictInValueBucket(
-      Object value, Entry<?, ?> entry, @CheckForNull ImmutableMapEntry<?, ?> valueBucketHead)
+      @Readonly Object value, @Readonly Entry<?, ?> entry, @CheckForNull ImmutableMapEntry<?, ?> valueBucketHead)
       throws BucketOverflowException {
     int bucketSize = 0;
     for (; valueBucketHead != null; valueBucketHead = valueBucketHead.getNextInValueBucket()) {
@@ -157,9 +157,9 @@ class RegularImmutableBiMap<K extends @Immutable Object , V extends @Immutable O
   }
 
   @Override
-  ImmutableSet<Entry<K, V>> createEntrySet() {
+  ImmutableSet<@Immutable Entry<K, V>> createEntrySet() {
     return isEmpty()
-        ? ImmutableSet.<Entry<K, V>>of()
+        ? ImmutableSet.<@Immutable Entry<K, V>>of()
         : new ImmutableMapEntrySet.RegularEntrySet<K, V>(this, entries);
   }
 
@@ -182,7 +182,7 @@ class RegularImmutableBiMap<K extends @Immutable Object , V extends @Immutable O
   }
 
   @Override
-  public int hashCode(@UnknownSignedness RegularImmutableBiMap<K, V> this) {
+  public int hashCode(@UnknownSignedness @Readonly RegularImmutableBiMap<K, V> this) {
     return hashCode;
   }
 
@@ -207,6 +207,7 @@ class RegularImmutableBiMap<K extends @Immutable Object , V extends @Immutable O
     return (result == null) ? inverse = new Inverse() : result;
   }
 
+  @Immutable
   private final class Inverse extends ImmutableBiMap<V, K> {
 
     @Override
@@ -227,7 +228,7 @@ class RegularImmutableBiMap<K extends @Immutable Object , V extends @Immutable O
 
     @Override
     @CheckForNull
-    public K get(@CheckForNull @UnknownSignedness Object value) {
+    public K get(@CheckForNull @UnknownSignedness @Readonly Object value) {
       if (value == null || valueTable == null) {
         return null;
       }
@@ -248,7 +249,7 @@ class RegularImmutableBiMap<K extends @Immutable Object , V extends @Immutable O
     }
 
     @Override
-    ImmutableSet<Entry<V, K>> createEntrySet() {
+    ImmutableSet<@Immutable  Entry<V, K>> createEntrySet() {
       return new InverseEntrySet();
     }
 
@@ -265,7 +266,7 @@ class RegularImmutableBiMap<K extends @Immutable Object , V extends @Immutable O
       }
 
       @Override
-      public int hashCode(@UnknownSignedness InverseEntrySet this) {
+      public int hashCode(@UnknownSignedness @Readonly InverseEntrySet this) {
         return hashCode;
       }
 

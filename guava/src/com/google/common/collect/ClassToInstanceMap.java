@@ -22,6 +22,7 @@ import com.google.errorprone.annotations.DoNotMock;
 import java.util.Map;
 import javax.annotation.CheckForNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.checkerframework.checker.pico.qual.ReceiverDependentMutable;
 import org.checkerframework.framework.qual.AnnotatedFor;
 
 /**
@@ -62,6 +63,7 @@ import org.checkerframework.framework.qual.AnnotatedFor;
 // we might annotate this as...
 // ClassToInstanceMap<B extends @Nullable Object> extends Map<Class<? extends @Nonnull B>, B>
 // ...and change its methods similarly (<T extends @Nonnull B> or Class<@Nonnull T>).
+@ReceiverDependentMutable
 public interface ClassToInstanceMap<B> extends Map<Class<? extends B>, B> {
   /**
    * Returns the value the specified class is mapped to, or {@code null} if no entry for this class

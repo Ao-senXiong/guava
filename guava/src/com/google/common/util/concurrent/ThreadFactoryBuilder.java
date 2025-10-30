@@ -51,6 +51,7 @@ import org.checkerframework.checker.formatter.qual.FormatMethod;
 @CanIgnoreReturnValue
 @GwtIncompatible
 @ElementTypesAreNonnullByDefault
+@SuppressWarnings("pico")
 public final class ThreadFactoryBuilder {
   @CheckForNull private @Format({ConversionCategory.INT}) String nameFormat = null;
   @CheckForNull private Boolean daemon = null;

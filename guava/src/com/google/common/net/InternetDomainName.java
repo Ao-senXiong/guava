@@ -75,6 +75,7 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
 @GwtCompatible(emulated = true)
 @Immutable
 @ElementTypesAreNonnullByDefault
+@SuppressWarnings("pico")
 public final class InternetDomainName {
 
   private static final CharMatcher DOTS_MATCHER = CharMatcher.anyOf(".\u3002\uFF0E\uFF61");

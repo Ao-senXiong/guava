@@ -541,10 +541,10 @@ public final class Lists {
    * to migrate to streams.
    */
   public static <F extends @Nullable @Readonly Object, T extends @Nullable @Readonly Object> List<T> transform(
-      List<F> fromList, Function<? super F, ? extends T> function) {
+          @PolyMutable List<F> fromList, Function<? super F, ? extends T> function) {
     return (fromList instanceof RandomAccess)
-        ? new TransformingRandomAccessList<>(fromList, function)
-        : new TransformingSequentialList<>(fromList, function);
+        ? new @PolyMutable TransformingRandomAccessList<>(fromList, function)
+        : new @PolyMutable TransformingSequentialList<>(fromList, function);
   }
 
   /**
@@ -1115,7 +1115,7 @@ public final class Lists {
   }
 
   /** Returns an implementation of {@link List#listIterator(int)}. */
-  static <E extends @Nullable @Readonly Object> ListIterator<E> listIteratorImpl(@Readonly List<E> list, int index) {
+  static <E extends @Nullable @Readonly Object> ListIterator<E> listIteratorImpl(List<E> list, int index) {
     return new AbstractListWrapper<>(list).listIterator(index);
   }
 

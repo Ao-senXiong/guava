@@ -33,6 +33,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  */
 @GwtCompatible
 @ElementTypesAreNonnullByDefault
+@SuppressWarnings("pico")
 public final class Escapers {
   private Escapers() {}
 

@@ -66,9 +66,10 @@ import org.checkerframework.framework.qual.CFComment;
  * @author Kevin Bourrillion
  * @since 1.0
  */
-@AnnotatedFor({"signedness", "pico"})
+@AnnotatedFor({"signedness"})
 @GwtCompatible
 @ElementTypesAreNonnullByDefault
+@SuppressWarnings("pico")
 public final class Longs {
   private Longs() {}
 
@@ -702,7 +703,7 @@ public final class Longs {
     final @IndexFor("array") @LessThan("this.end") int start;
     final @IndexOrHigh("array") int end;
 
-    LongArrayAsList(long @MinLen(1) @RecevierDependentMutable [] array) {
+    LongArrayAsList(long @MinLen(1) @ReceiverDependentMutable [] array) {
       this(array, 0, array.length);
     }
 
@@ -711,7 +712,7 @@ public final class Longs {
     // leads to the first two issuing errors - since each field is dependent on
     // at least one of the others
     )
-    LongArrayAsList(long @MinLen(1) @RecevierDependentMutable [] array, @IndexFor("#1") @LessThan("#3") int start, @IndexOrHigh("#1") int end) {
+    LongArrayAsList(long @MinLen(1) @ReceiverDependentMutable [] array, @IndexFor("#1") @LessThan("#3") int start, @IndexOrHigh("#1") int end) {
       this.array = array;
       this.start = start;
       this.end = end;

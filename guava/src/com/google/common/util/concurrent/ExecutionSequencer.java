@@ -84,6 +84,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  * @since 26.0
  */
 @ElementTypesAreNonnullByDefault
+@SuppressWarnings("pico")
 public final class ExecutionSequencer {
 
   private ExecutionSequencer() {}

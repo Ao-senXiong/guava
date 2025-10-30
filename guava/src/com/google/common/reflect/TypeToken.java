@@ -98,7 +98,7 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
  * @author Ben Yu
  * @since 12.0
  */
-@SuppressWarnings("serial") // SimpleTypeToken is the serialized form.
+@SuppressWarnings({"serial", "pico"}) // SimpleTypeToken is the serialized form.
 @ElementTypesAreNonnullByDefault
 public abstract class TypeToken<T> extends TypeCapture<T> implements Serializable {
 

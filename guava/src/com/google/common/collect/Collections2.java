@@ -42,7 +42,9 @@ import javax.annotation.CheckForNull;
 import org.checkerframework.checker.index.qual.NonNegative;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.checker.nullness.qual.PolyNull;
+import org.checkerframework.checker.pico.qual.Immutable;
 import org.checkerframework.checker.pico.qual.Mutable;
+import org.checkerframework.checker.pico.qual.PolyMutable;
 import org.checkerframework.checker.pico.qual.Readonly;
 import org.checkerframework.checker.pico.qual.ReceiverDependentMutable;
 import org.checkerframework.checker.signedness.qual.PolySigned;
@@ -64,7 +66,7 @@ import org.checkerframework.framework.qual.AnnotatedFor;
  * @author Jared Levy
  * @since 2.0
  */
-@AnnotatedFor({"nullness"})
+@AnnotatedFor({"nullness", "pico"})
 @GwtCompatible
 @ElementTypesAreNonnullByDefault
 public final class Collections2 {
@@ -97,22 +99,22 @@ public final class Collections2 {
    */
   // TODO(kevinb): how can we omit that Iterables link when building gwt
   // javadoc?
-  public static <E extends @Nullable @Readonly Object> Collection<E> filter(
-      Collection<E> unfiltered, Predicate<? super E> predicate) {
+  public static <E extends @Nullable @Readonly Object> @PolyMutable Collection<E> filter(
+      @PolyMutable Collection<E> unfiltered, Predicate<? super E> predicate) {
     if (unfiltered instanceof FilteredCollection) {
       // Support clear(), removeAll(), and retainAll() when filtering a filtered
       // collection.
       return ((FilteredCollection<E>) unfiltered).createCombined(predicate);
     }
 
-    return new FilteredCollection<E>(checkNotNull(unfiltered), checkNotNull(predicate));
+    return new @PolyMutable FilteredCollection<E>(checkNotNull(unfiltered), checkNotNull(predicate));
   }
 
   /**
    * Delegates to {@link Collection#contains}. Returns {@code false} if the {@code contains} method
    * throws a {@code ClassCastException} or {@code NullPointerException}.
    */
-  static boolean safeContains(Collection<?> collection, @CheckForNull @UnknownSignedness Object object) {
+  static boolean safeContains(@Readonly Collection<?> collection, @CheckForNull @UnknownSignedness @Readonly Object object) {
     checkNotNull(collection);
     try {
       return collection.contains(object);
@@ -125,7 +127,7 @@ public final class Collections2 {
    * Delegates to {@link Collection#remove}. Returns {@code false} if the {@code remove} method
    * throws a {@code ClassCastException} or {@code NullPointerException}.
    */
-  static boolean safeRemove(@Mutable Collection<?> collection, @CheckForNull Object object) {
+  static boolean safeRemove(Collection<?> collection, @CheckForNull @Readonly Object object) {
     checkNotNull(collection);
     try {
       return collection.remove(object);
@@ -137,7 +139,7 @@ public final class Collections2 {
   @ReceiverDependentMutable
   static class FilteredCollection<E extends @Nullable @Readonly Object> extends AbstractCollection<E> {
     final Collection<E> unfiltered;
-    final Predicate<? super E> predicate;
+    final @Mutable Predicate<? super E> predicate;
 
     FilteredCollection(@ReceiverDependentMutable Collection<E> unfiltered, Predicate<? super E> predicate) {
       this.unfiltered = unfiltered;
@@ -170,7 +172,7 @@ public final class Collections2 {
 
     @Pure
     @Override
-    public boolean contains(@CheckForNull @UnknownSignedness Object element) {
+    public boolean contains(@Readonly FilteredCollection<E> this, @CheckForNull @UnknownSignedness @Readonly Object element) {
       if (safeContains(unfiltered, element)) {
         @SuppressWarnings("unchecked") // element is in unfiltered, so it must be an E
         E e = (E) element;
@@ -181,23 +183,23 @@ public final class Collections2 {
 
     @Pure
     @Override
-    public boolean containsAll(Collection<?> collection) {
+    public boolean containsAll(@Readonly FilteredCollection<E> this, @Readonly Collection<?> collection) {
       return containsAllImpl(this, collection);
     }
 
     @Pure
     @Override
-    public boolean isEmpty() {
+    public boolean isEmpty(@Readonly FilteredCollection<E> this) {
       return !Iterables.any(unfiltered, predicate);
     }
 
     @Override
-    public Iterator<E> iterator() {
+    public @Readonly Iterator<E> iterator(@Readonly FilteredCollection<E> this) {
       return Iterators.filter(unfiltered.iterator(), predicate);
     }
 
     @Override
-    public Spliterator<E> spliterator() {
+    public Spliterator<E> spliterator(@Readonly FilteredCollection<E> this) {
       return CollectSpliterators.filter(unfiltered.spliterator(), predicate);
     }
 
@@ -213,17 +215,17 @@ public final class Collections2 {
     }
 
     @Override
-    public boolean remove(@Mutable FilteredCollection<E> this, @CheckForNull @UnknownSignedness Object element) {
+    public boolean remove(@Mutable FilteredCollection<E> this, @CheckForNull @UnknownSignedness @Readonly Object element) {
       return contains(element) && unfiltered.remove(element);
     }
 
     @Override
-    public boolean removeAll(@Mutable FilteredCollection<E> this, final Collection<?> collection) {
+    public boolean removeAll(@Mutable FilteredCollection<E> this, final @Readonly Collection<?> collection) {
       return removeIf(collection::contains);
     }
 
     @Override
-    public boolean retainAll(final Collection<?> collection) {
+    public boolean retainAll(@Mutable FilteredCollection<E> this, final @Readonly Collection<?> collection) {
       return removeIf(element -> !collection.contains(element));
     }
 
@@ -235,7 +237,7 @@ public final class Collections2 {
 
     @Pure
     @Override
-    public @NonNegative int size() {
+    public @NonNegative int size(@Readonly FilteredCollection<E> this) {
       int size = 0;
       for (E e : unfiltered) {
         if (predicate.apply(e)) {
@@ -246,7 +248,7 @@ public final class Collections2 {
     }
 
     @Override
-    public @PolyNull @PolySigned Object[] toArray(FilteredCollection<@PolyNull @PolySigned E> this) {
+    public @PolyNull @PolySigned @PolyMutable Object[] toArray(FilteredCollection<@PolyNull @PolySigned @PolyMutable E> this) {
       // creating an ArrayList so filtering happens once
       return Lists.newArrayList(iterator()).toArray();
     }
@@ -259,7 +261,7 @@ public final class Collections2 {
 
   @Pure
   @Override
-  public String toString() { return super.toString(); }
+  public String toString(@Readonly FilteredCollection<E> this) { return super.toString(); }
   }
 
   /**
@@ -286,35 +288,36 @@ public final class Collections2 {
     return new TransformedCollection<>(fromCollection, function);
   }
 
+  @ReceiverDependentMutable
   static class TransformedCollection<F extends @Nullable @Readonly Object, T extends @Nullable @Readonly Object>
       extends AbstractCollection<T> {
     final Collection<F> fromCollection;
-    final Function<? super F, ? extends T> function;
+    final @Mutable Function<? super F, ? extends T> function;
 
-    TransformedCollection(Collection<F> fromCollection, Function<? super F, ? extends T> function) {
+    TransformedCollection(@ReceiverDependentMutable Collection<F> fromCollection, Function<? super F, ? extends T> function) {
       this.fromCollection = checkNotNull(fromCollection);
       this.function = checkNotNull(function);
     }
 
     @Override
-    public void clear() {
+    public void clear(@Mutable TransformedCollection<F, T> this) {
       fromCollection.clear();
     }
 
     @Pure
     @Override
-    public boolean isEmpty() {
+    public boolean isEmpty(@Readonly TransformedCollection<F, T> this) {
       return fromCollection.isEmpty();
     }
 
     @Override
-    public Iterator<T> iterator() {
+    public Iterator<T> iterator(@Readonly TransformedCollection<F, T> this) {
       return Iterators.transform(fromCollection.iterator(), function);
     }
 
     @Pure
     @Override
-    public Spliterator<T> spliterator() {
+    public Spliterator<T> spliterator(@Readonly TransformedCollection<F, T> this) {
       return CollectSpliterators.map(fromCollection.spliterator(), function);
     }
 
@@ -325,13 +328,13 @@ public final class Collections2 {
     }
 
     @Override
-    public boolean removeIf(java.util.function.Predicate<? super T> filter) {
+    public boolean removeIf(@Mutable TransformedCollection<F, T> this, java.util.function.Predicate<? super T> filter) {
       checkNotNull(filter);
       return fromCollection.removeIf(element -> filter.test(function.apply(element)));
     }
 
     @Override
-    public @NonNegative int size() {
+    public @NonNegative int size(@Readonly TransformedCollection<F, T> this) {
       return fromCollection.size();
     }
   }
@@ -460,9 +463,10 @@ public final class Collections2 {
     return new OrderedPermutationCollection<E>(elements, comparator);
   }
 
+  @Immutable
   private static final class OrderedPermutationCollection<E> extends AbstractCollection<List<E>> {
     final ImmutableList<E> inputList;
-    final Comparator<? super E> comparator;
+    final @Mutable Comparator<? super E> comparator;
     final int size;
 
     OrderedPermutationCollection(Iterable<E> input, Comparator<? super E> comparator) {
@@ -517,7 +521,7 @@ public final class Collections2 {
     }
 
     @Override
-    public boolean contains(@CheckForNull @UnknownSignedness Object obj) {
+    public boolean contains(@CheckForNull @UnknownSignedness @Readonly Object obj) {
       if (obj instanceof List) {
         List<?> list = (List<?>) obj;
         return isPermutation(inputList, list);
@@ -531,11 +535,12 @@ public final class Collections2 {
     }
   }
 
+  @ReceiverDependentMutable
   private static final class OrderedPermutationIterator<E> extends AbstractIterator<List<E>> {
     @CheckForNull List<E> nextPermutation;
-    final Comparator<? super E> comparator;
+    final @Mutable Comparator<? super E> comparator;
 
-    OrderedPermutationIterator(List<E> list, Comparator<? super E> comparator) {
+    OrderedPermutationIterator(@ReceiverDependentMutable List<E> list, Comparator<? super E> comparator) {
       this.nextPermutation = Lists.newArrayList(list);
       this.comparator = comparator;
     }
@@ -617,10 +622,11 @@ public final class Collections2 {
    * @since 12.0
    */
   @Beta
-  public static <E> Collection<List<E>> permutations(Collection<E> elements) {
+  public static <E> Collection<List<E>> permutations(@Readonly Collection<E> elements) {
     return new PermutationCollection<E>(ImmutableList.copyOf(elements));
   }
 
+  @Immutable
   private static final class PermutationCollection<E> extends AbstractCollection<List<E>> {
     final ImmutableList<E> inputList;
 
@@ -644,7 +650,7 @@ public final class Collections2 {
     }
 
     @Override
-    public boolean contains(@CheckForNull @UnknownSignedness Object obj) {
+    public boolean contains(@CheckForNull @UnknownSignedness @Readonly Object obj) {
       if (obj instanceof List) {
         List<?> list = (List<?>) obj;
         return isPermutation(inputList, list);
@@ -658,13 +664,14 @@ public final class Collections2 {
     }
   }
 
+  @ReceiverDependentMutable
   private static class PermutationIterator<E> extends AbstractIterator<List<E>> {
     final List<E> list;
     final int[] c;
     final int[] o;
     int j;
 
-    PermutationIterator(List<E> list) {
+    PermutationIterator(@ReceiverDependentMutable List<E> list) {
       this.list = new ArrayList<E>(list);
       int n = list.size();
       c = new int[n];
@@ -723,7 +730,7 @@ public final class Collections2 {
   }
 
   /** Returns {@code true} if the second list is a permutation of the first. */
-  private static boolean isPermutation(List<?> first, List<?> second) {
+  private static boolean isPermutation(@Readonly List<?> first, @Readonly List<?> second) {
     if (first.size() != second.size()) {
       return false;
     }

@@ -29,10 +29,12 @@ import java.util.Set;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.checker.pico.qual.Immutable;
 import org.checkerframework.checker.pico.qual.Mutable;
+import org.checkerframework.checker.pico.qual.PolyMutable;
 import org.checkerframework.checker.pico.qual.Readonly;
 import org.checkerframework.checker.pico.qual.ReceiverDependentMutable;
 import org.checkerframework.dataflow.qual.Pure;
 import org.checkerframework.framework.qual.AnnotatedFor;
+import org.checkerframework.framework.qual.CFComment;
 
 /**
  * Implementation of {@link Multimap} using hash tables.
@@ -102,9 +104,10 @@ public final class HashMultimap<K extends @Nullable @Immutable Object, V extends
    *
    * @param multimap the multimap whose contents are copied to this multimap
    */
-  public static <K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object> HashMultimap<K, V> create(
-      Multimap<? extends K, ? extends V> multimap) {
-    return new HashMultimap<>(multimap);
+  @CFComment("PICO: good example to have poly only for mutable and immutable, like boolean algebra")
+  public static <K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object> @PolyMutable HashMultimap<K, V> create(
+      @PolyMutable Multimap<? extends K, ? extends V> multimap) {
+    return new @PolyMutable HashMultimap<>(multimap);
   }
 
   private HashMultimap() {
@@ -112,13 +115,14 @@ public final class HashMultimap<K extends @Nullable @Immutable Object, V extends
   }
 
   private HashMultimap(int expectedKeys, int expectedValuesPerKey) {
-    super(Platform.<K, Collection<V>>newHashMapWithExpectedSize(expectedKeys));
+    super(Platform.<K, @ReceiverDependentMutable Collection<V>>newHashMapWithExpectedSize(expectedKeys));
     Preconditions.checkArgument(expectedValuesPerKey >= 0);
     this.expectedValuesPerKey = expectedValuesPerKey;
   }
 
-  private HashMultimap(Multimap<? extends K, ? extends V> multimap) {
-    super(Platform.<K, Collection<V>>newHashMapWithExpectedSize(multimap.keySet().size()));
+  @SuppressWarnings("pico:method.invocation.invalid") // Putall method
+  private HashMultimap(@ReceiverDependentMutable Multimap<? extends K, ? extends V> multimap) {
+    super(Platform.<K, @ReceiverDependentMutable Collection<V>>newHashMapWithExpectedSize(multimap.keySet().size()));
     putAll(multimap);
   }
 
@@ -130,7 +134,7 @@ public final class HashMultimap<K extends @Nullable @Immutable Object, V extends
    * @return a new {@code HashSet} containing a collection of values for one key
    */
   @Override
-  Set<V> createCollection() {
+  @PolyMutable Set<V> createCollection(@PolyMutable HashMultimap<K, V> this) {
     return Platform.<V>newHashSetWithExpectedSize(expectedValuesPerKey);
   }
 
@@ -162,8 +166,8 @@ public final class HashMultimap<K extends @Nullable @Immutable Object, V extends
 public boolean equals(@Readonly HashMultimap<K,V> this, @Nullable @Readonly Object arg0) { return super.equals(arg0); }
 
 @Override
-public Set<V> get(@Readonly HashMultimap<K,V> this, @Nullable K arg0) { return super.get(arg0); }
+public @PolyMutable Set<V> get(@PolyMutable HashMultimap<K,V> this, @Nullable K arg0) { return super.get(arg0); }
 
 @Override
-public Set<V> removeAll(@Mutable HashMultimap<K,V> this, @Nullable @Readonly Object arg0) { return super.removeAll(arg0); }
+public @Readonly Set<V> removeAll(@Mutable HashMultimap<K,V> this, @Nullable @Readonly Object arg0) { return super.removeAll(arg0); }
 }

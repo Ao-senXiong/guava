@@ -427,7 +427,7 @@ public abstract class ImmutableMap<K extends @Immutable Object, V> implements Ma
   @DoNotMock
   public static class Builder<K extends @Immutable Object, V> {
     @CheckForNull Comparator<? super V> valueComparator;
-    @Nullable Entry<K, V>[] entries;
+    @Nullable @Immutable Entry<K, V>[] entries;
     int size;
     boolean entriesUsed;
 
@@ -441,7 +441,7 @@ public abstract class ImmutableMap<K extends @Immutable Object, V> implements Ma
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     Builder(int initialCapacity) {
-      this.entries = new @Nullable Entry @Mutable [initialCapacity];
+      this.entries = new @Nullable @Immutable Entry[initialCapacity];
       this.size = 0;
       this.entriesUsed = false;
     }
@@ -553,7 +553,7 @@ public abstract class ImmutableMap<K extends @Immutable Object, V> implements Ma
           return of();
         case 1:
           // requireNonNull is safe because the first `size` elements have been filled in.
-          Entry<K, @Immutable V> onlyEntry = requireNonNull(entries[0]);
+          Entry<K, V> onlyEntry = requireNonNull(entries[0]);
           return of(onlyEntry.getKey(), onlyEntry.getValue());
         default:
           break;

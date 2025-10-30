@@ -70,6 +70,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 @SuppressWarnings({
   "ShortCircuitBoolean", // we use non-short circuiting comparisons intentionally
   "nullness", // TODO(b/147136275): Remove once our checker understands & and |.
+        "pico"
 })
 @GwtCompatible(emulated = true)
 @ReflectionSupport(value = ReflectionSupport.Level.FULL)
@@ -666,7 +667,7 @@ public abstract class AbstractFuture<V extends @Nullable Object> extends Interna
           if (localValue instanceof SetFuture) {
             // propagate cancellation to the future set in setfuture, this is racy, and we don't
             // care if we are successful or not.
-            ListenableFuture<?> futureToPropagateTo = ((SetFuture) localValue).future;
+            ListenableFuture<?> futureToPropagateTo = ((SetFuture<?>) localValue).future;
             if (futureToPropagateTo instanceof Trusted) {
               // If the future is a TrustedFuture then we specifically avoid calling cancel()
               // this has 2 benefits

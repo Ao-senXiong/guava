@@ -718,7 +718,7 @@ public final class Range<C extends @Readonly Comparable> extends RangeGwtSeriali
   }
 
   @SuppressWarnings("unchecked") // this method may throw CCE
-  static int compareOrThrow(Comparable left, Comparable right) {
+  static int compareOrThrow(@Readonly Comparable left, @Readonly Comparable right) {
     return left.compareTo(right);
   }
 

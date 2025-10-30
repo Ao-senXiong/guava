@@ -56,6 +56,7 @@ import sun.misc.Unsafe;
 @AnnotatedFor({"signedness"})
 @GwtIncompatible
 @ElementTypesAreNonnullByDefault
+@SuppressWarnings("pico")
 public final class UnsignedBytes {
   private UnsignedBytes() {}
 

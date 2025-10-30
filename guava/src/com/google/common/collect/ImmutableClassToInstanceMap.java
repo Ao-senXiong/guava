@@ -27,8 +27,9 @@ import java.io.Serializable;
 import java.util.Map;
 import javax.annotation.CheckForNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
-import org.checkerframework.checker.pico.qual.Mutable;
 import org.checkerframework.checker.pico.qual.Immutable;
+import org.checkerframework.checker.pico.qual.Mutable;
+import org.checkerframework.checker.pico.qual.Readonly;
 import org.checkerframework.framework.qual.AnnotatedFor;
 
 /**
@@ -38,7 +39,7 @@ import org.checkerframework.framework.qual.AnnotatedFor;
  * @author Kevin Bourrillion
  * @since 2.0
  */
-@AnnotatedFor({"nullness"})
+@AnnotatedFor({"nullness", "pico"})
 //@Immutable(containerOf = "B")
 @GwtIncompatible
 @ElementTypesAreNonnullByDefault
@@ -46,7 +47,7 @@ import org.checkerframework.framework.qual.AnnotatedFor;
 public final class ImmutableClassToInstanceMap<B> extends ForwardingMap<Class<? extends B>, B>
     implements ClassToInstanceMap<B>, Serializable {
 
-  private static final ImmutableClassToInstanceMap<Object> EMPTY =
+  private static final ImmutableClassToInstanceMap<@Readonly Object> EMPTY =
       new ImmutableClassToInstanceMap<>(ImmutableMap.<Class<?>, Object>of());
 
   /**
@@ -174,7 +175,7 @@ public final class ImmutableClassToInstanceMap<B> extends ForwardingMap<Class<? 
   }
 
   @Override
-  protected Map<Class<? extends B>, B> delegate() {
+  protected @Immutable Map<Class<? extends B>, B> delegate() {
     return delegate;
   }
 
@@ -200,7 +201,7 @@ public final class ImmutableClassToInstanceMap<B> extends ForwardingMap<Class<? 
     throw new UnsupportedOperationException();
   }
 
-  Object readResolve() {
+  @Immutable Object readResolve() {
     return isEmpty() ? of() : this;
   }
 }

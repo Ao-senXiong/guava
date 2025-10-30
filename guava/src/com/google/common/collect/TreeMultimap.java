@@ -34,6 +34,8 @@ import java.util.TreeSet;
 import org.checkerframework.checker.nullness.qual.KeyFor;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.checker.pico.qual.Immutable;
+import org.checkerframework.checker.pico.qual.Mutable;
+import org.checkerframework.checker.pico.qual.PolyMutable;
 import org.checkerframework.checker.pico.qual.Readonly;
 import org.checkerframework.checker.pico.qual.ReceiverDependentMutable;
 import org.checkerframework.dataflow.qual.Pure;
@@ -77,14 +79,14 @@ import org.checkerframework.framework.qual.AnnotatedFor;
  * @author Louis Wasserman
  * @since 2.0
  */
-@AnnotatedFor({"nullness"})
+@AnnotatedFor({"nullness", "pico"})
 @GwtCompatible(serializable = true, emulated = true)
 @ElementTypesAreNonnullByDefault
 @ReceiverDependentMutable
 public class TreeMultimap<K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object>
     extends AbstractSortedKeySortedSetMultimap<K, V> {
-  private transient Comparator<? super K> keyComparator;
-  private transient Comparator<? super V> valueComparator;
+  private transient @Mutable Comparator<? super K> keyComparator;
+  private transient @Mutable Comparator<? super V> valueComparator;
 
   /**
    * Creates an empty {@code TreeMultimap} ordered by the natural ordering of its keys and values.
@@ -111,13 +113,13 @@ public class TreeMultimap<K extends @Nullable @Immutable Object, V extends @Null
    *
    * @param multimap the multimap whose contents are copied to this multimap
    */
-  public static <K extends @Immutable Comparable, V extends @Readonly Comparable> TreeMultimap<K, V> create(
-      Multimap<? extends K, ? extends V> multimap) {
-    return new TreeMultimap<>(Ordering.natural(), Ordering.natural(), multimap);
+  public static <K extends @Immutable Comparable, V extends @Readonly Comparable> @PolyMutable TreeMultimap<K, V> create(
+          @PolyMutable Multimap<? extends K, ? extends V> multimap) {
+    return new @PolyMutable TreeMultimap<>(Ordering.natural(), Ordering.natural(), multimap);
   }
 
   TreeMultimap(@Nullable Comparator<? super K> keyComparator, @Nullable Comparator<? super V> valueComparator) {
-    super(new TreeMap<K, Collection<V>>(keyComparator));
+    super(new @ReceiverDependentMutable TreeMap<K, @ReceiverDependentMutable Collection<V>>(keyComparator));
     this.keyComparator = keyComparator;
     this.valueComparator = valueComparator;
   }
@@ -131,7 +133,7 @@ public class TreeMultimap<K extends @Nullable @Immutable Object, V extends @Null
   }
 
   @Override
-  Map<K, Collection<V>> createAsMap() {
+  @PolyMutable Map<K, @PolyMutable Collection<V>> createAsMap(@PolyMutable TreeMultimap<K, V> this) {
     return createMaybeNavigableAsMap();
   }
 
@@ -143,12 +145,12 @@ public class TreeMultimap<K extends @Nullable @Immutable Object, V extends @Null
    * @return a new {@code TreeSet} containing a collection of values for one key
    */
   @Override
-  SortedSet<V> createCollection() {
-    return new TreeSet<>(valueComparator);
+  @PolyMutable SortedSet<V> createCollection(@PolyMutable TreeMultimap<K, V> this) {
+    return new @PolyMutable TreeSet<>(valueComparator);
   }
 
   @Override
-  Collection<V> createCollection(@ParametricNullness K key) {
+  @PolyMutable Collection<V> createCollection(@PolyMutable TreeMultimap<K, V> this, @ParametricNullness K key) {
     if (key == null) {
       keyComparator().compare(key, key);
     }
@@ -161,20 +163,20 @@ public class TreeMultimap<K extends @Nullable @Immutable Object, V extends @Null
    * @deprecated Use {@code ((NavigableSet<K>) multimap.keySet()).comparator()} instead.
    */
   @Deprecated
-  public @Nullable Comparator<? super K> keyComparator() {
+  public @Nullable Comparator<? super K> keyComparator(@Readonly TreeMultimap<K, V> this) {
     return keyComparator;
   }
 
   @Override
-  public @Nullable Comparator<? super V> valueComparator() {
+  public @Nullable Comparator<? super V> valueComparator(@Readonly TreeMultimap<K, V> this) {
     return valueComparator;
   }
 
   /** @since 14.0 (present with return type {@code SortedSet} since 2.0) */
   @Override
   @GwtIncompatible // NavigableSet
-  public NavigableSet<V> get(@ParametricNullness K key) {
-    return (NavigableSet<V>) super.get(key);
+  public @PolyMutable NavigableSet<V> get(@PolyMutable TreeMultimap<K, V> this, @ParametricNullness K key) {
+    return (@PolyMutable NavigableSet<V>) super.get(key);
   }
 
   /**
@@ -188,7 +190,7 @@ public class TreeMultimap<K extends @Nullable @Immutable Object, V extends @Null
    */
   @SideEffectFree
   @Override
-  public NavigableSet<K> keySet() {
+  public @PolyMutable NavigableSet<K> keySet(@PolyMutable TreeMultimap<K, V> this) {
     return (NavigableSet<K>) super.keySet();
   }
 
@@ -202,8 +204,8 @@ public class TreeMultimap<K extends @Nullable @Immutable Object, V extends @Null
    * @since 14.0 (present with return type {@code SortedMap} since 2.0)
    */
   @Override
-  public NavigableMap<K, Collection<V>> asMap() {
-    return (NavigableMap<K, Collection<V>>) super.asMap();
+  public @PolyMutable NavigableMap<K, @PolyMutable Collection<V>> asMap(@PolyMutable TreeMultimap<K, V> this) {
+    return (@PolyMutable NavigableMap<K, @PolyMutable Collection<V>>) super.asMap();
   }
 
   /**
@@ -232,7 +234,7 @@ public class TreeMultimap<K extends @Nullable @Immutable Object, V extends @Null
   private static final long serialVersionUID = 0;
 
 @Pure
-public boolean equals(@Nullable Object arg0) { return super.equals(arg0); }
+public boolean equals(@Readonly TreeMultimap<K, V> this, @Nullable @Readonly Object arg0) { return super.equals(arg0); }
 
-public SortedSet<V> removeAll(@Nullable Object arg0) { return super.removeAll(arg0); }
+public @Readonly SortedSet<V> removeAll(@Mutable TreeMultimap<K, V> this, @Nullable @Readonly Object arg0) { return super.removeAll(arg0); }
 }

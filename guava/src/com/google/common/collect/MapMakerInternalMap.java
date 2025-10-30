@@ -2288,7 +2288,6 @@ class MapMakerInternalMap<
     }
   }
 
-  @ReceiverDependentMutable
   static final class CleanupMapTask implements Runnable {
     final WeakReference<MapMakerInternalMap<?, ?, ?, ?>> mapReference;
 

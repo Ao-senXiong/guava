@@ -19,6 +19,7 @@ import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import javax.annotation.CheckForNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.checker.pico.qual.Readonly;
+import org.checkerframework.checker.pico.qual.ReceiverDependentMutable;
 import org.checkerframework.dataflow.qual.Pure;
 import org.checkerframework.framework.qual.AnnotatedFor;
 
@@ -44,10 +45,12 @@ import org.checkerframework.framework.qual.AnnotatedFor;
  * @author Kevin Bourrillion
  * @since 2.0
  */
+@SuppressWarnings("pico")
 @FunctionalInterface
 @GwtCompatible
 @AnnotatedFor({"nullness"})
 @ElementTypesAreNonnullByDefault
+@ReceiverDependentMutable
 public interface Predicate<T extends @Nullable @Readonly Object> extends java.util.function.Predicate<T> {
   /**
    * Returns the result of applying this predicate to {@code input} (Java 8 users, see notes in the

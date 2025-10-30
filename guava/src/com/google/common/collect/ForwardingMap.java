@@ -153,7 +153,7 @@ public abstract class ForwardingMap<K extends @Nullable @Immutable Object, V ext
 
   @SideEffectFree
   @Override
-  public @PolyMutable Set<Entry<@KeyFor({"this"}) K, V>> entrySet(@PolyMutable ForwardingMap<K, V> this) {
+  public @PolyMutable Set<@PolyMutable Entry<@KeyFor({"this"}) K, V>> entrySet(@PolyMutable ForwardingMap<K, V> this) {
     return delegate().entrySet();
   }
 

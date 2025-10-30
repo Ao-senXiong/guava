@@ -24,7 +24,10 @@ import java.util.SortedSet;
 import org.checkerframework.checker.nullness.qual.KeyFor;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.checker.pico.qual.Immutable;
+import org.checkerframework.checker.pico.qual.PolyMutable;
+import org.checkerframework.checker.pico.qual.Readonly;
 import org.checkerframework.checker.pico.qual.ReceiverDependentMutable;
+import org.checkerframework.framework.qual.AnnotatedFor;
 
 /**
  * Basic implementation of a {@link SortedSetMultimap} with a sorted key set.
@@ -34,34 +37,35 @@ import org.checkerframework.checker.pico.qual.ReceiverDependentMutable;
  *
  * @author Louis Wasserman
  */
+@AnnotatedFor("pico")
 @GwtCompatible
 @ElementTypesAreNonnullByDefault
 @ReceiverDependentMutable
 abstract class AbstractSortedKeySortedSetMultimap<
-        K extends @Nullable @Immutable Object, V extends @Nullable Object>
+        K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object>
     extends AbstractSortedSetMultimap<K, V> {
 
-  AbstractSortedKeySortedSetMultimap(SortedMap<K, Collection<V>> map) {
+  AbstractSortedKeySortedSetMultimap(@ReceiverDependentMutable SortedMap<K, @ReceiverDependentMutable Collection<V>> map) {
     super(map);
   }
 
   @Override
-  public SortedMap<K, Collection<V>> asMap() {
-    return (SortedMap<K, Collection<V>>) super.asMap();
+  public @PolyMutable SortedMap<K, @PolyMutable Collection<V>> asMap(@PolyMutable AbstractSortedKeySortedSetMultimap<K, V> this) {
+    return (@PolyMutable SortedMap<K, @PolyMutable Collection<V>>) super.asMap();
   }
 
   @Override
-  SortedMap<K, Collection<V>> backingMap() {
-    return (SortedMap<K, Collection<V>>) super.backingMap();
+  @PolyMutable SortedMap<K, @PolyMutable Collection<V>> backingMap(@PolyMutable AbstractSortedKeySortedSetMultimap<K, V> this) {
+    return (@PolyMutable SortedMap<K, @PolyMutable Collection<V>>) super.backingMap();
   }
 
   @Override
-  public SortedSet<K> keySet() {
-    return (SortedSet<K>) super.keySet();
+  public @PolyMutable SortedSet<K> keySet(@PolyMutable AbstractSortedKeySortedSetMultimap<K, V> this) {
+    return (@PolyMutable SortedSet<K>) super.keySet();
   }
 
   @Override
-  Set<K> createKeySet() {
+  @PolyMutable Set<K> createKeySet(@PolyMutable AbstractSortedKeySortedSetMultimap<K, V> this) {
     return createMaybeNavigableKeySet();
   }
 }

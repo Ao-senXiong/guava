@@ -48,6 +48,7 @@ import org.checkerframework.framework.qual.AnnotatedFor;
 @AnnotatedFor({"signedness"})
 @GwtCompatible(serializable = true)
 @ElementTypesAreNonnullByDefault
+@SuppressWarnings("pico")
 public final class UnsignedLong extends Number implements Comparable<UnsignedLong>, Serializable {
 
   private static final long UNSIGNED_MASK = 0x7fffffffffffffffL;

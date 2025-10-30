@@ -54,6 +54,7 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
  */
 @Beta
 @ElementTypesAreNonnullByDefault
+@SuppressWarnings("pico")
 public abstract class AbstractNetwork<N, E> implements Network<N, E> {
 
   @Override

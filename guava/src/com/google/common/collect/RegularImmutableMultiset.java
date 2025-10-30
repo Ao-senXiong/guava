@@ -147,6 +147,7 @@ class RegularImmutableMultiset<E> extends ImmutableMultiset<E> {
     this.elementSet = elementSet;
   }
 
+  @Immutable
   private static final class NonTerminalEntry<E> extends ImmutableEntry<E> {
     private final ImmutableEntry<E> nextInBucket;
 

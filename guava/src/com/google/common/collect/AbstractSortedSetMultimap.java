@@ -26,6 +26,8 @@ import java.util.SortedSet;
 import javax.annotation.CheckForNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.checker.pico.qual.Immutable;
+import org.checkerframework.checker.pico.qual.Mutable;
+import org.checkerframework.checker.pico.qual.PolyMutable;
 import org.checkerframework.checker.pico.qual.Readonly;
 import org.checkerframework.checker.pico.qual.ReceiverDependentMutable;
 import org.checkerframework.dataflow.qual.SideEffectFree;
@@ -38,7 +40,7 @@ import org.checkerframework.framework.qual.AnnotatedFor;
  *
  * @author Jared Levy
  */
-@AnnotatedFor({"nullness"})
+@AnnotatedFor({"nullness", "pico"})
 @GwtCompatible
 @ElementTypesAreNonnullByDefault
 @ReceiverDependentMutable
@@ -49,21 +51,21 @@ abstract class AbstractSortedSetMultimap<K extends @Nullable @Immutable Object, 
    *
    * @param map place to store the mapping from each key to its corresponding values
    */
-  protected AbstractSortedSetMultimap(Map<K, Collection<V>> map) {
+  protected AbstractSortedSetMultimap(@ReceiverDependentMutable Map<K, @ReceiverDependentMutable Collection<V>> map) {
     super(map);
   }
 
   @Override
-  abstract SortedSet<V> createCollection();
+  abstract @PolyMutable SortedSet<V> createCollection(@PolyMutable AbstractSortedSetMultimap<K,V> this);
 
   @Override
-  SortedSet<V> createUnmodifiableEmptyCollection() {
+  @Readonly SortedSet<V> createUnmodifiableEmptyCollection(@Readonly AbstractSortedSetMultimap<K, V> this) {
     return unmodifiableCollectionSubclass(createCollection());
   }
 
   @Override
-  <E extends @Nullable @Readonly Object> @Immutable SortedSet<E> unmodifiableCollectionSubclass(
-      Collection<E> collection) {
+  <E extends @Nullable @Readonly Object> @Readonly SortedSet<E> unmodifiableCollectionSubclass(
+          @Readonly Collection<E> collection) {
     if (collection instanceof NavigableSet) {
       return Sets.unmodifiableNavigableSet((NavigableSet<E>) collection);
     } else {
@@ -93,8 +95,8 @@ abstract class AbstractSortedSetMultimap<K extends @Nullable @Immutable Object, 
    * Multimap} interface.
    */
   @Override
-  public SortedSet<V> get(@ParametricNullness K key) {
-    return (SortedSet<V>) super.get(key);
+  public @PolyMutable SortedSet<V> get(@PolyMutable AbstractSortedSetMultimap<K, V> this, @ParametricNullness K key) {
+    return (@PolyMutable SortedSet<V>) super.get(key);
   }
 
   /**
@@ -106,8 +108,8 @@ abstract class AbstractSortedSetMultimap<K extends @Nullable @Immutable Object, 
    */
   @CanIgnoreReturnValue
   @Override
-  public SortedSet<V> removeAll(@CheckForNull @Readonly Object key) {
-    return (SortedSet<V>) super.removeAll(key);
+  public @Readonly SortedSet<V> removeAll(@Mutable AbstractSortedSetMultimap<K, V> this, @CheckForNull @Readonly Object key) {
+    return (@Readonly SortedSet<V>) super.removeAll(key);
   }
 
   /**
@@ -122,8 +124,8 @@ abstract class AbstractSortedSetMultimap<K extends @Nullable @Immutable Object, 
    */
   @CanIgnoreReturnValue
   @Override
-  public SortedSet<V> replaceValues(@ParametricNullness K key, Iterable<? extends V> values) {
-    return (SortedSet<V>) super.replaceValues(key, values);
+  public @Readonly SortedSet<V> replaceValues(@Mutable AbstractSortedSetMultimap<K, V> this, @ParametricNullness K key, Iterable<? extends V> values) {
+    return (@Readonly SortedSet<V>) super.replaceValues(key, values);
   }
 
   /**
@@ -139,7 +141,7 @@ abstract class AbstractSortedSetMultimap<K extends @Nullable @Immutable Object, 
    * SortedSet} values.
    */
   @Override
-  public Map<K, Collection<V>> asMap() {
+  public @PolyMutable Map<K, @PolyMutable Collection<V>> asMap(@PolyMutable AbstractSortedSetMultimap<K,V> this) {
     return super.asMap();
   }
 
@@ -151,7 +153,7 @@ abstract class AbstractSortedSetMultimap<K extends @Nullable @Immutable Object, 
    */
   @SideEffectFree
   @Override
-  public Collection<V> values() {
+  public @PolyMutable Collection<V> values(@PolyMutable AbstractSortedSetMultimap<K,V> this) {
     return super.values();
   }
 

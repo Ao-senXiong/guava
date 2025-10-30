@@ -196,6 +196,7 @@ public final class ArrayTable<R extends @Immutable Object, C extends @Immutable 
     }
   }
 
+  @ReceiverDependentMutable
   private abstract static class ArrayMap<K extends @Immutable Object, V extends @Nullable @Readonly Object>
       extends IteratorBasedAbstractMap<K, V> {
     private final ImmutableMap<K, Integer> keyIndex;
@@ -774,7 +775,8 @@ public final class ArrayTable<R extends @Immutable Object, C extends @Immutable 
   }
 
   @WeakOuter
-  private @ReceiverDependentMutable class RowMap extends ArrayMap<R, Map<C, @Nullable V>> {
+  @ReceiverDependentMutable
+  private class RowMap extends ArrayMap<R, Map<C, @Nullable V>> {
     private RowMap() {
       super(rowKeyToIndex);
     }

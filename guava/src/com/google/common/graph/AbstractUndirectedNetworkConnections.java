@@ -33,6 +33,7 @@ import javax.annotation.CheckForNull;
  * @param <E> Edge parameter type
  */
 @ElementTypesAreNonnullByDefault
+@SuppressWarnings("pico")
 abstract class AbstractUndirectedNetworkConnections<N, E> implements NetworkConnections<N, E> {
   /** Keys are edges incident to the origin node, values are the node at the other end. */
   final Map<E, N> incidentEdgeMap;

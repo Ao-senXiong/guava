@@ -28,6 +28,7 @@ import org.checkerframework.checker.index.qual.NonNegative;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.checker.signedness.qual.UnknownSignedness;
 import org.checkerframework.checker.pico.qual.Immutable;
+import org.checkerframework.checker.pico.qual.Readonly;
 import org.checkerframework.framework.qual.AnnotatedFor;
 
 /**
@@ -113,12 +114,12 @@ final class JdkBackedImmutableBiMap<K extends @Immutable Object, V extends @Immu
 
   @Override
   @CheckForNull
-  public V get(@CheckForNull @UnknownSignedness Object key) {
+  public V get(@CheckForNull @UnknownSignedness @Readonly Object key) {
     return forwardDelegate.get(key);
   }
 
   @Override
-  ImmutableSet<Entry<K, V>> createEntrySet() {
+  ImmutableSet<@Immutable Entry<K, V>> createEntrySet() {
     return new ImmutableMapEntrySet.RegularEntrySet<>(this, entries);
   }
 

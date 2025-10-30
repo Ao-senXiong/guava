@@ -43,7 +43,7 @@ import org.checkerframework.framework.qual.AnnotatedFor;
 @Immutable
 final class ImmutableEnumSet<E extends Enum<E>> extends ImmutableSet<E> {
   @SuppressWarnings("rawtypes") // necessary to compile against Java 8
-  static ImmutableSet asImmutable(EnumSet set) {
+  static ImmutableSet asImmutable(@Immutable EnumSet set) {
     switch (set.size()) {
       case 0:
         return ImmutableSet.of();
@@ -64,7 +64,7 @@ final class ImmutableEnumSet<E extends Enum<E>> extends ImmutableSet<E> {
    */
   private final transient EnumSet<E> delegate;
 
-  private ImmutableEnumSet(EnumSet<E> delegate) {
+  private ImmutableEnumSet(@Immutable EnumSet<E> delegate) {
     this.delegate = delegate;
   }
 

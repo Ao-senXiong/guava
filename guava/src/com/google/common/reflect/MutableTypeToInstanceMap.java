@@ -45,8 +45,8 @@ import org.checkerframework.framework.qual.AnnotatedFor;
  * @author Ben Yu
  * @since 13.0
  */
-@AnnotatedFor("pico")
 @ElementTypesAreNonnullByDefault
+@SuppressWarnings("pico")
 public final class MutableTypeToInstanceMap<B> extends ForwardingMap<TypeToken<? extends B>, B>
     implements TypeToInstanceMap<B> {
 

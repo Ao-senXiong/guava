@@ -80,7 +80,7 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
  * @author Adam Winer
  * @since 12.0
  */
-@SuppressWarnings("GoodTime") // lots of violations (nanosecond math)
+@SuppressWarnings({"GoodTime", "pico"}) // lots of violations (nanosecond math)
 @GwtIncompatible
 @ElementTypesAreNonnullByDefault
 public final class CacheBuilderSpec {

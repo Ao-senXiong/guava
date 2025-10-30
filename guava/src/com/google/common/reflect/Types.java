@@ -56,6 +56,7 @@ import org.checkerframework.common.value.qual.MinLen;
  * @author Ben Yu
  */
 @ElementTypesAreNonnullByDefault
+@SuppressWarnings("pico")
 final class Types {
 
   /** Class#toString without the "class " and "interface " prefixes */

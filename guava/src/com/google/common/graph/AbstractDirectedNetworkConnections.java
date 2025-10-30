@@ -44,6 +44,7 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
  * @param <E> Edge parameter type
  */
 @ElementTypesAreNonnullByDefault
+@SuppressWarnings("pico")
 abstract class AbstractDirectedNetworkConnections<N, E> implements NetworkConnections<N, E> {
   /** Keys are edges incoming to the origin node, values are the source node. */
   final Map<E, N> inEdgeMap;

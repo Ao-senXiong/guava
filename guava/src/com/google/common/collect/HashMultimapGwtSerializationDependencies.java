@@ -20,6 +20,8 @@ import com.google.common.annotations.GwtCompatible;
 import org.checkerframework.checker.pico.qual.Immutable;
 import org.checkerframework.checker.pico.qual.Readonly;
 import org.checkerframework.checker.pico.qual.ReceiverDependentMutable;
+import org.checkerframework.framework.qual.AnnotatedFor;
+
 import java.util.Collection;
 import java.util.Map;
 
@@ -32,10 +34,11 @@ import java.util.Map;
  *
  * <p>TODO(cpovirk): Consider applying this subclass approach to our other types.
  */
+@AnnotatedFor("pico")
 @GwtCompatible(emulated = true)
 @ReceiverDependentMutable
 abstract class HashMultimapGwtSerializationDependencies<K extends @Immutable Object , V extends @Readonly Object> extends AbstractSetMultimap<K, V> {
-  HashMultimapGwtSerializationDependencies(Map<K, Collection<V>> map) {
+  HashMultimapGwtSerializationDependencies(@ReceiverDependentMutable Map<K, @ReceiverDependentMutable Collection<V>> map) {
     super(map);
   }
 }

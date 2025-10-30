@@ -49,6 +49,7 @@ import org.checkerframework.common.value.qual.MinLen;
  * @since 11.0
  */
 @ElementTypesAreNonnullByDefault
+@SuppressWarnings("pico")
 public final class Hashing {
   /**
    * Returns a general-purpose, <b>temporary-use</b>, non-cryptographic hash function. The algorithm

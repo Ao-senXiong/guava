@@ -63,11 +63,14 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.checker.pico.qual.Assignable;
 import org.checkerframework.checker.pico.qual.Immutable;
 import org.checkerframework.checker.pico.qual.Mutable;
+import org.checkerframework.checker.pico.qual.PolyMutable;
 import org.checkerframework.checker.pico.qual.Readonly;
+import org.checkerframework.checker.pico.qual.ReceiverDependentMutable;
 import org.checkerframework.checker.signedness.qual.UnknownSignedness;
 import org.checkerframework.dataflow.qual.Pure;
 import org.checkerframework.dataflow.qual.SideEffectFree;
 import org.checkerframework.framework.qual.AnnotatedFor;
+import org.checkerframework.framework.qual.CFComment;
 
 /**
  * Provides static methods acting on or generating a {@code Multimap}.
@@ -125,9 +128,9 @@ public final class Multimaps {
    * @since 21.0
    */
   public static <
-          T extends @Nullable Object,
+          T extends @Nullable @Readonly Object,
           K extends @Nullable @Immutable Object,
-          V extends @Nullable Object,
+          V extends @Nullable @Readonly Object,
           M extends Multimap<K, V>>
       Collector<T, ?, M> toMultimap(
           java.util.function.Function<? super T, ? extends K> keyFunction,
@@ -171,9 +174,9 @@ public final class Multimaps {
    */
   @Beta
   public static <
-          T extends @Nullable Object,
+          T extends @Nullable @Readonly Object,
           K extends @Nullable @Immutable Object,
-          V extends @Nullable Object,
+          V extends @Nullable @Readonly Object,
           M extends Multimap<K, V>>
       Collector<T, ?, M> flatteningToMultimap(
           java.util.function.Function<? super T, ? extends K> keyFunction,
@@ -218,38 +221,39 @@ public final class Multimaps {
    *     key
    * @throws IllegalArgumentException if {@code map} is not empty
    */
-  public static <K extends @Nullable @Immutable Object, V extends @Nullable Object> Multimap<K, V> newMultimap(
+  public static <K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object> Multimap<K, V> newMultimap(
       Map<K, Collection<V>> map, final Supplier<? extends Collection<V>> factory) {
     return new CustomMultimap<>(map, factory);
   }
 
-  private static class CustomMultimap<K extends @Nullable @Immutable Object, V extends @Nullable Object>
+  @ReceiverDependentMutable
+  private static class CustomMultimap<K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object>
       extends AbstractMapBasedMultimap<K, V> {
-    transient Supplier<? extends Collection<V>> factory;
+    transient Supplier<? extends @ReceiverDependentMutable Collection<V>> factory;
 
-    CustomMultimap(Map<K, Collection<V>> map, Supplier<? extends Collection<V>> factory) {
+    CustomMultimap(@ReceiverDependentMutable Map<K, @ReceiverDependentMutable Collection<V>> map, Supplier<? extends @ReceiverDependentMutable Collection<V>> factory) {
       super(map);
       this.factory = checkNotNull(factory);
     }
 
     @Override
-    Set<K> createKeySet() {
+    @PolyMutable Set<K> createKeySet(@PolyMutable CustomMultimap<K, V> this) {
       return createMaybeNavigableKeySet();
     }
 
     @Override
-    Map<K, Collection<V>> createAsMap() {
+    @PolyMutable Map<K, @PolyMutable Collection<V>> createAsMap(@PolyMutable CustomMultimap<K, V> this) {
       return createMaybeNavigableAsMap();
     }
 
     @Override
-    protected Collection<V> createCollection() {
+    protected @PolyMutable Collection<V> createCollection(@PolyMutable CustomMultimap<K, V> this) {
       return factory.get();
     }
 
     @Override
-    <E extends @Nullable @Readonly Object> @Immutable Collection<E> unmodifiableCollectionSubclass(
-        Collection<E> collection) {
+    <E extends @Nullable @Readonly Object> @Readonly Collection<E> unmodifiableCollectionSubclass(
+            @Readonly Collection<E> collection) {
       if (collection instanceof NavigableSet) {
         return Sets.unmodifiableNavigableSet((NavigableSet<E>) collection);
       } else if (collection instanceof SortedSet) {
@@ -332,33 +336,34 @@ public final class Multimaps {
    * @param factory supplier of new, empty lists that will each hold all values for a given key
    * @throws IllegalArgumentException if {@code map} is not empty
    */
-  public static <K extends @Nullable @Immutable Object, V extends @Nullable Object>
+  public static <K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object>
       ListMultimap<K, V> newListMultimap(
           Map<K, Collection<V>> map, final Supplier<? extends List<V>> factory) {
     return new CustomListMultimap<>(map, factory);
   }
 
-  private static class CustomListMultimap<K extends @Nullable @Immutable Object, V extends @Nullable Object>
+  @ReceiverDependentMutable
+  private static class CustomListMultimap<K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object>
       extends AbstractListMultimap<K, V> {
-    transient Supplier<? extends List<V>> factory;
+    transient Supplier<? extends @ReceiverDependentMutable List<V>> factory;
 
-    CustomListMultimap(Map<K, Collection<V>> map, Supplier<? extends List<V>> factory) {
+    CustomListMultimap(@ReceiverDependentMutable Map<K, @ReceiverDependentMutable Collection<V>> map, Supplier<? extends @ReceiverDependentMutable List<V>> factory) {
       super(map);
       this.factory = checkNotNull(factory);
     }
 
     @Override
-    Set<K> createKeySet() {
+    @PolyMutable Set<K> createKeySet(@PolyMutable CustomListMultimap<K, V> this) {
       return createMaybeNavigableKeySet();
     }
 
     @Override
-    Map<K, Collection<V>> createAsMap() {
+    @PolyMutable Map<K, @PolyMutable Collection<V>> createAsMap(@PolyMutable CustomListMultimap<K, V> this) {
       return createMaybeNavigableAsMap();
     }
 
     @Override
-    protected List<V> createCollection() {
+    protected @ReceiverDependentMutable List<V> createCollection(@PolyMutable CustomListMultimap<K, V> this) {
       return factory.get();
     }
 
@@ -412,38 +417,39 @@ public final class Multimaps {
    * @param factory supplier of new, empty sets that will each hold all values for a given key
    * @throws IllegalArgumentException if {@code map} is not empty
    */
-  public static <K extends @Nullable @Immutable Object, V extends @Nullable Object>
+  public static <K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object>
       SetMultimap<K, V> newSetMultimap(
           Map<K, Collection<V>> map, final Supplier<? extends Set<V>> factory) {
     return new CustomSetMultimap<>(map, factory);
   }
 
+  @ReceiverDependentMutable
   private static class CustomSetMultimap<K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object>
       extends AbstractSetMultimap<K, V> {
-    transient Supplier<? extends Set<V>> factory;
+    transient Supplier<? extends @ReceiverDependentMutable Set<V>> factory;
 
-    CustomSetMultimap(Map<K, Collection<V>> map, Supplier<? extends Set<V>> factory) {
+    CustomSetMultimap(@ReceiverDependentMutable Map<K, @ReceiverDependentMutable Collection<V>> map, Supplier<? extends @ReceiverDependentMutable Set<V>> factory) {
       super(map);
       this.factory = checkNotNull(factory);
     }
 
     @Override
-    Set<K> createKeySet() {
+    @PolyMutable Set<K> createKeySet(@PolyMutable CustomSetMultimap<K, V> this) {
       return createMaybeNavigableKeySet();
     }
 
     @Override
-    Map<K, Collection<V>> createAsMap() {
+    @PolyMutable Map<K, @PolyMutable Collection<V>> createAsMap(@PolyMutable CustomSetMultimap<K, V> this) {
       return createMaybeNavigableAsMap();
     }
 
     @Override
-    protected Set<V> createCollection() {
+    protected @PolyMutable Set<V> createCollection(@PolyMutable CustomSetMultimap<K, V> this) {
       return factory.get();
     }
 
     @Override
-    <E extends @Nullable Object> Collection<E> unmodifiableCollectionSubclass(
+    <E extends @Nullable @Readonly Object> @Readonly Collection<E> unmodifiableCollectionSubclass(
         Collection<E> collection) {
       if (collection instanceof NavigableSet) {
         return Sets.unmodifiableNavigableSet((NavigableSet<E>) collection);
@@ -455,13 +461,13 @@ public final class Multimaps {
     }
 
     @Override
-    Collection<V> wrapCollection(@ParametricNullness K key, Collection<V> collection) {
+    @PolyMutable Collection<V> wrapCollection(@ParametricNullness K key, @PolyMutable Collection<V> collection) {
       if (collection instanceof NavigableSet) {
-        return new WrappedNavigableSet(key, (NavigableSet<V>) collection, null);
+        return new @PolyMutable WrappedNavigableSet(key, (NavigableSet<V>) collection, null);
       } else if (collection instanceof SortedSet) {
-        return new WrappedSortedSet(key, (SortedSet<V>) collection, null);
+        return new @PolyMutable WrappedSortedSet(key, (SortedSet<V>) collection, null);
       } else {
-        return new WrappedSet(key, (Set<V>) collection);
+        return new @PolyMutable WrappedSet(key, (Set<V>) collection);
       }
     }
 
@@ -521,30 +527,31 @@ public final class Multimaps {
     return new CustomSortedSetMultimap<>(map, factory);
   }
 
+  @ReceiverDependentMutable
   private static class CustomSortedSetMultimap<
           K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object>
       extends AbstractSortedSetMultimap<K, V> {
-    transient Supplier<? extends SortedSet<V>> factory;
-    @CheckForNull transient Comparator<? super V> valueComparator;
+    transient Supplier<? extends @ReceiverDependentMutable SortedSet<V>> factory;
+    @CheckForNull transient @Mutable Comparator<? super V> valueComparator;
 
-    CustomSortedSetMultimap(Map<K, Collection<V>> map, Supplier<? extends SortedSet<V>> factory) {
+    CustomSortedSetMultimap(@ReceiverDependentMutable Map<K, @ReceiverDependentMutable Collection<V>> map, Supplier<? extends @ReceiverDependentMutable SortedSet<V>> factory) {
       super(map);
       this.factory = checkNotNull(factory);
       valueComparator = factory.get().comparator();
     }
 
     @Override
-    Set<K> createKeySet() {
+    @PolyMutable Set<K> createKeySet(@PolyMutable CustomSortedSetMultimap<K, V> this) {
       return createMaybeNavigableKeySet();
     }
 
     @Override
-    Map<K, Collection<V>> createAsMap() {
+    @PolyMutable Map<K, @PolyMutable Collection<V>> createAsMap(@PolyMutable CustomSortedSetMultimap<K, V> this) {
       return createMaybeNavigableAsMap();
     }
 
     @Override
-    protected SortedSet<V> createCollection() {
+    protected @PolyMutable SortedSet<V> createCollection(@PolyMutable CustomSortedSetMultimap<K, V> this) {
       return factory.get();
     }
 
@@ -646,7 +653,7 @@ public final class Multimaps {
    * @return an unmodifiable view of the specified multimap
    */
   public static <K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object>
-      Multimap<K, V> unmodifiableMultimap(Multimap<K, V> delegate) {
+    @Readonly Multimap<K, V> unmodifiableMultimap(@Readonly Multimap<K, V> delegate) {
     if (delegate instanceof UnmodifiableMultimap || delegate instanceof ImmutableMultimap) {
       return delegate;
     }
@@ -660,26 +667,26 @@ public final class Multimaps {
    * @since 10.0
    */
   @Deprecated
-  public static <K extends @Immutable Object, V> Multimap<K, V> unmodifiableMultimap(ImmutableMultimap<K, @Immutable V> delegate) {
+  public static <K extends @Immutable Object, V> @Readonly Multimap<K, V> unmodifiableMultimap(ImmutableMultimap<K, @Immutable V> delegate) {
     return checkNotNull(delegate);
   }
 
   @Immutable
   private static class UnmodifiableMultimap<K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object>
       extends ForwardingMultimap<K, @Immutable V> implements Serializable {
-    final Multimap<K, V> delegate;
-    @LazyInit @CheckForNull transient @Assignable Collection<Entry<K, V>> entries;
-    @LazyInit @CheckForNull transient @Assignable Multiset<K> keys;
-    @LazyInit @CheckForNull transient @Assignable Set<K> keySet;
-    @LazyInit @CheckForNull transient @Assignable Collection<V> values;
-    @LazyInit @CheckForNull transient @Assignable Map<K, Collection<V>> map;
+    final @Readonly Multimap<K, V> delegate;
+    @LazyInit @CheckForNull transient @Assignable @Readonly Collection<@Readonly Entry<K, V>> entries;
+    @LazyInit @CheckForNull transient @Assignable @Readonly Multiset<K> keys;
+    @LazyInit @CheckForNull transient @Assignable @Readonly Set<K> keySet;
+    @LazyInit @CheckForNull transient @Assignable @Readonly Collection<V> values;
+    @LazyInit @CheckForNull transient @Assignable @Readonly Map<K, @Readonly Collection<V>> map;
 
-    UnmodifiableMultimap(final Multimap<K, V> delegate) {
+    UnmodifiableMultimap(final @Readonly Multimap<K, V> delegate) {
       this.delegate = checkNotNull(delegate);
     }
 
     @Override
-    protected Multimap<K, V> delegate() {
+    protected @Readonly Multimap<K, V> delegate() {
       return delegate;
     }
 
@@ -689,8 +696,8 @@ public final class Multimaps {
     }
 
     @Override
-    public Map<K, Collection<V>> asMap() {
-      Map<K, Collection<V>> result = map;
+    public @Readonly Map<K, @Readonly Collection<V>> asMap() {
+      Map<K, @Readonly Collection<V>> result = map;
       if (result == null) {
         result =
             map =
@@ -709,8 +716,8 @@ public final class Multimaps {
 
     @SideEffectFree
     @Override
-    public Collection<Entry<K, V>> entries() {
-      Collection<Entry<K, V>> result = entries;
+    public @Readonly Collection<@Readonly Entry<K, V>> entries() {
+      Collection<@Readonly Entry<K, V>> result = entries;
       if (result == null) {
         entries = result = unmodifiableEntries(delegate.entries());
       }
@@ -723,12 +730,12 @@ public final class Multimaps {
     }
 
     @Override
-    public Collection<V> get(@ParametricNullness K key) {
+    public @Readonly Collection<V> get(@ParametricNullness K key) {
       return unmodifiableValueCollection(delegate.get(key));
     }
 
     @Override
-    public Multiset<K> keys() {
+    public @Readonly Multiset<K> keys() {
       Multiset<K> result = keys;
       if (result == null) {
         keys = result = Multisets.unmodifiableMultiset(delegate.keys());
@@ -738,7 +745,7 @@ public final class Multimaps {
 
     @SideEffectFree
     @Override
-    public Set<K> keySet() {
+    public @Readonly Set<K> keySet() {
       Set<K> result = keySet;
       if (result == null) {
         keySet = result = Collections.unmodifiableSet(delegate.keySet());
@@ -762,23 +769,23 @@ public final class Multimaps {
     }
 
     @Override
-    public boolean remove(@CheckForNull Object key, @CheckForNull Object value) {
+    public boolean remove(@CheckForNull @Readonly Object key, @CheckForNull @Readonly Object value) {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public Collection<V> removeAll(@CheckForNull Object key) {
+    public @Readonly Collection<V> removeAll(@CheckForNull @Readonly Object key) {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public Collection<V> replaceValues(@ParametricNullness K key, Iterable<? extends V> values) {
+    public @Readonly Collection<V> replaceValues(@ParametricNullness K key, Iterable<? extends V> values) {
       throw new UnsupportedOperationException();
     }
 
     @SideEffectFree
     @Override
-    public Collection<V> values() {
+    public @Readonly Collection<V> values() {
       Collection<V> result = values;
       if (result == null) {
         values = result = Collections.unmodifiableCollection(delegate.values());
@@ -793,13 +800,13 @@ public final class Multimaps {
   private static class UnmodifiableListMultimap<
           K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object>
       extends UnmodifiableMultimap<K, V> implements ListMultimap<K, V> {
-    UnmodifiableListMultimap(@Immutable ListMultimap<K, V> delegate) {
+    UnmodifiableListMultimap(@Readonly ListMultimap<K, V> delegate) {
       super(delegate);
     }
 
     @Override
-    public @Immutable ListMultimap<K, V> delegate() {
-      return (@Immutable ListMultimap<K, V>) super.delegate();
+    public @Readonly ListMultimap<K, V> delegate() {
+      return (@Readonly ListMultimap<K, V>) super.delegate();
     }
 
     @Override
@@ -808,12 +815,12 @@ public final class Multimaps {
     }
 
     @Override
-    public List<V> removeAll(@CheckForNull @Readonly Object key) {
+    public @Readonly List<V> removeAll(@CheckForNull @Readonly Object key) {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public List<V> replaceValues(@ParametricNullness K key, Iterable<? extends V> values) {
+    public @Readonly List<V> replaceValues(@ParametricNullness K key, Iterable<? extends V> values) {
       throw new UnsupportedOperationException();
     }
 
@@ -824,17 +831,17 @@ public final class Multimaps {
   private static class UnmodifiableSetMultimap<
           K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object>
       extends UnmodifiableMultimap<K, V> implements SetMultimap<K, V> {
-    UnmodifiableSetMultimap(@Immutable SetMultimap<K, V> delegate) {
+    UnmodifiableSetMultimap(@Readonly SetMultimap<K, V> delegate) {
       super(delegate);
     }
 
     @Override
-    public @Immutable SetMultimap<K, V> delegate() {
-      return (@Immutable SetMultimap<K, V>) super.delegate();
+    public @Readonly SetMultimap<K, V> delegate() {
+      return (@Readonly SetMultimap<K, V>) super.delegate();
     }
 
     @Override
-    public Set<V> get(@ParametricNullness K key) {
+    public @Readonly Set<V> get(@ParametricNullness K key) {
       /*
        * Note that this doesn't return a SortedSet when delegate is a
        * SortedSetMultiset, unlike (SortedSet<V>) super.get().
@@ -844,17 +851,17 @@ public final class Multimaps {
 
     @SideEffectFree
     @Override
-    public @Immutable Set<Map.Entry<K, V>> entries() {
+    public @Readonly Set<Map.@Readonly Entry<K, V>> entries() {
       return Maps.unmodifiableEntrySet(delegate().entries());
     }
 
     @Override
-    public Set<V> removeAll(@CheckForNull Object key) {
+    public @Readonly Set<V> removeAll(@CheckForNull @Readonly Object key) {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public Set<V> replaceValues(@ParametricNullness K key, Iterable<? extends V> values) {
+    public @Readonly Set<V> replaceValues(@ParametricNullness K key, Iterable<? extends V> values) {
       throw new UnsupportedOperationException();
     }
 
@@ -865,13 +872,13 @@ public final class Multimaps {
   private static class UnmodifiableSortedSetMultimap<
           K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object>
       extends UnmodifiableSetMultimap<K, V> implements SortedSetMultimap<K, V> {
-    UnmodifiableSortedSetMultimap(SortedSetMultimap<K, V> delegate) {
+    UnmodifiableSortedSetMultimap(@Readonly SortedSetMultimap<K, V> delegate) {
       super(delegate);
     }
 
     @Override
-    public SortedSetMultimap<K, V> delegate() {
-      return (SortedSetMultimap<K, V>) super.delegate();
+    public @Readonly SortedSetMultimap<K, V> delegate() {
+      return (@Readonly SortedSetMultimap<K, V>) super.delegate();
     }
 
     @Override
@@ -880,12 +887,12 @@ public final class Multimaps {
     }
 
     @Override
-    public SortedSet<V> removeAll(@CheckForNull @Readonly Object key) {
+    public @Readonly SortedSet<V> removeAll(@CheckForNull @Readonly Object key) {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public SortedSet<V> replaceValues(@ParametricNullness K key, Iterable<? extends V> values) {
+    public @Readonly SortedSet<V> replaceValues(@ParametricNullness K key, Iterable<? extends V> values) {
       throw new UnsupportedOperationException();
     }
 
@@ -925,7 +932,7 @@ public final class Multimaps {
    * @return an unmodifiable view of the specified multimap
    */
   public static <K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object>
-      SetMultimap<K, V> unmodifiableSetMultimap(SetMultimap<K, V> delegate) {
+    @Readonly SetMultimap<K, V> unmodifiableSetMultimap(@Readonly SetMultimap<K, V> delegate) {
     if (delegate instanceof UnmodifiableSetMultimap || delegate instanceof ImmutableSetMultimap) {
       return delegate;
     }
@@ -939,7 +946,7 @@ public final class Multimaps {
    * @since 10.0
    */
   @Deprecated
-  public static <K extends @Immutable Object, V> SetMultimap<K, V> unmodifiableSetMultimap(
+  public static <K extends @Immutable Object, V> @Readonly SetMultimap<K, V> unmodifiableSetMultimap(
       ImmutableSetMultimap<K, @Immutable V> delegate) {
     return checkNotNull(delegate);
   }
@@ -972,7 +979,7 @@ public final class Multimaps {
    * @return an unmodifiable view of the specified multimap
    */
   public static <K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object>
-      SortedSetMultimap<K, V> unmodifiableSortedSetMultimap(SortedSetMultimap<K, V> delegate) {
+    @Readonly SortedSetMultimap<K, V> unmodifiableSortedSetMultimap(@Readonly SortedSetMultimap<K, V> delegate) {
     if (delegate instanceof UnmodifiableSortedSetMultimap) {
       return delegate;
     }
@@ -1004,7 +1011,7 @@ public final class Multimaps {
    * @return an unmodifiable view of the specified multimap
    */
   public static <K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object>
-      ListMultimap<K, V> unmodifiableListMultimap(ListMultimap<K, V> delegate) {
+    @Readonly ListMultimap<K, V> unmodifiableListMultimap(@Readonly ListMultimap<K, V> delegate) {
     if (delegate instanceof UnmodifiableListMultimap || delegate instanceof ImmutableListMultimap) {
       return delegate;
     }
@@ -1031,8 +1038,8 @@ public final class Multimaps {
    * @param collection the collection for which to return an unmodifiable view
    * @return an unmodifiable view of the collection
    */
-  private static <V extends @Nullable @Readonly Object> Collection<V> unmodifiableValueCollection(
-      Collection<V> collection) {
+  private static <V extends @Nullable @Readonly Object> @Readonly Collection<V> unmodifiableValueCollection(
+          @Readonly Collection<V> collection) {
     if (collection instanceof SortedSet) {
       return Collections.unmodifiableSortedSet((SortedSet<V>) collection);
     } else if (collection instanceof Set) {
@@ -1052,9 +1059,9 @@ public final class Multimaps {
    * @return an unmodifiable view of the entries
    */
   private static <K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object>
-      Collection<Entry<K, V>> unmodifiableEntries(Collection<Entry<K, V>> entries) {
+    @Readonly Collection<@Readonly Entry<K, V>> unmodifiableEntries(@Readonly Collection<Entry<K, V>> entries) {
     if (entries instanceof Set) {
-      return Maps.unmodifiableEntrySet((Set<Entry<K, V>>) entries);
+      return Maps.unmodifiableEntrySet((Set<@Readonly Entry<K, V>>) entries);
     }
     return new Maps.UnmodifiableEntries<>(Collections.unmodifiableCollection(entries));
   }
@@ -1068,9 +1075,9 @@ public final class Multimaps {
   @Beta
   @SuppressWarnings("unchecked")
   // safe by specification of ListMultimap.asMap()
-  public static <K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object> Map<K, List<V>> asMap(
-      ListMultimap<K, V> multimap) {
-    return (Map<K, List<V>>) (Map<K, ?>) multimap.asMap();
+  public static <K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object> @PolyMutable Map<K, @PolyMutable List<V>> asMap(
+          @PolyMutable ListMultimap<K, V> multimap) {
+    return (@PolyMutable Map<K, @PolyMutable List<V>>) (@PolyMutable Map<K, ?>) multimap.asMap();
   }
 
   /**
@@ -1082,9 +1089,9 @@ public final class Multimaps {
   @Beta
   @SuppressWarnings("unchecked")
   // safe by specification of SetMultimap.asMap()
-  public static <K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object> Map<K, Set<V>> asMap(
-      SetMultimap<K, V> multimap) {
-    return (Map<K, Set<V>>) (Map<K, ?>) multimap.asMap();
+  public static <K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object> @PolyMutable Map<K, @PolyMutable Set<V>> asMap(
+          @PolyMutable SetMultimap<K, V> multimap) {
+    return (@PolyMutable Map<K, @PolyMutable Set<V>>) (@PolyMutable Map<K, ?>) multimap.asMap();
   }
 
   /**
@@ -1096,9 +1103,9 @@ public final class Multimaps {
   @Beta
   @SuppressWarnings("unchecked")
   // safe by specification of SortedSetMultimap.asMap()
-  public static <K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object> Map<K, SortedSet<V>> asMap(
-      SortedSetMultimap<K, V> multimap) {
-    return (Map<K, SortedSet<V>>) (Map<K, ?>) multimap.asMap();
+  public static <K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object> @PolyMutable Map<K, @PolyMutable SortedSet<V>> asMap(
+          @PolyMutable SortedSetMultimap<K, V> multimap) {
+    return (@PolyMutable Map<K, @PolyMutable SortedSet<V>>) (@PolyMutable Map<K, ?>) multimap.asMap();
   }
 
   /**
@@ -1109,7 +1116,7 @@ public final class Multimaps {
    */
   @Beta
   public static <K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object>
-      Map<K, Collection<V>> asMap(Multimap<K, V> multimap) {
+      @PolyMutable Map<K, @PolyMutable Collection<V>> asMap(@PolyMutable Multimap<K, V> multimap) {
     return multimap.asMap();
   }
 
@@ -1134,41 +1141,43 @@ public final class Multimaps {
   }
 
   /** @see Multimaps#forMap */
-  private static class MapMultimap<K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object>
+  @ReceiverDependentMutable
+  @CFComment("PICO: V is immutable because it is used as hashset's element")
+  private static class MapMultimap<K extends @Nullable @Immutable Object, V extends @Nullable @Immutable Object>
       extends AbstractMultimap<K, V> implements SetMultimap<K, V>, Serializable {
-    final @Mutable Map<K, V> map;
+    final Map<K, V> map;
 
-    MapMultimap(Map<K, V> map) {
+    MapMultimap(@ReceiverDependentMutable Map<K, V> map) {
       this.map = checkNotNull(map);
     }
 
     @Pure
     @Override
-    public int size() {
+    public int size(@Readonly MapMultimap<K, V> this) {
       return map.size();
     }
 
     @Pure
     @Override
-    public boolean containsKey(@CheckForNull @UnknownSignedness @Readonly Object key) {
+    public boolean containsKey(@Readonly MapMultimap<K, V> this, @CheckForNull @UnknownSignedness @Readonly Object key) {
       return map.containsKey(key);
     }
 
     @Pure
     @Override
-    public boolean containsValue(@CheckForNull @UnknownSignedness Object value) {
+    public boolean containsValue(@Readonly MapMultimap<K, V> this, @CheckForNull @UnknownSignedness @Readonly Object value) {
       return map.containsValue(value);
     }
 
     @Pure
     @Override
-    public boolean containsEntry(@CheckForNull @Readonly Object key, @CheckForNull @Readonly Object value) {
+    public boolean containsEntry(@Readonly MapMultimap<K, V> this, @CheckForNull @Readonly Object key, @CheckForNull @Readonly Object value) {
       return map.entrySet().contains(Maps.immutableEntry(key, value));
     }
 
     @Override
-    public Set<V> get(@ParametricNullness final K key) {
-      return new Sets.ImprovedAbstractSet<V>() {
+    public @PolyMutable Set<V> get(@PolyMutable MapMultimap<K, V> this, @ParametricNullness final K key) {
+      return new Sets.@PolyMutable ImprovedAbstractSet<V>() {
         @Override
         public Iterator<V> iterator() {
           return new Iterator<V>() {
@@ -1221,23 +1230,23 @@ public final class Multimaps {
     }
 
     @Override
-    public boolean putAll(Multimap<? extends K, ? extends V> multimap) {
+    public boolean putAll(@Readonly Multimap<? extends K, ? extends V> multimap) {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public Set<V> replaceValues(@ParametricNullness K key, Iterable<? extends V> values) {
+    public @Readonly Set<V> replaceValues(@ParametricNullness K key, Iterable<? extends V> values) {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public boolean remove(@CheckForNull @Readonly Object key, @CheckForNull @Readonly Object value) {
+    public boolean remove(@Mutable MapMultimap<K, V> this, @CheckForNull @Readonly Object key, @CheckForNull @Readonly Object value) {
       return map.entrySet().remove(Maps.immutableEntry(key, value));
     }
 
     @Override
-    public Set<V> removeAll(@CheckForNull @Readonly Object key) {
-      Set<V> values = new @Mutable HashSet<V>(2);
+    public @Readonly Set<V> removeAll(@Mutable MapMultimap<K, V> this, @CheckForNull @Readonly Object key) {
+      Set<V> values = new HashSet<V>(2);
       if (!map.containsKey(key)) {
         return values;
       }
@@ -1246,51 +1255,51 @@ public final class Multimaps {
     }
 
     @Override
-    public void clear() {
+    public void clear(@Mutable MapMultimap<K, V> this) {
       map.clear();
     }
 
     @SideEffectFree
     @Override
-    Set<K> createKeySet() {
+    @PolyMutable Set<K> createKeySet(@PolyMutable MapMultimap<K, V> this) {
       return map.keySet();
     }
 
     @SideEffectFree
     @Override
-    Collection<V> createValues() {
+    @PolyMutable Collection<V> createValues(@PolyMutable MapMultimap<K, V> this) {
       return map.values();
     }
 
     @SideEffectFree
     @Override
-    public Set<Entry<K, V>> entries() {
+    public @PolyMutable Set<@PolyMutable Entry<K, V>> entries(@PolyMutable MapMultimap<K, V> this) {
       return map.entrySet();
     }
 
     @Override
-    Collection<Entry<K, V>> createEntries() {
+    @PolyMutable Collection<@PolyMutable Entry<K, V>> createEntries(@PolyMutable MapMultimap<K, V> this) {
       throw new AssertionError("unreachable");
     }
 
     @Override
-    Multiset<K> createKeys() {
+    @PolyMutable Multiset<K> createKeys(@PolyMutable MapMultimap<K, V> this) {
       return new Multimaps.Keys<K, V>(this);
     }
 
     @Override
-    Iterator<Entry<K, V>> entryIterator() {
+    Iterator<@PolyMutable Entry<K, V>> entryIterator(@PolyMutable MapMultimap<K, V> this) {
       return map.entrySet().iterator();
     }
 
     @Override
-    Map<K, Collection<V>> createAsMap() {
+    @PolyMutable Map<K, @PolyMutable Collection<V>> createAsMap(@PolyMutable MapMultimap<K, V> this) {
       return new AsMap<>(this);
     }
 
     @Pure
     @Override
-    public int hashCode(@UnknownSignedness MapMultimap<K, V> this) {
+    public int hashCode(@UnknownSignedness @Readonly MapMultimap<K, V> this) {
       return map.hashCode();
     }
 
@@ -1509,6 +1518,7 @@ public final class Multimaps {
     return new TransformedEntriesListMultimap<>(fromMap, transformer);
   }
 
+  @ReceiverDependentMutable
   private static class TransformedEntriesMultimap<
           K extends @Nullable @Immutable Object, V1 extends @Nullable @Readonly Object, V2 extends @Nullable @Readonly Object>
       extends AbstractMultimap<K, V2> {
@@ -1516,8 +1526,8 @@ public final class Multimaps {
     final EntryTransformer<? super K, ? super V1, V2> transformer;
 
     TransformedEntriesMultimap(
-        Multimap<K, V1> fromMultimap,
-        final EntryTransformer<? super K, ? super V1, V2> transformer) {
+            @ReceiverDependentMutable Multimap<K, V1> fromMultimap,
+        final @ReceiverDependentMutable EntryTransformer<? super K, ? super V1, V2> transformer) {
       this.fromMultimap = checkNotNull(fromMultimap);
       this.transformer = checkNotNull(transformer);
     }
@@ -1532,55 +1542,55 @@ public final class Multimaps {
     }
 
     @Override
-    Map<K, Collection<V2>> createAsMap() {
+    @PolyMutable Map<K, @PolyMutable Collection<V2>> createAsMap(@PolyMutable TransformedEntriesMultimap<K, V1, V2> this) {
       return Maps.transformEntries(
           fromMultimap.asMap(),
           new EntryTransformer<K, Collection<V1>, Collection<V2>>() {
             @Override
-            public Collection<V2> transformEntry(@ParametricNullness K key, Collection<V1> value) {
+            public @PolyMutable Collection<V2> transformEntry(@ParametricNullness K key, @PolyMutable Collection<V1> value) {
               return transform(key, value);
             }
           });
     }
 
     @Override
-    public void clear() {
+    public void clear(@Mutable TransformedEntriesMultimap<K, V1, V2> this) {
       fromMultimap.clear();
     }
 
     @Override
-    public boolean containsKey(@CheckForNull @UnknownSignedness @Readonly Object key) {
+    public boolean containsKey(@Readonly TransformedEntriesMultimap<K, V1, V2> this, @CheckForNull @UnknownSignedness @Readonly Object key) {
       return fromMultimap.containsKey(key);
     }
 
     @Override
-    Collection<Entry<K, V2>> createEntries() {
+    @PolyMutable Collection<@PolyMutable Entry<K, V2>> createEntries(@PolyMutable TransformedEntriesMultimap<K, V1, V2> this) {
       return new Entries();
     }
 
     @Override
-    Iterator<Entry<K, V2>> entryIterator() {
+    Iterator<@PolyMutable Entry<K, V2>> entryIterator(@PolyMutable TransformedEntriesMultimap<K, V1, V2> this) {
       return Iterators.transform(
           fromMultimap.entries().iterator(), Maps.<K, V1, V2>asEntryToEntryFunction(transformer));
     }
 
     @Override
-    public Collection<V2> get(@ParametricNullness final K key) {
+    public @PolyMutable Collection<V2> get(@PolyMutable TransformedEntriesMultimap<K, V1, V2> this, @ParametricNullness final K key) {
       return transform(key, fromMultimap.get(key));
     }
 
     @Override
-    public boolean isEmpty() {
+    public boolean isEmpty(@Readonly TransformedEntriesMultimap<K, V1, V2> this) {
       return fromMultimap.isEmpty();
     }
 
     @Override
-    Set<K> createKeySet() {
+    @PolyMutable Set<K> createKeySet(@PolyMutable TransformedEntriesMultimap<K, V1, V2> this) {
       return fromMultimap.keySet();
     }
 
     @Override
-    Multiset<K> createKeys() {
+    @PolyMutable Multiset<K> createKeys(@PolyMutable TransformedEntriesMultimap<K, V1, V2> this) {
       return fromMultimap.keys();
     }
 
@@ -1607,54 +1617,55 @@ public final class Multimaps {
 
     @SuppressWarnings("unchecked")
     @Override
-    public Collection<V2> removeAll(@CheckForNull @Readonly Object key) {
+    public @Readonly Collection<V2> removeAll(@Mutable TransformedEntriesMultimap<K, V1, V2> this, @CheckForNull @Readonly Object key) {
       return transform((K) key, fromMultimap.removeAll(key));
     }
 
     @Override
-    public Collection<V2> replaceValues(@ParametricNullness K key, Iterable<? extends V2> values) {
+    public @Readonly Collection<V2> replaceValues(@ParametricNullness K key, Iterable<? extends V2> values) {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public int size() {
+    public int size(@Readonly TransformedEntriesMultimap<K, V1, V2> this) {
       return fromMultimap.size();
     }
 
     @Override
-    Collection<V2> createValues() {
+    @PolyMutable Collection<V2> createValues(@PolyMutable TransformedEntriesMultimap<K, V1, V2> this) {
       return Collections2.transform(
           fromMultimap.entries(), Maps.<K, V1, V2>asEntryToValueFunction(transformer));
     }
   }
 
+  @ReceiverDependentMutable
   private static final class TransformedEntriesListMultimap<
           K extends @Nullable @Immutable Object, V1 extends @Nullable @Readonly Object, V2 extends @Nullable @Readonly Object>
       extends TransformedEntriesMultimap<K, V1, V2> implements ListMultimap<K, V2> {
 
     TransformedEntriesListMultimap(
-        ListMultimap<K, V1> fromMultimap, EntryTransformer<? super K, ? super V1, V2> transformer) {
+            @ReceiverDependentMutable ListMultimap<K, V1> fromMultimap, @ReceiverDependentMutable EntryTransformer<? super K, ? super V1, V2> transformer) {
       super(fromMultimap, transformer);
     }
 
     @Override
-    List<V2> transform(@ParametricNullness K key, Collection<V1> values) {
+    @PolyMutable List<V2> transform(@ParametricNullness K key, @PolyMutable Collection<V1> values) {
       return Lists.transform((List<V1>) values, Maps.asValueToValueFunction(transformer, key));
     }
 
     @Override
-    public List<V2> get(@ParametricNullness K key) {
+    public @PolyMutable List<V2> get(@PolyMutable TransformedEntriesListMultimap<K, V1, V2> this, @ParametricNullness K key) {
       return transform(key, fromMultimap.get(key));
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public List<V2> removeAll(@CheckForNull @Readonly Object key) {
+    public @Readonly List<V2> removeAll(@Mutable TransformedEntriesListMultimap<K, V1, V2> this, @CheckForNull @Readonly Object key) {
       return transform((K) key, fromMultimap.removeAll(key));
     }
 
     @Override
-    public List<V2> replaceValues(@ParametricNullness K key, Iterable<? extends V2> values) {
+    public @Readonly List<V2> replaceValues(@ParametricNullness K key, Iterable<? extends V2> values) {
       throw new UnsupportedOperationException();
     }
   }
@@ -1747,16 +1758,17 @@ public final class Multimaps {
     return builder.build();
   }
 
+  @ReceiverDependentMutable
   static class Keys<K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object>
       extends AbstractMultiset<K> {
     @Weak final Multimap<K, V> multimap;
 
-    Keys(Multimap<K, V> multimap) {
+    Keys(@ReceiverDependentMutable Multimap<K, V> multimap) {
       this.multimap = multimap;
     }
 
     @Override
-    Iterator<Multiset.Entry<K>> entryIterator() {
+    Iterator<Multiset.@PolyMutable Entry<K>> entryIterator(@PolyMutable Keys<K, V> this) {
       return new TransformedIterator<Map.Entry<K, Collection<V>>, Multiset.Entry<K>>(
           multimap.asMap().entrySet().iterator()) {
         @Override
@@ -1778,7 +1790,7 @@ public final class Multimaps {
     }
 
     @Override
-    public Spliterator<K> spliterator() {
+    public Spliterator<K> spliterator(@PolyMutable Keys<K, V> this) {
       return CollectSpliterators.map(multimap.entries().spliterator(), Map.Entry::getKey);
     }
 
@@ -1789,33 +1801,33 @@ public final class Multimaps {
     }
 
     @Override
-    int distinctElements() {
+    int distinctElements(@Readonly Keys<K, V> this) {
       return multimap.asMap().size();
     }
 
     @Override
-    public @NonNegative int size() {
+    public @NonNegative int size(@Readonly Keys<K, V> this) {
       return multimap.size();
     }
 
     @Override
-    public boolean contains(@CheckForNull @UnknownSignedness Object element) {
+    public boolean contains(@Readonly Keys<K, V> this, @CheckForNull @UnknownSignedness @Readonly Object element) {
       return multimap.containsKey(element);
     }
 
     @Override
-    public Iterator<K> iterator() {
+    public Iterator<K> iterator(@PolyMutable Keys<K, V> this) {
       return Maps.keyIterator(multimap.entries().iterator());
     }
 
     @Override
-    public @NonNegative int count(@CheckForNull @UnknownSignedness Object element) {
+    public @NonNegative int count(@Readonly Keys<K, V> this, @CheckForNull @UnknownSignedness @Readonly Object element) {
       Collection<V> values = Maps.safeGet(multimap.asMap(), element);
       return (values == null) ? 0 : values.size();
     }
 
     @Override
-    public int remove(@CheckForNull Object element, int occurrences) {
+    public int remove(@Mutable Keys<K, V> this, @CheckForNull @Readonly Object element, int occurrences) {
       checkNonnegative(occurrences, "occurrences");
       if (occurrences == 0) {
         return count(element);
@@ -1841,12 +1853,12 @@ public final class Multimaps {
     }
 
     @Override
-    public void clear() {
+    public void clear(@Mutable Keys<K, V> this) {
       multimap.clear();
     }
 
     @Override
-    public Set<K> elementSet() {
+    public @PolyMutable Set<K> elementSet(@PolyMutable Keys<K, V> this) {
       return multimap.keySet();
     }
 
@@ -1857,17 +1869,18 @@ public final class Multimaps {
   }
 
   /** A skeleton implementation of {@link Multimap#entries()}. */
+  @ReceiverDependentMutable
   abstract static class Entries<K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object>
-      extends AbstractCollection<Map.Entry<K, V>> {
-    abstract Multimap<K, V> multimap();
+      extends AbstractCollection<Map.@ReceiverDependentMutable Entry<K, V>> {
+    abstract @PolyMutable Multimap<K, V> multimap(@PolyMutable Entries<K, V> this);
 
     @Override
-    public @NonNegative int size() {
+    public @NonNegative int size(@Readonly Entries<K, V> this) {
       return multimap().size();
     }
 
     @Override
-    public boolean contains(@CheckForNull @UnknownSignedness Object o) {
+    public boolean contains(@Readonly Entries<K, V> this, @CheckForNull @UnknownSignedness @Readonly Object o) {
       if (o instanceof Map.Entry) {
         Map.Entry<?, ?> entry = (Map.Entry<?, ?>) o;
         return multimap().containsEntry(entry.getKey(), entry.getValue());
@@ -1876,7 +1889,7 @@ public final class Multimaps {
     }
 
     @Override
-    public boolean remove(@CheckForNull @UnknownSignedness Object o) {
+    public boolean remove(@Mutable Entries<K, V> this, @CheckForNull @UnknownSignedness @Readonly Object o) {
       if (o instanceof Map.Entry) {
         Map.Entry<?, ?> entry = (Map.Entry<?, ?>) o;
         return multimap().remove(entry.getKey(), entry.getValue());
@@ -1885,27 +1898,28 @@ public final class Multimaps {
     }
 
     @Override
-    public void clear() {
+    public void clear(@Mutable Entries<K, V> this) {
       multimap().clear();
     }
   }
 
   /** A skeleton implementation of {@link Multimap#asMap()}. */
+  @ReceiverDependentMutable
   static final class AsMap<K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object>
-      extends Maps.ViewCachingAbstractMap<K, Collection<V>> {
+      extends Maps.ViewCachingAbstractMap<K, @Readonly Collection<V>> {
     @Weak private final Multimap<K, V> multimap;
 
-    AsMap(Multimap<K, V> multimap) {
+    AsMap(@ReceiverDependentMutable Multimap<K, V> multimap) {
       this.multimap = checkNotNull(multimap);
     }
 
     @Override
-    public @NonNegative int size() {
+    public @NonNegative int size(@Readonly AsMap<K, V> this) {
       return multimap.keySet().size();
     }
 
     @Override
-    protected Set<Entry<K, Collection<V>>> createEntrySet() {
+    protected @PolyMutable Set<Entry<K, @PolyMutable Collection<V>>> createEntrySet(@PolyMutable AsMap<K, V> this) {
       return new EntrySet();
     }
 
@@ -1914,14 +1928,16 @@ public final class Multimaps {
     }
 
     @WeakOuter
-    class EntrySet extends Maps.EntrySet<K, Collection<V>> {
+    @ReceiverDependentMutable
+    @CFComment("PICO: outer receiver dependency")
+    class EntrySet extends Maps.EntrySet<K, @Readonly Collection<V>> {
       @Override
-      Map<K, Collection<V>> map() {
+      @PolyMutable Map<K, @PolyMutable Collection<V>> map(@PolyMutable AsMap<K, V>.@Readonly EntrySet this) {
         return AsMap.this;
       }
 
       @Override
-      public Iterator<Entry<K, Collection<V>>> iterator() {
+      public Iterator<@PolyMutable Entry<K, @PolyMutable Collection<V>>> iterator(@PolyMutable AsMap<K, V>.@Readonly EntrySet this) {
         return Maps.asMapEntryIterator(
             multimap.keySet(),
             new Function<K, Collection<V>>() {
@@ -1933,7 +1949,7 @@ public final class Multimaps {
       }
 
       @Override
-      public boolean remove(@CheckForNull @UnknownSignedness Object o) {
+      public boolean remove(@Mutable EntrySet this, @CheckForNull @UnknownSignedness @Readonly Object o) {
         if (!contains(o)) {
           return false;
         }
@@ -1947,33 +1963,33 @@ public final class Multimaps {
     @SuppressWarnings("unchecked")
     @Override
     @CheckForNull
-    public Collection<V> get(@CheckForNull @UnknownSignedness @Readonly Object key) {
+    public @PolyMutable Collection<V> get(@PolyMutable AsMap<K, V> this, @CheckForNull @UnknownSignedness @Readonly Object key) {
       return containsKey(key) ? multimap.get((K) key) : null;
     }
 
     @Override
     @CheckForNull
-    public Collection<V> remove(@CheckForNull @UnknownSignedness @Readonly Object key) {
+    public @Readonly Collection<V> remove(@Mutable AsMap<K, V> this, @CheckForNull @UnknownSignedness @Readonly Object key) {
       return containsKey(key) ? multimap.removeAll(key) : null;
     }
 
     @Override
-    public Set<@KeyFor({"this"}) K> keySet() {
+    public @PolyMutable Set<@KeyFor({"this"}) K> keySet(@PolyMutable AsMap<K, V> this) {
       return multimap.keySet();
     }
 
     @Override
-    public boolean isEmpty() {
+    public boolean isEmpty(@Readonly AsMap<K, V> this) {
       return multimap.isEmpty();
     }
 
     @Override
-    public boolean containsKey(@CheckForNull @UnknownSignedness @Readonly Object key) {
+    public boolean containsKey(@Mutable AsMap<K, V> this, @CheckForNull @UnknownSignedness @Readonly Object key) {
       return multimap.containsKey(key);
     }
 
     @Override
-    public void clear() {
+    public void clear(@Mutable AsMap<K, V> this) {
       multimap.clear();
     }
   }
@@ -2269,7 +2285,7 @@ public final class Multimaps {
     return new FilteredEntrySetMultimap<>(multimap.unfiltered(), predicate);
   }
 
-  static boolean equalsImpl(Multimap<?, ?> multimap, @CheckForNull @UnknownSignedness Object object) {
+  static boolean equalsImpl(@Readonly Multimap<?, ?> multimap, @CheckForNull @UnknownSignedness @Readonly Object object) {
     if (object == multimap) {
       return true;
     }

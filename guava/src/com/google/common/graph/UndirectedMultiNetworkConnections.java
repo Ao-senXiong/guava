@@ -41,6 +41,7 @@ import org.checkerframework.checker.index.qual.NonNegative;
  * @param <E> Edge parameter type
  */
 @ElementTypesAreNonnullByDefault
+@SuppressWarnings("pico")
 final class UndirectedMultiNetworkConnections<N, E>
     extends AbstractUndirectedNetworkConnections<N, E> {
 

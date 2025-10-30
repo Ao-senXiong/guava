@@ -68,7 +68,7 @@ public final class HashMultiset<E extends @Nullable @Immutable Object> extends A
    * @param elements the elements that the multiset should contain
    */
   public static <E extends @Nullable @Immutable Object> HashMultiset<E> create(
-      Iterable<? extends E> elements) {
+      @Readonly Iterable<? extends E> elements) {
     HashMultiset<E> multiset = create(Multisets.inferDistinctElements(elements));
     Iterables.addAll(multiset, elements);
     return multiset;

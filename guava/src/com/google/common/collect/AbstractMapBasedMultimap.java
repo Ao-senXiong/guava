@@ -55,6 +55,7 @@ import org.checkerframework.checker.pico.qual.Readonly;
 import org.checkerframework.checker.pico.qual.ReceiverDependentMutable;
 import org.checkerframework.checker.signedness.qual.UnknownSignedness;
 import org.checkerframework.framework.qual.AnnotatedFor;
+import org.checkerframework.framework.qual.CFComment;
 
 /**
  * Basic implementation of the {@link Multimap} interface. This class represents a multimap as a map
@@ -119,7 +120,7 @@ abstract class AbstractMapBasedMultimap<K extends @Nullable @Immutable Object, V
    * an entry for the provided key, and if so replaces the delegate.
    */
 
-  private transient Map<K, @Readonly Collection<V>> map;
+  private transient Map<K, @ReceiverDependentMutable Collection<V>> map;
   private transient int totalSize;
 
   /**
@@ -128,13 +129,13 @@ abstract class AbstractMapBasedMultimap<K extends @Nullable @Immutable Object, V
    * @param map place to store the mapping from each key to its corresponding values
    * @throws IllegalArgumentException if {@code map} is not empty
    */
-  protected AbstractMapBasedMultimap(@ReceiverDependentMutable Map<K, @Readonly Collection<V>> map) {
+  protected AbstractMapBasedMultimap(@ReceiverDependentMutable Map<K, @ReceiverDependentMutable Collection<V>> map) {
     checkArgument(map.isEmpty());
     this.map = map;
   }
 
   /** Used during deserialization only. */
-  final void setMap(@Mutable AbstractMapBasedMultimap<K, V> this, Map<K, @Readonly Collection<V>> map) {
+  final void setMap(@Mutable AbstractMapBasedMultimap<K, V> this, Map<K, Collection<V>> map) {
     this.map = map;
     totalSize = 0;
     for (Collection<V> values : map.values()) {
@@ -162,7 +163,7 @@ abstract class AbstractMapBasedMultimap<K extends @Nullable @Immutable Object, V
    *
    * @return an empty collection of values
    */
-  abstract Collection<V> createCollection();
+  abstract @PolyMutable Collection<V> createCollection(@PolyMutable AbstractMapBasedMultimap<K, V> this);
 
   /**
    * Creates the collection of values for an explicitly provided key. By default, it simply calls
@@ -172,11 +173,11 @@ abstract class AbstractMapBasedMultimap<K extends @Nullable @Immutable Object, V
    * @param key key to associate with values in the collection
    * @return an empty collection of values
    */
-  Collection<V> createCollection(@ParametricNullness K key) {
+  @PolyMutable Collection<V> createCollection(@PolyMutable AbstractMapBasedMultimap<K, V> this, @ParametricNullness K key) {
     return createCollection();
   }
 
-  @PolyMutable  Map<K, Collection<V>> backingMap(@PolyMutable AbstractMapBasedMultimap<K, V> this) {
+  @PolyMutable Map<K, @PolyMutable Collection<V>> backingMap(@PolyMutable AbstractMapBasedMultimap<K, V> this) {
     return map;
   }
 
@@ -214,7 +215,7 @@ abstract class AbstractMapBasedMultimap<K extends @Nullable @Immutable Object, V
     }
   }
 
-  private Collection<V> getOrCreateCollection(@ParametricNullness K key) {
+  private Collection<V> getOrCreateCollection(@Mutable AbstractMapBasedMultimap<K, V> this, @ParametricNullness K key) {
     Collection<V> collection = map.get(key);
     if (collection == null) {
       collection = createCollection(key);
@@ -231,7 +232,7 @@ abstract class AbstractMapBasedMultimap<K extends @Nullable @Immutable Object, V
    * <p>The returned collection is immutable.
    */
   @Override
-  public Collection<V> replaceValues(@Mutable AbstractMapBasedMultimap<K, V> this, @ParametricNullness K key, Iterable<? extends V> values) {
+  public @Readonly Collection<V> replaceValues(@Mutable AbstractMapBasedMultimap<K, V> this, @ParametricNullness K key, Iterable<? extends V> values) {
     Iterator<? extends V> iterator = values.iterator();
     if (!iterator.hasNext()) {
       return removeAll(key);
@@ -260,7 +261,7 @@ abstract class AbstractMapBasedMultimap<K extends @Nullable @Immutable Object, V
    * <p>The returned collection is immutable.
    */
   @Override
-  public Collection<V> removeAll(@Mutable AbstractMapBasedMultimap<K, V> this, @CheckForNull @Readonly Object key) {
+  public @Readonly Collection<V> removeAll(@Mutable AbstractMapBasedMultimap<K, V> this, @CheckForNull @Readonly Object key) {
     Collection<V> collection = map.remove(key);
 
     if (collection == null) {
@@ -276,7 +277,8 @@ abstract class AbstractMapBasedMultimap<K extends @Nullable @Immutable Object, V
   }
 
   <E extends @Nullable @Readonly Object> @Readonly Collection<E> unmodifiableCollectionSubclass(
-      Collection<E> collection) {
+        @Readonly AbstractMapBasedMultimap<K, V> this,
+        @Readonly Collection<E> collection) {
     return Collections.unmodifiableCollection(collection);
   }
 
@@ -298,7 +300,7 @@ abstract class AbstractMapBasedMultimap<K extends @Nullable @Immutable Object, V
    * <p>The returned collection is not serializable.
    */
   @Override
-  public Collection<V> get(@Readonly AbstractMapBasedMultimap<K, V> this, @ParametricNullness K key) {
+  public @PolyMutable Collection<V> get(@PolyMutable AbstractMapBasedMultimap<K, V> this, @ParametricNullness K key) {
     Collection<V> collection = map.get(key);
     if (collection == null) {
       collection = createCollection(key);
@@ -310,15 +312,15 @@ abstract class AbstractMapBasedMultimap<K extends @Nullable @Immutable Object, V
    * Generates a decorated collection that remains consistent with the values in the multimap for
    * the provided key. Changes to the multimap may alter the returned collection, and vice versa.
    */
-  Collection<V> wrapCollection(@ParametricNullness K key, Collection<V> collection) {
-    return new WrappedCollection(key, collection, null);
+  @PolyMutable Collection<V> wrapCollection(@PolyMutable AbstractMapBasedMultimap<K, V> this, @ParametricNullness K key, @PolyMutable Collection<V> collection) {
+    return new @PolyMutable WrappedCollection(key, collection, null);
   }
 
-  final List<V> wrapList(
-      @ParametricNullness K key, List<V> list, @CheckForNull WrappedCollection ancestor) {
+  final @PolyMutable List<V> wrapList(
+      @ParametricNullness K key, @PolyMutable List<V> list, @CheckForNull WrappedCollection ancestor) {
     return (list instanceof RandomAccess)
-        ? new RandomAccessWrappedList(key, list, ancestor)
-        : new WrappedList(key, list, ancestor);
+        ? new @PolyMutable RandomAccessWrappedList(key, list, ancestor)
+        : new @PolyMutable WrappedList(key, list, ancestor);
   }
 
   /**
@@ -361,7 +363,7 @@ abstract class AbstractMapBasedMultimap<K extends @Nullable @Immutable Object, V
      * <p>For a subcollection, refresh its ancestor and validate that the ancestor delegate hasn't
      * changed.
      */
-    void refreshIfEmpty() {
+    void refreshIfEmpty(@Mutable WrappedCollection this) {
       if (ancestor != null) {
         ancestor.refreshIfEmpty();
         if (ancestor.getDelegate() != ancestorDelegate) {
@@ -379,7 +381,7 @@ abstract class AbstractMapBasedMultimap<K extends @Nullable @Immutable Object, V
      * If collection is empty, remove it from {@code AbstractMapBasedMultimap.this.map}. For
      * subcollections, check whether the ancestor collection is empty.
      */
-    void removeIfEmpty() {
+    void removeIfEmpty(@Mutable WrappedCollection this) {
       if (ancestor != null) {
         ancestor.removeIfEmpty();
       } else if (delegate.isEmpty()) {
@@ -388,7 +390,7 @@ abstract class AbstractMapBasedMultimap<K extends @Nullable @Immutable Object, V
     }
 
     @ParametricNullness
-    K getKey() {
+    K getKey(@Readonly WrappedCollection this) {
       return key;
     }
 
@@ -398,7 +400,7 @@ abstract class AbstractMapBasedMultimap<K extends @Nullable @Immutable Object, V
      *
      * <p>Subcollection add the ancestor's delegate instead.
      */
-    void addToMap() {
+    void addToMap(@Mutable WrappedCollection this) {
       if (ancestor != null) {
         ancestor.addToMap();
       } else {
@@ -407,13 +409,13 @@ abstract class AbstractMapBasedMultimap<K extends @Nullable @Immutable Object, V
     }
 
     @Override
-    public @NonNegative int size() {
+    public @NonNegative int size(@Readonly WrappedCollection this) {
       refreshIfEmpty();
       return delegate.size();
     }
 
     @Override
-    public boolean equals(@CheckForNull @UnknownSignedness @Readonly Object object) {
+    public boolean equals(@Readonly WrappedCollection this, @CheckForNull @UnknownSignedness @Readonly Object object) {
       if (object == this) {
         return true;
       }
@@ -428,28 +430,31 @@ abstract class AbstractMapBasedMultimap<K extends @Nullable @Immutable Object, V
     }
 
     @Override
-    public String toString() {
+    public String toString(@Readonly WrappedCollection this) {
       refreshIfEmpty();
       return delegate.toString();
     }
 
-    Collection<V> getDelegate() {
+    @PolyMutable Collection<V> getDelegate(@PolyMutable WrappedCollection this) {
       return delegate;
     }
 
     @Override
-    public Iterator<V> iterator() {
+    @SuppressWarnings("pico:method.invocation.invalid") // refreshIfEmpty mutates 'this'
+    public Iterator<V> iterator(@Readonly WrappedCollection this) {
       refreshIfEmpty();
       return new WrappedIterator();
     }
 
     @Override
-    public Spliterator<V> spliterator() {
+    @SuppressWarnings("pico:method.invocation.invalid") // refreshIfEmpty mutates 'this'
+    public Spliterator<V> spliterator(@Readonly WrappedCollection this) {
       refreshIfEmpty();
       return delegate.spliterator();
     }
 
     /** Collection iterator for {@code WrappedCollection}. */
+    @ReceiverDependentMutable
     class WrappedIterator implements Iterator<V> {
       final Iterator<V> delegateIterator;
       final Collection<V> originalDelegate = delegate;
@@ -458,7 +463,7 @@ abstract class AbstractMapBasedMultimap<K extends @Nullable @Immutable Object, V
         delegateIterator = iteratorOrListIterator(delegate);
       }
 
-      WrappedIterator(Iterator<V> delegateIterator) {
+      WrappedIterator(@ReceiverDependentMutable Iterator<V> delegateIterator) {
         this.delegateIterator = delegateIterator;
       }
 
@@ -615,7 +620,7 @@ abstract class AbstractMapBasedMultimap<K extends @Nullable @Immutable Object, V
     }
 
     @Override
-    public boolean removeAll(Collection<?> c) {
+    public boolean removeAll(@Mutable WrappedSet this, @Readonly Collection<?> c) {
       if (c.isEmpty()) {
         return false;
       }
@@ -708,8 +713,8 @@ abstract class AbstractMapBasedMultimap<K extends @Nullable @Immutable Object, V
     }
 
     @Override
-    NavigableSet<V> getSortedSetDelegate() {
-      return (NavigableSet<V>) super.getSortedSetDelegate();
+    @PolyMutable NavigableSet<V> getSortedSetDelegate(@PolyMutable WrappedNavigableSet this) {
+      return (@PolyMutable NavigableSet<V>) super.getSortedSetDelegate();
     }
 
     @Override
@@ -788,7 +793,7 @@ abstract class AbstractMapBasedMultimap<K extends @Nullable @Immutable Object, V
   @ReceiverDependentMutable
   class WrappedList extends WrappedCollection implements List<V> {
     WrappedList(
-        @ParametricNullness K key, List<V> delegate, @CheckForNull WrappedCollection ancestor) {
+        @ParametricNullness K key, @ReceiverDependentMutable List<V> delegate, @CheckForNull WrappedCollection ancestor) {
       super(key, delegate, ancestor);
     }
 
@@ -882,6 +887,7 @@ abstract class AbstractMapBasedMultimap<K extends @Nullable @Immutable Object, V
     }
 
     /** ListIterator decorator. */
+    @ReceiverDependentMutable
     private class WrappedListIterator extends WrappedIterator implements ListIterator<V> {
       WrappedListIterator() {}
 
@@ -938,30 +944,30 @@ abstract class AbstractMapBasedMultimap<K extends @Nullable @Immutable Object, V
   @ReceiverDependentMutable
   private class RandomAccessWrappedList extends WrappedList implements RandomAccess {
     RandomAccessWrappedList(
-        @ParametricNullness K key, List<V> delegate, @CheckForNull WrappedCollection ancestor) {
+        @ParametricNullness K key, @ReceiverDependentMutable List<V> delegate, @CheckForNull WrappedCollection ancestor) {
       super(key, delegate, ancestor);
     }
   }
 
   @Override
-  Set<K> createKeySet() {
-    return new KeySet(map);
+  @PolyMutable Set<K> createKeySet(@PolyMutable AbstractMapBasedMultimap<K, V> this) {
+    return new @PolyMutable KeySet(map);
   }
 
-  final Set<K> createMaybeNavigableKeySet() {
+  final @PolyMutable Set<K> createMaybeNavigableKeySet(@PolyMutable AbstractMapBasedMultimap<K, V> this) {
     if (map instanceof NavigableMap) {
-      return new NavigableKeySet((NavigableMap<K, Collection<V>>) map);
+      return new @PolyMutable NavigableKeySet((@PolyMutable NavigableMap<K, @PolyMutable Collection<V>>) map);
     } else if (map instanceof SortedMap) {
-      return new SortedKeySet((SortedMap<K, Collection<V>>) map);
+      return new @PolyMutable SortedKeySet((@PolyMutable SortedMap<K, @PolyMutable Collection<V>>) map);
     } else {
-      return new KeySet(map);
+      return new @PolyMutable KeySet(map);
     }
   }
 
   @WeakOuter
   @ReceiverDependentMutable
-  private class KeySet extends Maps.KeySet<K, Collection<V>> {
-    KeySet(final Map<K, Collection<V>> subMap) {
+  private class KeySet extends Maps.KeySet<K, @ReceiverDependentMutable Collection<V>> {
+    KeySet(final @ReceiverDependentMutable Map<K, @ReceiverDependentMutable Collection<V>> subMap) {
       super(subMap);
     }
 
@@ -1025,12 +1031,12 @@ abstract class AbstractMapBasedMultimap<K extends @Nullable @Immutable Object, V
     }
 
     @Override
-    public boolean equals(@CheckForNull @UnknownSignedness Object object) {
+    public boolean equals(@CheckForNull @UnknownSignedness @Readonly Object object) {
       return this == object || this.map().keySet().equals(object);
     }
 
     @Override
-    public int hashCode(@UnknownSignedness KeySet this) {
+    public int hashCode(@UnknownSignedness @Readonly KeySet this) {
       return map().keySet().hashCode();
     }
   }
@@ -1244,17 +1250,18 @@ abstract class AbstractMapBasedMultimap<K extends @Nullable @Immutable Object, V
    * by the values of a second key, and so on.
    */
   @Override
-  public Collection<V> values() {
+  public @PolyMutable Collection<V> values(@PolyMutable AbstractMapBasedMultimap<K, V> this) {
     return super.values();
   }
 
   @Override
-  Collection<V> createValues() {
+  @PolyMutable Collection<V> createValues(@PolyMutable AbstractMapBasedMultimap<K, V> this) {
     return new Values();
   }
 
   @Override
-  Iterator<V> valueIterator() {
+  @CFComment("PICO: follow super's polymutable")
+  Iterator<V> valueIterator(@PolyMutable AbstractMapBasedMultimap<K, V> this) {
     return new Itr<V>() {
       @Override
       @ParametricNullness
@@ -1265,7 +1272,8 @@ abstract class AbstractMapBasedMultimap<K extends @Nullable @Immutable Object, V
   }
 
   @Override
-  Spliterator<V> valueSpliterator() {
+  @CFComment("PICO: follow super's polymutable")
+  Spliterator<V> valueSpliterator(@PolyMutable AbstractMapBasedMultimap<K, V> this) {
     return CollectSpliterators.flatMap(
         map.values().spliterator(), Collection::spliterator, Spliterator.SIZED, size());
   }
@@ -1277,7 +1285,7 @@ abstract class AbstractMapBasedMultimap<K extends @Nullable @Immutable Object, V
    */
 
   @Override
-  Multiset<K> createKeys() {
+  @PolyMutable Multiset<K> createKeys(@PolyMutable AbstractMapBasedMultimap<K, V> this) {
     return new Multimaps.Keys<K, V>(this);
   }
 
@@ -1291,12 +1299,12 @@ abstract class AbstractMapBasedMultimap<K extends @Nullable @Immutable Object, V
    * time the entry is returned by a method call to the collection or its iterator.
    */
   @Override
-  public @PolyMutable Collection<Entry<K, V>> entries(@PolyMutable AbstractMapBasedMultimap<K, V> this) {
+  public @PolyMutable Collection<@PolyMutable Entry<K, V>> entries(@PolyMutable AbstractMapBasedMultimap<K, V> this) {
     return super.entries();
   }
 
   @Override
-  Collection<Entry<K, V>> createEntries() {
+  @PolyMutable Collection<@PolyMutable Entry<K, V>> createEntries(@PolyMutable AbstractMapBasedMultimap<K, V> this) {
     if (this instanceof SetMultimap) {
       return new EntrySet();
     } else {
@@ -1313,17 +1321,17 @@ abstract class AbstractMapBasedMultimap<K extends @Nullable @Immutable Object, V
    * @return an iterator across map entries
    */
   @Override
-  Iterator<Entry<K, V>> entryIterator() {
-    return new Itr<Entry<K, V>>() {
+  Iterator<@PolyMutable Entry<K, V>> entryIterator(@PolyMutable AbstractMapBasedMultimap<K, V> this) {
+    return new Itr<@PolyMutable Entry<K, V>>() {
       @Override
-      Entry<K, V> output(@ParametricNullness K key, @ParametricNullness V value) {
+      @Immutable Entry<K, V> output(@ParametricNullness K key, @ParametricNullness V value) {
         return Maps.immutableEntry(key, value);
       }
     };
   }
 
   @Override
-  Spliterator<Entry<K, V>> entrySpliterator() {
+  Spliterator<@PolyMutable Entry<K, V>> entrySpliterator(@PolyMutable AbstractMapBasedMultimap<K, V> this) {
     return CollectSpliterators.flatMap(
         map.entrySet().spliterator(),
         keyToValueCollectionEntry -> {
@@ -1344,11 +1352,11 @@ abstract class AbstractMapBasedMultimap<K extends @Nullable @Immutable Object, V
   }
 
   @Override
-  Map<K, Collection<V>> createAsMap() {
+  @PolyMutable Map<K, @PolyMutable Collection<V>> createAsMap(@PolyMutable AbstractMapBasedMultimap<K, V> this) {
     return new AsMap(map);
   }
 
-  final Map<K, Collection<V>> createMaybeNavigableAsMap() {
+  final Map<K, @PolyMutable Collection<V>> createMaybeNavigableAsMap(@PolyMutable AbstractMapBasedMultimap<K, V> this) {
     if (map instanceof NavigableMap) {
       return new NavigableAsMap((NavigableMap<K, Collection<V>>) map);
     } else if (map instanceof SortedMap) {
@@ -1359,32 +1367,33 @@ abstract class AbstractMapBasedMultimap<K extends @Nullable @Immutable Object, V
   }
 
   @WeakOuter
-  @ReceiverDependentMutable private class AsMap extends ViewCachingAbstractMap<K, Collection<V>> {
+  @ReceiverDependentMutable
+  private class AsMap extends ViewCachingAbstractMap<K, Collection<V>> {
     /**
      * Usually the same as map, but smaller for the headMap(), tailMap(), or subMap() of a
      * SortedAsMap.
      */
-    final transient Map<K, Collection<V>> submap;
+    final transient Map<K, @ReceiverDependentMutable  Collection<V>> submap;
 
-    AsMap(Map<K, Collection<V>> submap) {
+    AsMap(@ReceiverDependentMutable Map<K, @ReceiverDependentMutable  Collection<V>> submap) {
       this.submap = submap;
     }
 
     @Override
-    protected Set<Entry<K, Collection<V>>> createEntrySet() {
+    protected @PolyMutable Set<@PolyMutable Entry<K, @PolyMutable Collection<V>>> createEntrySet(@PolyMutable AsMap this) {
       return new AsMapEntries();
     }
 
     // The following methods are included for performance.
 
     @Override
-    public boolean containsKey(@CheckForNull @UnknownSignedness @Readonly Object key) {
+    public boolean containsKey(@Readonly AsMap this, @CheckForNull @UnknownSignedness @Readonly Object key) {
       return Maps.safeContainsKey(submap, key);
     }
 
     @Override
     @CheckForNull
-    public Collection<V> get(@CheckForNull @UnknownSignedness @Readonly Object key) {
+    public @PolyMutable Collection<V> get(@PolyMutable AsMap this, @CheckForNull @UnknownSignedness @Readonly Object key) {
       Collection<V> collection = Maps.safeGet(submap, key);
       if (collection == null) {
         return null;
@@ -1395,18 +1404,18 @@ abstract class AbstractMapBasedMultimap<K extends @Nullable @Immutable Object, V
     }
 
     @Override
-    public Set<@KeyFor({"this"}) K> keySet() {
+    public @PolyMutable Set<@KeyFor({"this"}) K> keySet(@PolyMutable AsMap this) {
       return AbstractMapBasedMultimap.this.keySet();
     }
 
     @Override
-    public @NonNegative int size() {
+    public @NonNegative int size(@Readonly AsMap this) {
       return submap.size();
     }
 
     @Override
     @CheckForNull
-    public Collection<V> remove(@CheckForNull @UnknownSignedness @Readonly Object key) {
+    public Collection<V> remove(@Mutable AsMap this, @CheckForNull @UnknownSignedness @Readonly Object key) {
       Collection<V> collection = submap.remove(key);
       if (collection == null) {
         return null;
@@ -1420,17 +1429,17 @@ abstract class AbstractMapBasedMultimap<K extends @Nullable @Immutable Object, V
     }
 
     @Override
-    public boolean equals(@CheckForNull Object object) {
+    public boolean equals(@Readonly AsMap this, @CheckForNull @Readonly Object object) {
       return this == object || submap.equals(object);
     }
 
     @Override
-    public int hashCode(@UnknownSignedness AsMap this) {
+    public int hashCode(@UnknownSignedness @Readonly AsMap this) {
       return submap.hashCode();
     }
 
     @Override
-    public String toString() {
+    public String toString(@Readonly AsMap this) {
       return submap.toString();
     }
 
@@ -1443,20 +1452,21 @@ abstract class AbstractMapBasedMultimap<K extends @Nullable @Immutable Object, V
       }
     }
 
-    Entry<K, Collection<V>> wrapEntry(Entry<K, Collection<V>> entry) {
+    @Immutable Entry<K, Collection<V>> wrapEntry(Entry<K, Collection<V>> entry) {
       K key = entry.getKey();
       return Maps.immutableEntry(key, wrapCollection(key, entry.getValue()));
     }
 
     @WeakOuter
-    @Mutable class AsMapEntries extends Maps.EntrySet<K, Collection<V>> {
+    @ReceiverDependentMutable
+    class AsMapEntries extends Maps.EntrySet<K, @ReceiverDependentMutable Collection<V>> {
       @Override
-      Map<K, Collection<V>> map() {
+      @PolyMutable Map<K, @PolyMutable Collection<V>> map(@PolyMutable AsMapEntries this) {
         return AsMap.this;
       }
 
       @Override
-      public Iterator<Entry<K, Collection<V>>> iterator() {
+      public Iterator<Entry<K, Collection<V>>> iterator(@PolyMutable AsMapEntries this) {
         return new AsMapIterator();
       }
 
@@ -1468,12 +1478,12 @@ abstract class AbstractMapBasedMultimap<K extends @Nullable @Immutable Object, V
       // The following methods are included for performance.
 
       @Override
-      public boolean contains(@CheckForNull @UnknownSignedness Object o) {
+      public boolean contains(@CheckForNull @UnknownSignedness @Readonly Object o) {
         return Collections2.safeContains(submap.entrySet(), o);
       }
 
       @Override
-      public boolean remove(@CheckForNull @UnknownSignedness Object o) {
+      public boolean remove(@CheckForNull @UnknownSignedness @Readonly Object o) {
         if (!contains(o)) {
           return false;
         }
@@ -1515,46 +1525,46 @@ abstract class AbstractMapBasedMultimap<K extends @Nullable @Immutable Object, V
   @WeakOuter
   @ReceiverDependentMutable
   private class SortedAsMap extends AsMap implements SortedMap<K, Collection<V>> {
-    SortedAsMap(SortedMap<K, Collection<V>> submap) {
+    SortedAsMap(@ReceiverDependentMutable SortedMap<K, Collection<V>> submap) {
       super(submap);
     }
 
-    SortedMap<K, Collection<V>> sortedMap() {
-      return (SortedMap<K, Collection<V>>) submap;
+    @PolyMutable SortedMap<K, @PolyMutable Collection<V>> sortedMap(@PolyMutable SortedAsMap this) {
+      return (@PolyMutable SortedMap<K, @PolyMutable Collection<V>>) submap;
     }
 
     @Override
     @CheckForNull
-    public Comparator<? super K> comparator() {
+    public Comparator<? super K> comparator(@Readonly SortedAsMap this) {
       return sortedMap().comparator();
     }
 
     @Override
     @ParametricNullness
-    public @KeyFor("this") K firstKey() {
+    public @KeyFor("this") K firstKey(@Readonly SortedAsMap this) {
       return sortedMap().firstKey();
     }
 
     @Override
     @ParametricNullness
-    public @KeyFor("this") K lastKey() {
+    public @KeyFor("this") K lastKey(@Readonly SortedAsMap this) {
       return sortedMap().lastKey();
     }
 
     @Override
-    public SortedMap<K, Collection<V>> headMap(@ParametricNullness K toKey) {
+    public @PolyMutable SortedMap<K, @PolyMutable Collection<V>> headMap(@PolyMutable SortedAsMap this, @ParametricNullness K toKey) {
       return new SortedAsMap(sortedMap().headMap(toKey));
     }
 
     @Override
-    public SortedMap<K, Collection<V>> subMap(
+    public @PolyMutable SortedMap<K, @PolyMutable Collection<V>> subMap(
         @ParametricNullness K fromKey, @ParametricNullness K toKey) {
-      return new SortedAsMap(sortedMap().subMap(fromKey, toKey));
+      return new @PolyMutable SortedAsMap(sortedMap().subMap(fromKey, toKey));
     }
 
     @Override
-    public SortedMap<K, Collection<V>> tailMap(@ParametricNullness K fromKey) {
-      return new SortedAsMap(sortedMap().tailMap(fromKey));
+    public @PolyMutable SortedMap<K, @PolyMutable Collection<V>> tailMap(@ParametricNullness K fromKey) {
+      return new @PolyMutable SortedAsMap(sortedMap().tailMap(fromKey));
     }
 
     @CheckForNull SortedSet<K> sortedKeySet;
@@ -1562,109 +1572,109 @@ abstract class AbstractMapBasedMultimap<K extends @Nullable @Immutable Object, V
     // returns a SortedSet, even though returning a Set would be sufficient to
     // satisfy the SortedMap.keySet() interface
     @Override
-    public SortedSet<@KeyFor({"this"}) K> keySet() {
+    public @PolyMutable SortedSet<@KeyFor({"this"}) K> keySet(@PolyMutable SortedAsMap this) {
       SortedSet<K> result = sortedKeySet;
       return (result == null) ? sortedKeySet = createKeySet() : result;
     }
 
     @Override
-    SortedSet<K> createKeySet() {
-      return new SortedKeySet(sortedMap());
+    @PolyMutable SortedSet<K> createKeySet(@PolyMutable SortedAsMap this) {
+      return new @PolyMutable SortedKeySet(sortedMap());
     }
   }
 
   @ReceiverDependentMutable
-  class NavigableAsMap extends SortedAsMap implements NavigableMap<K, Collection<V>> {
+  class NavigableAsMap extends SortedAsMap implements NavigableMap<K, @ReceiverDependentMutable Collection<V>> {
 
-    NavigableAsMap(NavigableMap<K, Collection<V>> submap) {
+    NavigableAsMap(NavigableMap<K, @ReceiverDependentMutable Collection<V>> submap) {
       super(submap);
     }
 
     @Override
-    NavigableMap<K, Collection<V>> sortedMap() {
-      return (NavigableMap<K, Collection<V>>) super.sortedMap();
+    NavigableMap<K, @PolyMutable Collection<V>> sortedMap(@PolyMutable NavigableAsMap this) {
+      return (NavigableMap<K, @PolyMutable Collection<V>>) super.sortedMap();
     }
 
     @Override
     @CheckForNull
-    public Entry<K, Collection<V>> lowerEntry(@ParametricNullness K key) {
-      Entry<K, Collection<V>> entry = sortedMap().lowerEntry(key);
+    public @PolyMutable Entry<K, @PolyMutable Collection<V>> lowerEntry(@PolyMutable NavigableAsMap this, @ParametricNullness K key) {
+      Entry<K, @PolyMutable Collection<V>> entry = sortedMap().lowerEntry(key);
       return (entry == null) ? null : wrapEntry(entry);
     }
 
     @Override
     @CheckForNull
-    public K lowerKey(@ParametricNullness K key) {
+    public K lowerKey(@Readonly NavigableAsMap this, @ParametricNullness K key) {
       return sortedMap().lowerKey(key);
     }
 
     @Override
     @CheckForNull
-    public Entry<K, Collection<V>> floorEntry(@ParametricNullness K key) {
-      Entry<K, Collection<V>> entry = sortedMap().floorEntry(key);
+    public @PolyMutable Entry<K, @PolyMutable Collection<V>> floorEntry(@PolyMutable NavigableAsMap this, @ParametricNullness K key) {
+        @PolyMutable Entry<K, @PolyMutable Collection<V>> entry = sortedMap().floorEntry(key);
       return (entry == null) ? null : wrapEntry(entry);
     }
 
     @Override
     @CheckForNull
-    public K floorKey(@ParametricNullness K key) {
+    public K floorKey(@Readonly NavigableAsMap this, @ParametricNullness K key) {
       return sortedMap().floorKey(key);
     }
 
     @Override
     @CheckForNull
-    public Entry<K, Collection<V>> ceilingEntry(@ParametricNullness K key) {
-      Entry<K, Collection<V>> entry = sortedMap().ceilingEntry(key);
+    public Entry<K, @PolyMutable Collection<V>> ceilingEntry(@PolyMutable NavigableAsMap this, @ParametricNullness K key) {
+      Entry<K, @PolyMutable Collection<V>> entry = sortedMap().ceilingEntry(key);
       return (entry == null) ? null : wrapEntry(entry);
     }
 
     @Override
     @CheckForNull
-    public K ceilingKey(@ParametricNullness K key) {
+    public K ceilingKey(@Readonly NavigableAsMap this, @ParametricNullness K key) {
       return sortedMap().ceilingKey(key);
     }
 
     @Override
     @CheckForNull
-    public Entry<K, Collection<V>> higherEntry(@ParametricNullness K key) {
-      Entry<K, Collection<V>> entry = sortedMap().higherEntry(key);
+    public Entry<K, @PolyMutable Collection<V>> higherEntry(@PolyMutable NavigableAsMap this, @ParametricNullness K key) {
+      Entry<K, @PolyMutable Collection<V>> entry = sortedMap().higherEntry(key);
       return (entry == null) ? null : wrapEntry(entry);
     }
 
     @Override
     @CheckForNull
-    public K higherKey(@ParametricNullness K key) {
+    public K higherKey(@Readonly NavigableAsMap this, @ParametricNullness K key) {
       return sortedMap().higherKey(key);
     }
 
     @Override
     @CheckForNull
-    public Entry<K, Collection<V>> firstEntry() {
-      Entry<K, Collection<V>> entry = sortedMap().firstEntry();
+    public Entry<K, @PolyMutable Collection<V>> firstEntry(@PolyMutable NavigableAsMap this) {
+      Entry<K, @PolyMutable Collection<V>> entry = sortedMap().firstEntry();
       return (entry == null) ? null : wrapEntry(entry);
     }
 
     @Override
     @CheckForNull
-    public Entry<K, Collection<V>> lastEntry() {
-      Entry<K, Collection<V>> entry = sortedMap().lastEntry();
+    public Entry<K, @PolyMutable Collection<V>> lastEntry(@PolyMutable NavigableAsMap this) {
+      Entry<K, @PolyMutable Collection<V>> entry = sortedMap().lastEntry();
       return (entry == null) ? null : wrapEntry(entry);
     }
 
     @Override
     @CheckForNull
-    public Entry<K, Collection<V>> pollFirstEntry() {
+    public @Immutable Entry<K, Collection<V>> pollFirstEntry(@Mutable NavigableAsMap this) {
       return pollAsMapEntry(entrySet().iterator());
     }
 
     @Override
     @CheckForNull
-    public Entry<K, Collection<V>> pollLastEntry() {
+    public @Immutable Entry<K, Collection<V>> pollLastEntry(@Mutable NavigableAsMap this) {
       return pollAsMapEntry(descendingMap().entrySet().iterator());
     }
 
     @CheckForNull
-    Entry<K, Collection<V>> pollAsMapEntry(Iterator<Entry<K, Collection<V>>> entryIterator) {
+    @Immutable Entry<K, Collection<V>> pollAsMapEntry(@Mutable NavigableAsMap this, Iterator<Entry<K, Collection<V>>> entryIterator) {
       if (!entryIterator.hasNext()) {
         return null;
       }
@@ -1676,64 +1686,67 @@ abstract class AbstractMapBasedMultimap<K extends @Nullable @Immutable Object, V
     }
 
     @Override
-    public NavigableMap<K, Collection<V>> descendingMap() {
-      return new NavigableAsMap(sortedMap().descendingMap());
+    public @PolyMutable NavigableMap<K, @PolyMutable Collection<V>> descendingMap(@PolyMutable NavigableAsMap this) {
+      return new @PolyMutable NavigableAsMap(sortedMap().descendingMap());
     }
 
     @Override
-    public NavigableSet<@KeyFor({"this"}) K> keySet() {
-      return (NavigableSet<K>) super.keySet();
+    public @PolyMutable NavigableSet<@KeyFor({"this"}) K> keySet(@PolyMutable NavigableAsMap this) {
+      return (@PolyMutable NavigableSet<K>) super.keySet();
     }
 
     @Override
-    NavigableSet<K> createKeySet() {
-      return new NavigableKeySet(sortedMap());
+    @PolyMutable NavigableSet<K> createKeySet(@PolyMutable NavigableAsMap this) {
+      return new @PolyMutable NavigableKeySet(sortedMap());
     }
 
     @Override
-    public NavigableSet<@KeyFor({"this"}) K> navigableKeySet() {
+    public @PolyMutable NavigableSet<@KeyFor({"this"}) K> navigableKeySet(@PolyMutable NavigableAsMap this) {
       return keySet();
     }
 
     @Override
-    public NavigableSet<@KeyFor({"this"}) K> descendingKeySet() {
+    public @PolyMutable NavigableSet<@KeyFor({"this"}) K> descendingKeySet(@PolyMutable NavigableAsMap this) {
       return descendingMap().navigableKeySet();
     }
 
     @Override
-    public NavigableMap<K, Collection<V>> subMap(
+    public @PolyMutable NavigableMap<K, @PolyMutable Collection<V>> subMap(
+            @PolyMutable NavigableAsMap this,
         @ParametricNullness K fromKey, @ParametricNullness K toKey) {
       return subMap(fromKey, true, toKey, false);
     }
 
     @Override
-    public NavigableMap<K, Collection<V>> subMap(
+    public @PolyMutable NavigableMap<K, @PolyMutable Collection<V>> subMap(
+            @PolyMutable NavigableAsMap this,
         @ParametricNullness K fromKey,
         boolean fromInclusive,
         @ParametricNullness K toKey,
         boolean toInclusive) {
-      return new NavigableAsMap(sortedMap().subMap(fromKey, fromInclusive, toKey, toInclusive));
+      return new @PolyMutable NavigableAsMap(sortedMap().subMap(fromKey, fromInclusive, toKey, toInclusive));
     }
 
     @Override
-    public NavigableMap<K, Collection<V>> headMap(@ParametricNullness K toKey) {
+    public @PolyMutable NavigableMap<K, @PolyMutable Collection<V>> headMap(@PolyMutable NavigableAsMap this, @ParametricNullness K toKey) {
       return headMap(toKey, false);
     }
 
     @Override
-    public NavigableMap<K, Collection<V>> headMap(@ParametricNullness K toKey, boolean inclusive) {
-      return new NavigableAsMap(sortedMap().headMap(toKey, inclusive));
+    public @PolyMutable NavigableMap<K, @PolyMutable Collection<V>> headMap(@PolyMutable NavigableAsMap this, @ParametricNullness K toKey, boolean inclusive) {
+      return new @PolyMutable NavigableAsMap(sortedMap().headMap(toKey, inclusive));
     }
 
     @Override
-    public NavigableMap<K, Collection<V>> tailMap(@ParametricNullness K fromKey) {
+    public @PolyMutable NavigableMap<K, @PolyMutable Collection<V>> tailMap(@PolyMutable NavigableAsMap this, @ParametricNullness K fromKey) {
       return tailMap(fromKey, true);
     }
 
     @Override
-    public NavigableMap<K, Collection<V>> tailMap(
+    public @PolyMutable NavigableMap<K, @PolyMutable Collection<V>> tailMap(
+            @PolyMutable NavigableAsMap this,
         @ParametricNullness K fromKey, boolean inclusive) {
-      return new NavigableAsMap(sortedMap().tailMap(fromKey, inclusive));
+      return new @PolyMutable NavigableAsMap(sortedMap().tailMap(fromKey, inclusive));
     }
   }
 

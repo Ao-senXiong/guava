@@ -83,7 +83,7 @@ public final class ArrayListMultimap<K extends @Nullable @Immutable Object, V ex
    * <p>This method will soon be deprecated in favor of {@code
    * MultimapBuilder.hashKeys().arrayListValues().build()}.
    */
-  public static <K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object> @Mutable ArrayListMultimap<K, V> create() {
+  public static <K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object> ArrayListMultimap<K, V> create() {
     return new ArrayListMultimap<>();
   }
 
@@ -113,8 +113,8 @@ public final class ArrayListMultimap<K extends @Nullable @Immutable Object, V ex
    * @param multimap the multimap whose contents are copied to this multimap
    */
   public static <K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object>
-  ArrayListMultimap<K, V> create(Multimap<? extends K, ? extends V> multimap) {
-    return new ArrayListMultimap<>(multimap);
+    @PolyMutable ArrayListMultimap<K, V> create(@PolyMutable Multimap<? extends K, ? extends V> multimap) {
+    return new @PolyMutable ArrayListMultimap<>(multimap);
   }
 
   private ArrayListMultimap() {
@@ -122,7 +122,7 @@ public final class ArrayListMultimap<K extends @Nullable @Immutable Object, V ex
   }
 
   private ArrayListMultimap(int expectedKeys, int expectedValuesPerKey) {
-    super(Platform.<K, Collection<V>>newHashMapWithExpectedSize(expectedKeys));
+    super(Platform.<K, @ReceiverDependentMutable Collection<V>>newHashMapWithExpectedSize(expectedKeys));
     checkNonnegative(expectedValuesPerKey, "expectedValuesPerKey");
     this.expectedValuesPerKey = expectedValuesPerKey;
   }
@@ -141,7 +141,7 @@ public final class ArrayListMultimap<K extends @Nullable @Immutable Object, V ex
    */
   @Override
   @PolyMutable List<V> createCollection(@PolyMutable ArrayListMultimap<K, V> this) {
-    return new ArrayList<V>(expectedValuesPerKey);
+    return new @PolyMutable ArrayList<V>(expectedValuesPerKey);
   }
 
   /**
@@ -199,13 +199,13 @@ public boolean equals(@Readonly ArrayListMultimap<K, V> this, @Nullable @Readonl
 public boolean isEmpty(@Readonly ArrayListMultimap<K, V> this) { return super.isEmpty(); }
 
 @Override
-public List<V> get(@Readonly ArrayListMultimap<K, V> this, @Nullable K arg0) { return super.get(arg0); }
+public @PolyMutable List<V> get(@PolyMutable ArrayListMultimap<K, V> this, @Nullable K arg0) { return super.get(arg0); }
 
 @Override
 public boolean remove(@Mutable ArrayListMultimap<K, V> this, @Nullable @Readonly Object arg0, @Nullable @Readonly Object arg1) { return super.remove(arg0, arg1); }
 
 @Override
-public List<V> removeAll(@Mutable ArrayListMultimap<K, V> this, @Nullable @Readonly Object arg0) { return super.removeAll(arg0); }
+public @Readonly List<V> removeAll(@Mutable ArrayListMultimap<K, V> this, @Nullable @Readonly Object arg0) { return super.removeAll(arg0); }
 
 @Pure
 @Override

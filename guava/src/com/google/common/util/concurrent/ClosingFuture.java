@@ -192,6 +192,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 @DoNotMock("Use ClosingFuture.from(Futures.immediate*Future)")
 @ElementTypesAreNonnullByDefault
 // TODO(dpb): GWT compatibility.
+@SuppressWarnings("pico")
 public final class ClosingFuture<V extends @Nullable Object> {
 
   private static final Logger logger = Logger.getLogger(ClosingFuture.class.getName());

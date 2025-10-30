@@ -183,31 +183,31 @@ abstract class Cut<C extends @Readonly Comparable> implements Comparable<Cut<C>>
     }
 
     @Override
-    Comparable<?> leastValueAbove(DiscreteDomain<Comparable<?>> domain) {
+    Comparable<?> leastValueAbove(DiscreteDomain<@Readonly Comparable<?>> domain) {
       return domain.minValue();
     }
 
     @Override
-    Comparable<?> greatestValueBelow(DiscreteDomain<Comparable<?>> domain) {
+    Comparable<?> greatestValueBelow(DiscreteDomain<@Readonly Comparable<?>> domain) {
       throw new AssertionError();
     }
 
     @Override
-    Cut<Comparable<?>> canonical(DiscreteDomain<Comparable<?>> domain) {
+    Cut<@Readonly Comparable<?>> canonical(DiscreteDomain<@Readonly Comparable<?>> domain) {
       try {
-        return Cut.<Comparable<?>>belowValue(domain.minValue());
+        return Cut.<@Readonly Comparable<?>>belowValue(domain.minValue());
       } catch (NoSuchElementException e) {
         return this;
       }
     }
 
     @Override
-    public int compareTo(Cut<Comparable<?>> o) {
+    public int compareTo(Cut<@Readonly Comparable<?>> o) {
       return (o == this) ? 0 : -1;
     }
 
     @Override
-    public int hashCode(@UnknownSignedness BelowAll this) {
+    public int hashCode(@UnknownSignedness @Readonly BelowAll this) {
       return System.identityHashCode(this);
     }
 
@@ -228,7 +228,7 @@ abstract class Cut<C extends @Readonly Comparable> implements Comparable<Cut<C>>
    * type C, so casting the type parameter is safe.
    */
   @SuppressWarnings("unchecked")
-  static <C extends Comparable> Cut<C> aboveAll() {
+  static <C extends @Readonly Comparable> Cut<C> aboveAll() {
     return (Cut<C>) AboveAll.INSTANCE;
   }
 
@@ -315,7 +315,7 @@ abstract class Cut<C extends @Readonly Comparable> implements Comparable<Cut<C>>
     private static final long serialVersionUID = 0;
   }
 
-  static <C extends Comparable> Cut<C> belowValue(C endpoint) {
+  static <C extends @Readonly Comparable> Cut<C> belowValue(C endpoint) {
     return new BelowValue<>(endpoint);
   }
 
@@ -479,7 +479,7 @@ abstract class Cut<C extends @Readonly Comparable> implements Comparable<Cut<C>>
     }
 
     @Override
-    public int hashCode(@UnknownSignedness AboveValue<C> this) {
+    public int hashCode(@UnknownSignedness @Readonly AboveValue<C> this) {
       return ~endpoint.hashCode();
     }
 

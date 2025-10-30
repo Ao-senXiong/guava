@@ -62,6 +62,7 @@ public abstract class DiscreteDomain<C extends @Readonly Comparable> {
     return IntegerDomain.INSTANCE;
   }
 
+  @Immutable
   private static final class IntegerDomain extends DiscreteDomain<Integer> implements Serializable {
     private static final IntegerDomain INSTANCE = new IntegerDomain();
 
@@ -126,6 +127,7 @@ public abstract class DiscreteDomain<C extends @Readonly Comparable> {
     return LongDomain.INSTANCE;
   }
 
+  @Immutable
   private static final class LongDomain extends DiscreteDomain<Long> implements Serializable {
     private static final LongDomain INSTANCE = new LongDomain();
 
@@ -200,6 +202,7 @@ public abstract class DiscreteDomain<C extends @Readonly Comparable> {
     return BigIntegerDomain.INSTANCE;
   }
 
+  @Immutable
   private static final class BigIntegerDomain extends DiscreteDomain<BigInteger>
       implements Serializable {
     private static final BigIntegerDomain INSTANCE = new BigIntegerDomain();

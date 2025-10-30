@@ -21,6 +21,7 @@ import static com.google.common.collect.CollectPreconditions.checkEntryNotNull;
 import com.google.common.annotations.GwtIncompatible;
 import javax.annotation.CheckForNull;
 import org.checkerframework.checker.pico.qual.Immutable;
+import org.checkerframework.framework.qual.AnnotatedFor;
 
 /**
  * Implementation of {@code Entry} for {@link ImmutableMap} that adds extra methods to traverse hash
@@ -33,6 +34,7 @@ import org.checkerframework.checker.pico.qual.Immutable;
  *
  * @author Louis Wasserman
  */
+@AnnotatedFor("pico")
 @GwtIncompatible // unnecessary
 @ElementTypesAreNonnullByDefault
 @Immutable
@@ -79,6 +81,7 @@ class ImmutableMapEntry<K extends @Immutable Object, V> extends ImmutableEntry<K
     return true;
   }
 
+  @Immutable
   static class NonTerminalImmutableMapEntry<K extends @Immutable Object, V> extends ImmutableMapEntry<K, V> {
     /*
      * Yes, we sometimes set nextInKeyBucket to null, even for this "non-terminal" entry. We don't
@@ -106,6 +109,7 @@ class ImmutableMapEntry<K extends @Immutable Object, V> extends ImmutableEntry<K
     }
   }
 
+  @Immutable
   static final class NonTerminalImmutableBiMapEntry<K extends @Immutable Object, V extends @Immutable Object>
       extends NonTerminalImmutableMapEntry<K, V> {
     @CheckForNull private final transient ImmutableMapEntry<K, V> nextInValueBucket;

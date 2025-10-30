@@ -53,6 +53,7 @@ import org.checkerframework.framework.qual.AnnotatedFor;
 @AnnotatedFor({"nullness", "pico"})
 @GwtCompatible(serializable = true, emulated = true)
 @ElementTypesAreNonnullByDefault
+@Immutable
 final class RegularImmutableMap<K extends @Immutable Object, V> extends ImmutableMap<K, V> {
   @SuppressWarnings("unchecked")
   static final ImmutableMap<Object, Object> EMPTY =
@@ -94,7 +95,7 @@ final class RegularImmutableMap<K extends @Immutable Object, V> extends Immutabl
    * contents), and may take ownership of entryArray.
    */
   static <K extends @Immutable Object, V> ImmutableMap<K, V> fromEntryArray(
-      int n, @Nullable Entry<K, V> @Mutable [] entryArray, boolean throwIfDuplicateKeys) {
+      int n, @Nullable Entry<K, V>[] entryArray, boolean throwIfDuplicateKeys) {
     checkPositionIndex(n, entryArray.length);
     if (n == 0) {
       @SuppressWarnings("unchecked") // it has no entries so the type variables don't matter
@@ -190,7 +191,7 @@ final class RegularImmutableMap<K extends @Immutable Object, V> extends Immutabl
    * @return an array of {@code newN} entries where no key appears more than once.
    */
   static <K extends @Immutable Object, V> Entry<K, V>[] removeDuplicates(
-      Entry<K, V>[] entries, int n, int newN, IdentityHashMap<Entry<K, V>, Boolean> duplicates) {
+      Entry<K, V>[] entries, int n, int newN, IdentityHashMap<@Immutable Entry<K, V>, Boolean> duplicates) {
     Entry<K, V>[] newEntries = createEntryArray(newN);
     for (int in = 0, out = 0; in < n; in++) {
       Entry<K, V> entry = entries[in];
@@ -209,14 +210,14 @@ final class RegularImmutableMap<K extends @Immutable Object, V> extends Immutabl
   }
 
   /** Makes an entry usable internally by a new ImmutableMap without rereading its contents. */
-  static <K extends @Immutable Object, V> ImmutableMapEntry<K, V> makeImmutable(Entry<K, V> entry, K key, V value) {
+  static <K extends @Immutable Object, V> ImmutableMapEntry<K, V> makeImmutable(@Readonly Entry<K, V> entry, K key, V value) {
     boolean reusable =
         entry instanceof ImmutableMapEntry && ((ImmutableMapEntry<K, V>) entry).isReusable();
     return reusable ? (ImmutableMapEntry<K, V>) entry : new ImmutableMapEntry<K, V>(key, value);
   }
 
   /** Makes an entry usable internally by a new ImmutableMap. */
-  static <K extends @Immutable Object, V> ImmutableMapEntry<K, V> makeImmutable(Entry<K, V> entry) {
+  static <K extends @Immutable Object, V> ImmutableMapEntry<K, V> makeImmutable(@Readonly Entry<K, V> entry) {
     return makeImmutable(entry, entry.getKey(), entry.getValue());
   }
 
@@ -411,7 +412,7 @@ final class RegularImmutableMap<K extends @Immutable Object, V> extends Immutabl
         this.map = map;
       }
 
-      Object readResolve() {
+      @Immutable Object readResolve() {
         return map.values();
       }
 

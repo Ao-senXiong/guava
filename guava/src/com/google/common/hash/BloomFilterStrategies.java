@@ -41,6 +41,7 @@ import org.checkerframework.common.value.qual.MinLen;
  * @author Kurt Alfred Kluever
  */
 @ElementTypesAreNonnullByDefault
+@SuppressWarnings("pico")
 enum BloomFilterStrategies implements BloomFilter.Strategy {
   /**
    * See "Less Hashing, Same Performance: Building a Better Bloom Filter" by Adam Kirsch and Michael

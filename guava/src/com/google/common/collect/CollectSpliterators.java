@@ -435,7 +435,7 @@ final class CollectSpliterators {
    * @param <OutElementT> the element type of the output spliterators
    */
   static final class FlatMapSpliteratorOfObject<
-          InElementT extends @Nullable Object, OutElementT extends @Nullable Object>
+          InElementT extends @Nullable @Readonly Object, OutElementT extends @Nullable @Readonly Object>
       extends FlatMapSpliterator<InElementT, OutElementT, Spliterator<OutElementT>> {
     FlatMapSpliteratorOfObject(
         @CheckForNull Spliterator<OutElementT> prefix,

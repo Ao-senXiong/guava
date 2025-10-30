@@ -23,6 +23,7 @@ import java.util.concurrent.Executor;
  */
 @GwtCompatible
 @ElementTypesAreNonnullByDefault
+@SuppressWarnings("pico")
 enum DirectExecutor implements Executor {
   INSTANCE;
 

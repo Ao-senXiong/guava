@@ -41,6 +41,7 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
  * @since 12.0
  */
 @ElementTypesAreNonnullByDefault
+@SuppressWarnings("pico")
 public abstract class AbstractInvocationHandler implements InvocationHandler {
 
   private static final Object[] NO_ARGS = {};

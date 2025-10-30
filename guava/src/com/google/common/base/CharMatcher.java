@@ -70,6 +70,7 @@ import org.checkerframework.common.value.qual.IntVal;
  */
 @GwtCompatible(emulated = true)
 @ElementTypesAreNonnullByDefault
+@SuppressWarnings("pico")
 public abstract class CharMatcher implements Predicate<Character> {
   /*
    *           N777777777NO

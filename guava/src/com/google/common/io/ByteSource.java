@@ -78,6 +78,7 @@ import org.checkerframework.checker.index.qual.NonNegative;
  */
 @GwtIncompatible
 @ElementTypesAreNonnullByDefault
+@SuppressWarnings("pico")
 public abstract class ByteSource {
 
   /** Constructor for use by subclasses. */

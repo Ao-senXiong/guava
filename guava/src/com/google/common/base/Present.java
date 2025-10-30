@@ -27,6 +27,7 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
 /** Implementation of an {@link Optional} containing a reference. */
 @GwtCompatible
 @ElementTypesAreNonnullByDefault
+@SuppressWarnings("pico")
 final class Present<T> extends Optional<T> {
   private final T reference;
 

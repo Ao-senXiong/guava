@@ -164,6 +164,7 @@ import javax.annotation.CheckForNull;
 @CanIgnoreReturnValue // TODO(cpovirk): Consider being more strict.
 @GwtIncompatible
 @ElementTypesAreNonnullByDefault
+@SuppressWarnings("pico")
 public class CycleDetectingLockFactory {
 
   /**

@@ -52,7 +52,7 @@ abstract class AbstractSetMultimap<K extends @Nullable @Immutable Object, V exte
    *
    * @param map place to store the mapping from each key to its corresponding values
    */
-  protected AbstractSetMultimap(@ReceiverDependentMutable Map<K, Collection<V>> map) {
+  protected AbstractSetMultimap(@ReceiverDependentMutable Map<K, @ReceiverDependentMutable Collection<V>> map) {
     super(map);
   }
 
@@ -84,8 +84,8 @@ abstract class AbstractSetMultimap<K extends @Nullable @Immutable Object, V exte
    * {@link Set}, instead of the {@link Collection} specified in the {@link Multimap} interface.
    */
   @Override
-  public Set<V> get(@Readonly AbstractSetMultimap<K, V> this, @ParametricNullness K key) {
-    return (Set<V>) super.get(key);
+  public @PolyMutable Set<V> get(@PolyMutable AbstractSetMultimap<K, V> this, @ParametricNullness K key) {
+    return (@PolyMutable Set<V>) super.get(key);
   }
 
   /**
@@ -96,8 +96,8 @@ abstract class AbstractSetMultimap<K extends @Nullable @Immutable Object, V exte
    */
   @SideEffectFree
   @Override
-  public @PolyMutable Set<Entry<K, V>> entries(@PolyMutable AbstractSetMultimap<K, V> this) {
-    return (Set<Entry<K, V>>) super.entries();
+  public @PolyMutable Set<@PolyMutable Entry<K, V>> entries(@PolyMutable AbstractSetMultimap<K, V> this) {
+    return (@PolyMutable Set<@PolyMutable Entry<K, V>>) super.entries();
   }
 
   /**
@@ -108,8 +108,8 @@ abstract class AbstractSetMultimap<K extends @Nullable @Immutable Object, V exte
    */
   @CanIgnoreReturnValue
   @Override
-  public Set<V> removeAll(@Mutable AbstractSetMultimap<K, V> this, @CheckForNull @Readonly Object key) {
-    return (Set<V>) super.removeAll(key);
+  public @Readonly Set<V> removeAll(@Mutable AbstractSetMultimap<K, V> this, @CheckForNull @Readonly Object key) {
+    return (@Readonly Set<V>) super.removeAll(key);
   }
 
   /**
@@ -122,8 +122,8 @@ abstract class AbstractSetMultimap<K extends @Nullable @Immutable Object, V exte
    */
   @CanIgnoreReturnValue
   @Override
-  public Set<V> replaceValues(@Mutable AbstractSetMultimap<K, V> this, @ParametricNullness K key, Iterable<? extends V> values) {
-    return (Set<V>) super.replaceValues(key, values);
+  public @Readonly Set<V> replaceValues(@Mutable AbstractSetMultimap<K, V> this, @ParametricNullness K key, Iterable<? extends V> values) {
+    return (@Readonly Set<V>) super.replaceValues(key, values);
   }
 
   /**
@@ -133,7 +133,7 @@ abstract class AbstractSetMultimap<K extends @Nullable @Immutable Object, V exte
    * values.
    */
   @Override
-  public @PolyMutable  Map<K, Collection<V>> asMap(@PolyMutable AbstractSetMultimap<K, V> this) {
+  public @PolyMutable Map<K, @PolyMutable Collection<V>> asMap(@PolyMutable AbstractSetMultimap<K, V> this) {
     return super.asMap();
   }
 

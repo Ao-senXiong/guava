@@ -66,6 +66,7 @@ import org.checkerframework.framework.qual.AnnotatedFor;
 @AnnotatedFor({"signedness"})
 @GwtCompatible(emulated = true)
 @ElementTypesAreNonnullByDefault
+@SuppressWarnings("pico")
 public final class Doubles extends DoublesMethodsForWeb {
   private Doubles() {}
 

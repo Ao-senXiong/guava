@@ -67,7 +67,7 @@ final class JdkBackedImmutableMap<K extends @Immutable Object, V> extends Immuta
           throw conflictException("key", entryArray[i], entryArray[i].getKey() + "=" + oldValue);
         }
         if (duplicates == null) {
-          duplicates = new @Mutable HashMap<>();
+          duplicates = new HashMap<>();
         }
         duplicates.put(key, value);
         dupCount++;

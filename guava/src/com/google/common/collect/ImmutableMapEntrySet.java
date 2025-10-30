@@ -26,6 +26,7 @@ import javax.annotation.CheckForNull;
 import org.checkerframework.checker.index.qual.NonNegative;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.checker.pico.qual.Immutable;
+import org.checkerframework.checker.pico.qual.Readonly;
 import org.checkerframework.checker.signedness.qual.UnknownSignedness;
 
 /**
@@ -41,13 +42,13 @@ abstract class ImmutableMapEntrySet<K extends @Immutable Object, V> extends Immu
   @Immutable
   static final class RegularEntrySet<K extends @Immutable Object, V> extends ImmutableMapEntrySet<K, V> {
     private final transient ImmutableMap<K, V> map;
-    private final transient ImmutableList<Entry<K, V>> entries;
+    private final transient ImmutableList<@Immutable Entry<K, V>> entries;
 
-    RegularEntrySet(ImmutableMap<K, V> map, Entry<K, V>[] entries) {
+    RegularEntrySet(ImmutableMap<K, V> map, @Immutable Entry<K, V>[] entries) {
       this(map, ImmutableList.<Entry<K, V>>asImmutableList(entries));
     }
 
-    RegularEntrySet(ImmutableMap<K, V> map, ImmutableList<Entry<K, V>> entries) {
+    RegularEntrySet(ImmutableMap<K, V> map, ImmutableList<@Immutable Entry<K, V>> entries) {
       this.map = map;
       this.entries = entries;
     }
@@ -94,7 +95,7 @@ abstract class ImmutableMapEntrySet<K extends @Immutable Object, V> extends Immu
   }
 
   @Override
-  public boolean contains(@CheckForNull @UnknownSignedness Object object) {
+  public boolean contains(@CheckForNull @UnknownSignedness @Readonly Object object) {
     if (object instanceof Entry) {
       Entry<?, ?> entry = (Entry<?, ?>) object;
       V value = map().get(entry.getKey());
@@ -133,7 +134,7 @@ abstract class ImmutableMapEntrySet<K extends @Immutable Object, V> extends Immu
       this.map = map;
     }
 
-    Object readResolve() {
+    @Immutable Object readResolve() {
       return map.entrySet();
     }
 

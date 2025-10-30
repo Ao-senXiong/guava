@@ -70,6 +70,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  */
 @GwtIncompatible
 @ElementTypesAreNonnullByDefault
+@SuppressWarnings("pico")
 public final class Files {
 
   /** Maximum loop count when creating temp directories. */

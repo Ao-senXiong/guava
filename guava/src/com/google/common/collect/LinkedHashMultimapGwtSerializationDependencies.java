@@ -20,6 +20,8 @@ import com.google.common.annotations.GwtCompatible;
 import java.util.Collection;
 import java.util.Map;
 import org.checkerframework.checker.pico.qual.Immutable;
+import org.checkerframework.checker.pico.qual.ReceiverDependentMutable;
+import org.checkerframework.framework.qual.AnnotatedFor;
 
 /**
  * A dummy superclass to support GWT serialization of the element types of a {@link
@@ -30,10 +32,12 @@ import org.checkerframework.checker.pico.qual.Immutable;
  *
  * <p>TODO(cpovirk): Consider applying this subclass approach to our other types.
  */
+@AnnotatedFor("pico")
 @GwtCompatible(emulated = true)
+@ReceiverDependentMutable
 abstract class LinkedHashMultimapGwtSerializationDependencies<K extends @Immutable Object, V>
     extends AbstractSetMultimap<K, V> {
-  LinkedHashMultimapGwtSerializationDependencies(Map<K, Collection<V>> map) {
+  LinkedHashMultimapGwtSerializationDependencies(@ReceiverDependentMutable Map<K, @ReceiverDependentMutable Collection<V>> map) {
     super(map);
   }
 }

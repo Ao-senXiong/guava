@@ -343,7 +343,7 @@ public interface Multimap<K extends @Nullable @Immutable Object, V extends @Null
    * <p>Changes to the returned collection or the entries it contains will update the underlying
    * multimap, and vice versa. However, <i>adding</i> to the returned collection is not possible.
    */
-  @PolyMutable Collection<Entry<K, V>> entries(@PolyMutable Multimap<K,V> this);
+  @PolyMutable Collection<@PolyMutable Entry<K, V>> entries(@PolyMutable Multimap<K,V> this);
 
   /**
    * Performs the given action for all key-value pairs contained in this multimap. If an ordering is
@@ -370,7 +370,7 @@ public interface Multimap<K extends @Nullable @Immutable Object, V extends @Null
    * underlying multimap, and vice versa. The map does not support {@code put} or {@code putAll},
    * nor do its entries support {@link Entry#setValue setValue}.
    */
-  @PolyMutable Map<K, Collection<V>> asMap(@PolyMutable Multimap<K,V> this);
+  @PolyMutable Map<K, @PolyMutable Collection<V>> asMap(@PolyMutable Multimap<K,V> this);
 
   // Comparison and hashing
 

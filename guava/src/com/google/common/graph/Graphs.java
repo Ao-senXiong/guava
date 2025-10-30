@@ -45,6 +45,7 @@ import javax.annotation.CheckForNull;
  */
 @Beta
 @ElementTypesAreNonnullByDefault
+@SuppressWarnings("pico")
 public final class Graphs {
 
   private Graphs() {}

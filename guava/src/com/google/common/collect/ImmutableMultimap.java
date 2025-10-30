@@ -77,7 +77,7 @@ import org.checkerframework.framework.qual.AnnotatedFor;
  * @author Jared Levy
  * @since 2.0
  */
-@AnnotatedFor({"nullness"})
+@AnnotatedFor({"nullness", "pico"})
 @GwtCompatible(emulated = true)
 @ElementTypesAreNonnullByDefault
 @Immutable
@@ -158,7 +158,7 @@ public abstract class ImmutableMultimap<K extends @Immutable Object, V extends @
    * @since 2.0
    */
   @DoNotMock
-  public static @Mutable class Builder<K extends @Immutable Object, V extends @Immutable Object> {
+  public static class Builder<K extends @Immutable Object, V extends @Immutable Object> {
     final Map<K, Collection<V>> builderMap;
     @CheckForNull Comparator<? super K> keyComparator;
     @CheckForNull Comparator<? super V> valueComparator;
@@ -171,8 +171,8 @@ public abstract class ImmutableMultimap<K extends @Immutable Object, V extends @
       this.builderMap = Platform.preservesInsertionOrderOnPutsMap();
     }
 
-    @Mutable Collection<V> newMutableValueCollection() {
-      return new @Mutable ArrayList<>();
+    Collection<V> newMutableValueCollection() {
+      return new ArrayList<>();
     }
 
     /** Adds a key-value mapping to the built multimap. */
@@ -193,7 +193,7 @@ public abstract class ImmutableMultimap<K extends @Immutable Object, V extends @
      * @since 11.0
      */
     @CanIgnoreReturnValue
-    public Builder<K, V> put(Entry<? extends K, ? extends V> entry) {
+    public Builder<K, V> put(@Readonly Entry<? extends K, ? extends V> entry) {
       return put(entry.getKey(), entry.getValue());
     }
 
@@ -264,8 +264,8 @@ public abstract class ImmutableMultimap<K extends @Immutable Object, V extends @
      *     left in an invalid state.
      */
     @CanIgnoreReturnValue
-    public Builder<K, V> putAll(Multimap<? extends K, ? extends V> multimap) {
-      for (Entry<? extends K, ? extends Collection<? extends V>> entry :
+    public Builder<K, V> putAll(@Readonly Multimap<? extends K, ? extends V> multimap) {
+      for (Entry<? extends K, ? extends @Readonly Collection<? extends V>> entry :
           multimap.asMap().entrySet()) {
         putAll(entry.getKey(), entry.getValue());
       }
@@ -381,7 +381,7 @@ public abstract class ImmutableMultimap<K extends @Immutable Object, V extends @
   // DoNotCall wants this to be final, but we want to override it to return more specific types.
   // Inheritance is closed, and all subtypes are @DoNotCall, so this is safe to suppress.
   @SuppressWarnings("DoNotCall")
-  public ImmutableCollection<V> removeAll(@CheckForNull Object key) {
+  public ImmutableCollection<V> removeAll(@CheckForNull @Readonly Object key) {
     throw new UnsupportedOperationException();
   }
 
@@ -469,7 +469,7 @@ public abstract class ImmutableMultimap<K extends @Immutable Object, V extends @
   @Deprecated
   @Override
   @DoNotCall("Always throws UnsupportedOperationException")
-  public final boolean putAll(Multimap<? extends K, ? extends V> multimap) {
+  public final boolean putAll(@Readonly Multimap<? extends K, ? extends V> multimap) {
     throw new UnsupportedOperationException();
   }
 
@@ -483,7 +483,7 @@ public abstract class ImmutableMultimap<K extends @Immutable Object, V extends @
   @Deprecated
   @Override
   @DoNotCall("Always throws UnsupportedOperationException")
-  public final boolean remove(@CheckForNull Object key, @CheckForNull Object value) {
+  public final boolean remove(@CheckForNull @Readonly Object key, @CheckForNull @Readonly Object value) {
     throw new UnsupportedOperationException();
   }
 
@@ -501,13 +501,13 @@ public abstract class ImmutableMultimap<K extends @Immutable Object, V extends @
 
   @Pure
   @Override
-  public boolean containsKey(@CheckForNull @UnknownSignedness Object key) {
+  public boolean containsKey(@CheckForNull @UnknownSignedness @Readonly Object key) {
     return map.containsKey(key);
   }
 
   @Pure
   @Override
-  public boolean containsValue(@CheckForNull @UnknownSignedness Object value) {
+  public boolean containsValue(@CheckForNull @UnknownSignedness @Readonly Object value) {
     return value != null && super.containsValue(value);
   }
 
@@ -540,7 +540,7 @@ public abstract class ImmutableMultimap<K extends @Immutable Object, V extends @
    */
   @Override
   @SuppressWarnings("unchecked") // a widening cast
-  public ImmutableMap<K, Collection<V>> asMap() {
+  public ImmutableMap<K, @Immutable Collection<V>> asMap() {
     return (ImmutableMap) map;
   }
 
@@ -552,17 +552,17 @@ public abstract class ImmutableMultimap<K extends @Immutable Object, V extends @
   /** Returns an immutable collection of all key-value pairs in the multimap. */
   @SideEffectFree
   @Override
-  public ImmutableCollection<Entry<K, V>> entries() {
-    return (ImmutableCollection<Entry<K, V>>) super.entries();
+  public ImmutableCollection<@Immutable Entry<K, V>> entries() {
+    return (ImmutableCollection<@Immutable Entry<K, V>>) super.entries();
   }
 
   @Override
-  ImmutableCollection<Entry<K, V>> createEntries() {
+  ImmutableCollection<@Immutable Entry<K, V>> createEntries() {
     return new EntryCollection<>(this);
   }
 
   @Immutable
-  private static class EntryCollection<K extends @Immutable Object, V extends @Immutable Object> extends ImmutableCollection<Entry<K, V>> {
+  private static class EntryCollection<K extends @Immutable Object, V extends @Immutable Object> extends ImmutableCollection<@Immutable Entry<K, V>> {
     @Weak final ImmutableMultimap<K, V> multimap;
 
     EntryCollection(ImmutableMultimap<K, V> multimap) {
@@ -570,7 +570,7 @@ public abstract class ImmutableMultimap<K extends @Immutable Object, V extends @
     }
 
     @Override
-    public UnmodifiableIterator<Entry<K, V>> iterator() {
+    public UnmodifiableIterator<@Immutable Entry<K, V>> iterator() {
       return multimap.entryIterator();
     }
 
@@ -587,9 +587,9 @@ public abstract class ImmutableMultimap<K extends @Immutable Object, V extends @
 
     @Pure
     @Override
-    public boolean contains(@CheckForNull @UnknownSignedness Object object) {
+    public boolean contains(@CheckForNull @UnknownSignedness @Readonly Object object) {
       if (object instanceof Entry) {
-        Entry<?, ?> entry = (Entry<?, ?>) object;
+        Entry<?, ?> entry = (@Immutable Entry<?, ?>) object;
         return multimap.containsEntry(entry.getKey(), entry.getValue());
       }
       return false;
@@ -599,9 +599,9 @@ public abstract class ImmutableMultimap<K extends @Immutable Object, V extends @
   }
 
   @Override
-  UnmodifiableIterator<Entry<K, V>> entryIterator() {
-    return new UnmodifiableIterator<Entry<K, V>>() {
-      final Iterator<? extends Entry<K, ? extends ImmutableCollection<V>>> asMapItr =
+  UnmodifiableIterator<@Immutable Entry<K, V>> entryIterator() {
+    return new UnmodifiableIterator<@Immutable Entry<K, V>>() {
+      final Iterator<? extends @Immutable Entry<K, ? extends ImmutableCollection<V>>> asMapItr =
           map.entrySet().iterator();
       @CheckForNull K currentKey = null;
       Iterator<V> valueItr = Iterators.emptyIterator();
@@ -612,7 +612,7 @@ public abstract class ImmutableMultimap<K extends @Immutable Object, V extends @
       }
 
       @Override
-      public Entry<K, V> next() {
+      public @Immutable Entry<K, V> next() {
         if (!valueItr.hasNext()) {
           Entry<K, ? extends ImmutableCollection<V>> entry = asMapItr.next();
           currentKey = entry.getKey();
@@ -628,7 +628,7 @@ public abstract class ImmutableMultimap<K extends @Immutable Object, V extends @
   }
 
   @Override
-  Spliterator<Entry<K, V>> entrySpliterator() {
+  Spliterator<@Immutable Entry<K, V>> entrySpliterator() {
     return CollectSpliterators.flatMap(
         asMap().entrySet().spliterator(),
         keyToValueCollectionEntry -> {
@@ -669,12 +669,12 @@ public abstract class ImmutableMultimap<K extends @Immutable Object, V extends @
   @Immutable
   class Keys extends ImmutableMultiset<K> {
     @Override
-    public boolean contains(@CheckForNull @UnknownSignedness Object object) {
+    public boolean contains(@CheckForNull @UnknownSignedness @Readonly Object object) {
       return containsKey(object);
     }
 
     @Override
-    public @NonNegative int count(@CheckForNull @UnknownSignedness Object element) {
+    public @NonNegative int count(@CheckForNull @UnknownSignedness @Readonly Object element) {
       Collection<V> values = map.get(element);
       return (values == null) ? 0 : values.size();
     }
@@ -690,7 +690,7 @@ public abstract class ImmutableMultimap<K extends @Immutable Object, V extends @
     }
 
     @Override
-    Multiset.Entry<K> getEntry(int index) {
+    Multiset.@Immutable Entry<K> getEntry(int index) {
       Map.Entry<K, ? extends Collection<V>> entry = map.entrySet().asList().get(index);
       return Multisets.immutableEntry(entry.getKey(), entry.getValue().size());
     }
@@ -715,7 +715,7 @@ public abstract class ImmutableMultimap<K extends @Immutable Object, V extends @
       this.multimap = multimap;
     }
 
-    Object readResolve() {
+    @Immutable Object readResolve() {
       return multimap.keys();
     }
   }
@@ -765,7 +765,7 @@ public abstract class ImmutableMultimap<K extends @Immutable Object, V extends @
     }
 
     @Override
-    public boolean contains(@CheckForNull @UnknownSignedness Object object) {
+    public boolean contains(@CheckForNull @UnknownSignedness @Readonly Object object) {
       return multimap.containsValue(object);
     }
 
@@ -801,5 +801,5 @@ public abstract class ImmutableMultimap<K extends @Immutable Object, V extends @
 
 public boolean containsEntry(@Nullable @Readonly Object arg0, @Nullable @Readonly Object arg1) { return super.containsEntry(arg0, arg1); }
 
-public boolean equals(@Nullable Object arg0) { return super.equals(arg0); }
+public boolean equals(@Nullable @Readonly Object arg0) { return super.equals(arg0); }
 }
