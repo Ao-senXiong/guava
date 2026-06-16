@@ -33,10 +33,32 @@ val expectedReducedRuntimeClasspathJreVersion =
     "error_prone_annotations-$errorProneVersionJre.jar",
     "listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar"
   )
+val expectedReducedRuntimeClasspathAndroidVersionFromJreMetadata =
+  setOf(
+    "guava-${guavaVersionJre.replace("jre", "android")}.jar",
+    "failureaccess-1.0.2.jar",
+    "jsr305-3.0.2.jar",
+    "checker-qual-$checkerVersion.jar",
+    "error_prone_annotations-$errorProneVersionJre.jar",
+    "listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar"
+  )
+val expectedReducedRuntimeClasspathJreVersionFromAndroidMetadata =
+  setOf(
+    "guava-$guavaVersionJre.jar",
+    "failureaccess-1.0.2.jar",
+    "jsr305-3.0.2.jar",
+    "checker-qual-$checkerVersion.jar",
+    "error_prone_annotations-$errorProneVersionAndroid.jar",
+    "listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar"
+  )
 val expectedCompileClasspathAndroidVersion =
   expectedReducedRuntimeClasspathAndroidVersion + setOf("j2objc-annotations-3.0.0.jar")
 val expectedCompileClasspathJreVersion =
   expectedReducedRuntimeClasspathJreVersion + setOf("j2objc-annotations-3.0.0.jar")
+val expectedCompileClasspathAndroidVersionFromJreMetadata =
+  expectedReducedRuntimeClasspathAndroidVersionFromJreMetadata + setOf("j2objc-annotations-3.0.0.jar")
+val expectedCompileClasspathJreVersionFromAndroidMetadata =
+  expectedReducedRuntimeClasspathJreVersionFromAndroidMetadata + setOf("j2objc-annotations-3.0.0.jar")
 val expectedPomClasspathJreVersion =
   expectedCompileClasspathJreVersion +
     setOf(
@@ -89,10 +111,18 @@ subprojects {
       if (name.contains("Android") && !name.contains("JreConstraint")) {
         when {
           name.contains("RuntimeClasspath") -> {
-            expectedReducedRuntimeClasspathAndroidVersion
+            if (name.startsWith("android")) {
+              expectedReducedRuntimeClasspathAndroidVersion
+            } else {
+              expectedReducedRuntimeClasspathAndroidVersionFromJreMetadata
+            }
           }
           name.contains("CompileClasspath") -> {
-            expectedCompileClasspathAndroidVersion
+            if (name.startsWith("android")) {
+              expectedCompileClasspathAndroidVersion
+            } else {
+              expectedCompileClasspathAndroidVersionFromJreMetadata
+            }
           }
           else -> {
             error("unexpected classpath type: $name")
@@ -101,10 +131,18 @@ subprojects {
       } else {
         when {
           name.contains("RuntimeClasspath") -> {
-            expectedReducedRuntimeClasspathJreVersion
+            if (name.startsWith("android")) {
+              expectedReducedRuntimeClasspathJreVersionFromAndroidMetadata
+            } else {
+              expectedReducedRuntimeClasspathJreVersion
+            }
           }
           name.contains("CompileClasspath") -> {
-            expectedCompileClasspathJreVersion
+            if (name.startsWith("android")) {
+              expectedCompileClasspathJreVersionFromAndroidMetadata
+            } else {
+              expectedCompileClasspathJreVersion
+            }
           }
           else -> {
             error("unexpected classpath type: $name")
