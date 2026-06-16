@@ -2,7 +2,7 @@
 
 set -eu
 
-./mvnw clean install --projects '!guava-testlib,!guava-tests,!guava-bom,!guava-gwt' -Dmaven.test.skip=true -Dmaven.javadoc.skip=true
+./mvnw clean install --projects '!guava-testlib,!guava-tests,!guava-bom' -Dmaven.test.skip=true -Dmaven.javadoc.skip=true
 ./mvnw clean install --projects '!guava-testlib,!guava-tests,!guava-bom' -Dmaven.test.skip=true -Dmaven.javadoc.skip=true -f android
 
 # Gradle Wrapper overwrites some files when it runs.
