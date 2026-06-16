@@ -48,7 +48,7 @@
           }
         },
         {
-          "group": "org.checkerframework",
+          "group": "io.github.eisop",
           "module": "checker-qual",
           "version": {
             "requires": "${checker.version}"
@@ -121,7 +121,7 @@
           }
         },
         {
-          "group": "org.checkerframework",
+          "group": "io.github.eisop",
           "module": "checker-qual",
           "version": {
             "requires": "${checker.version}"
@@ -187,7 +187,7 @@
           }
         },
         {
-          "group": "org.checkerframework",
+          "group": "io.github.eisop",
           "module": "checker-qual",
           "version": {
             "requires": "${checker.version}"
@@ -260,7 +260,7 @@
           }
         },
         {
-          "group": "org.checkerframework",
+          "group": "io.github.eisop",
           "module": "checker-qual",
           "version": {
             "requires": "${checker.version}"
