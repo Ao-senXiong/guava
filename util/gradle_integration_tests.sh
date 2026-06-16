@@ -24,6 +24,7 @@ trap 'rm -rf "${GRADLE_TEMP}"' EXIT
 # (And the file needs to be two directory levels up from the Gradle build file.)
 # TODO(cpovirk): Find a better way to give them that information.
 cp pom.xml "${GRADLE_TEMP}"
+cp android/pom.xml "${GRADLE_TEMP}/android-pom.xml"
 
 for version in 5.6.4 7.0.2; do
   # Enter a subshell so that we return to the current directory afterward.

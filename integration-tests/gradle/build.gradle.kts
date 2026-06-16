@@ -1,11 +1,19 @@
 val runningGradle5 = gradle.gradleVersion.startsWith("5.")
 
+val pomText = file("../../pom.xml").readText()
+val androidPomText = file("../../android-pom.xml").readText()
 val guavaVersionJre =
-  "<version>(.*)</version>".toRegex().find(file("../../pom.xml").readText())?.groups?.get(1)?.value
+  "<version>(.*)</version>".toRegex().find(pomText)?.groups?.get(1)?.value
     ?: error("version not found in pom")
 val checkerVersion =
-  "<checker.version>(.*)</checker.version>".toRegex().find(file("../../pom.xml").readText())?.groups?.get(1)?.value
+  "<checker.version>(.*)</checker.version>".toRegex().find(pomText)?.groups?.get(1)?.value
     ?: error("checker.version not found in pom")
+val errorProneVersionJre =
+  "<errorprone.version>(.*)</errorprone.version>".toRegex().find(pomText)?.groups?.get(1)?.value
+    ?: error("errorprone.version not found in pom")
+val errorProneVersionAndroid =
+  "<errorprone.version>(.*)</errorprone.version>".toRegex().find(androidPomText)?.groups?.get(1)?.value
+    ?: error("errorprone.version not found in android pom")
 
 val expectedReducedRuntimeClasspathAndroidVersion =
   setOf(
@@ -13,7 +21,7 @@ val expectedReducedRuntimeClasspathAndroidVersion =
     "failureaccess-1.0.2.jar",
     "jsr305-3.0.2.jar",
     "checker-qual-$checkerVersion.jar",
-    "error_prone_annotations-2.26.1.jar",
+    "error_prone_annotations-$errorProneVersionAndroid.jar",
     "listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar"
   )
 val expectedReducedRuntimeClasspathJreVersion =
@@ -22,13 +30,19 @@ val expectedReducedRuntimeClasspathJreVersion =
     "failureaccess-1.0.2.jar",
     "jsr305-3.0.2.jar",
     "checker-qual-$checkerVersion.jar",
-    "error_prone_annotations-2.26.1.jar",
+    "error_prone_annotations-$errorProneVersionJre.jar",
     "listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar"
   )
 val expectedCompileClasspathAndroidVersion =
   expectedReducedRuntimeClasspathAndroidVersion + setOf("j2objc-annotations-3.0.0.jar")
 val expectedCompileClasspathJreVersion =
   expectedReducedRuntimeClasspathJreVersion + setOf("j2objc-annotations-3.0.0.jar")
+val expectedPomClasspathJreVersion =
+  expectedCompileClasspathJreVersion +
+    setOf(
+      "checker-$checkerVersion.jar",
+      "checker-util-$checkerVersion.jar"
+    )
 
 val extraLegacyDependencies = setOf("google-collections-1.0.jar")
 
@@ -65,7 +79,7 @@ subprojects {
       if (name.startsWith("android")) {
         expectedCompileClasspathAndroidVersion + extraLegacyDependencies
       } else {
-        expectedCompileClasspathJreVersion + extraLegacyDependencies
+        expectedPomClasspathJreVersion + extraLegacyDependencies
       }
     } else {
       // with Gradle Module Metadata
