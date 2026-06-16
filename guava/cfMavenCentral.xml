@@ -67,7 +67,7 @@
     <dependency>
       <groupId>io.github.eisop</groupId>
       <artifactId>checker-qual</artifactId>
-      <version>3.49.3-eisop1</version>
+      <version>3.49.5-eisop1</version>
     </dependency>
     <dependency>
       <groupId>com.google.errorprone</groupId>
