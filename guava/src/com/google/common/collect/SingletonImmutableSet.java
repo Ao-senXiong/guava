@@ -17,15 +17,15 @@
 package com.google.common.collect;
 
 import com.google.common.annotations.GwtCompatible;
+import com.google.common.annotations.GwtIncompatible;
+import com.google.common.annotations.J2ktIncompatible;
 import com.google.common.base.Preconditions;
-import com.google.errorprone.annotations.concurrent.LazyInit;
 import javax.annotation.CheckForNull;
 import org.checkerframework.checker.index.qual.NonNegative;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.checker.signedness.qual.UnknownSignedness;
 import org.checkerframework.dataflow.qual.Pure;
 import org.checkerframework.framework.qual.AnnotatedFor;
-import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * Implementation of {@link ImmutableSet} with exactly one element.
@@ -82,7 +82,7 @@ final class SingletonImmutableSet<E> extends ImmutableSet<E> {
 
   @Pure
   @Override
-  public int hashCode(@UnknownSignedness SingletonImmutableSet<E> this) {
+  public final int hashCode(@UnknownSignedness SingletonImmutableSet<E> this) {
     return element.hashCode();
   }
 
@@ -90,6 +90,15 @@ final class SingletonImmutableSet<E> extends ImmutableSet<E> {
   @Override
   public String toString() {
     return '[' + element.toString() + ']';
+  }
+
+  // redeclare to help optimizers with b/310253115
+  @SuppressWarnings("RedundantOverride")
+  @Override
+  @J2ktIncompatible // serialization
+  @GwtIncompatible // serialization
+  Object writeReplace() {
+    return super.writeReplace();
   }
 
 @Pure

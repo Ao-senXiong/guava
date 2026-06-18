@@ -21,6 +21,7 @@ import static java.util.Objects.requireNonNull;
 
 import com.google.common.annotations.GwtCompatible;
 import com.google.common.annotations.GwtIncompatible;
+import com.google.common.annotations.J2ktIncompatible;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.io.IOException;
@@ -34,7 +35,6 @@ import java.util.Collections;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import org.checkerframework.checker.index.qual.NonNegative;
-import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * Static utility methods pertaining to instances of {@link Throwable}.
@@ -100,6 +100,7 @@ public final class Throwables {
    *     null}.
    */
   @Deprecated
+  @J2ktIncompatible
   @GwtIncompatible // throwIfInstanceOf
   public static <X extends Throwable> void propagateIfInstanceOf(
       @CheckForNull Throwable throwable, Class<X> declaredType) throws X {
@@ -139,23 +140,13 @@ public final class Throwables {
 
   /**
    * Propagates {@code throwable} exactly as-is, if and only if it is an instance of {@link
-   * RuntimeException} or {@link Error}. Example usage:
-   *
-   * <pre>
-   * try {
-   *   someMethodThatCouldThrowAnything();
-   * } catch (IKnowWhatToDoWithThisException e) {
-   *   handle(e);
-   * } catch (Throwable t) {
-   *   Throwables.propagateIfPossible(t);
-   *   throw new RuntimeException("unexpected", t);
-   * }
-   * </pre>
+   * RuntimeException} or {@link Error}.
    *
    * @deprecated Use {@link #throwIfUnchecked}, which has the same behavior but rejects {@code
    *     null}.
    */
   @Deprecated
+  @J2ktIncompatible
   @GwtIncompatible
   public static void propagateIfPossible(@CheckForNull Throwable throwable) {
     if (throwable != null) {
@@ -165,22 +156,18 @@ public final class Throwables {
 
   /**
    * Propagates {@code throwable} exactly as-is, if and only if it is an instance of {@link
-   * RuntimeException}, {@link Error}, or {@code declaredType}. Example usage:
+   * RuntimeException}, {@link Error}, or {@code declaredType}.
    *
-   * <pre>
-   * try {
-   *   someMethodThatCouldThrowAnything();
-   * } catch (IKnowWhatToDoWithThisException e) {
-   *   handle(e);
-   * } catch (Throwable t) {
-   *   Throwables.propagateIfPossible(t, OtherException.class);
-   *   throw new RuntimeException("unexpected", t);
-   * }
-   * </pre>
+   * <p><b>Discouraged</b> in favor of calling {@link #throwIfInstanceOf} and {@link
+   * #throwIfUnchecked}.
    *
    * @param throwable the Throwable to possibly propagate
    * @param declaredType the single checked exception type declared by the calling method
+   * @deprecated Use a combination of {@link #throwIfInstanceOf} and {@link #throwIfUnchecked},
+   *     which togther provide the same behavior except that they reject {@code null}.
    */
+  @Deprecated
+  @J2ktIncompatible
   @GwtIncompatible // propagateIfInstanceOf
   public static <X extends Throwable> void propagateIfPossible(
       @CheckForNull Throwable throwable, Class<X> declaredType) throws X {
@@ -190,15 +177,17 @@ public final class Throwables {
 
   /**
    * Propagates {@code throwable} exactly as-is, if and only if it is an instance of {@link
-   * RuntimeException}, {@link Error}, {@code declaredType1}, or {@code declaredType2}. In the
-   * unlikely case that you have three or more declared checked exception types, you can handle them
-   * all by invoking these methods repeatedly. See usage example in {@link
-   * #propagateIfPossible(Throwable, Class)}.
+   * RuntimeException}, {@link Error}, {@code declaredType1}, or {@code declaredType2}.
    *
    * @param throwable the Throwable to possibly propagate
    * @param declaredType1 any checked exception type declared by the calling method
    * @param declaredType2 any other checked exception type declared by the calling method
+   * @deprecated Use a combination of two calls to {@link #throwIfInstanceOf} and one call to {@link
+   *     #throwIfUnchecked}, which togther provide the same behavior except that they reject {@code
+   *     null}.
    */
+  @Deprecated
+  @J2ktIncompatible
   @GwtIncompatible // propagateIfInstanceOf
   public static <X1 extends Throwable, X2 extends Throwable> void propagateIfPossible(
       @CheckForNull Throwable throwable, Class<X1> declaredType1, Class<X2> declaredType2)
@@ -231,12 +220,14 @@ public final class Throwables {
    * @param throwable the Throwable to propagate
    * @return nothing will ever be returned; this return type is only for your convenience, as
    *     illustrated in the example above
-   * @deprecated Use {@code throw e} or {@code throw new RuntimeException(e)} directly, or use a
-   *     combination of {@link #throwIfUnchecked} and {@code throw new RuntimeException(e)}. For
-   *     background on the deprecation, read <a href="https://goo.gl/Ivn2kc">Why we deprecated
-   *     {@code Throwables.propagate}</a>.
+   * @deprecated To preserve behavior, use {@code throw e} or {@code throw new RuntimeException(e)}
+   *     directly, or use a combination of {@link #throwIfUnchecked} and {@code throw new
+   *     RuntimeException(e)}. But consider whether users would be better off if your API threw a
+   *     different type of exception. For background on the deprecation, read <a
+   *     href="https://goo.gl/Ivn2kc">Why we deprecated {@code Throwables.propagate}</a>.
    */
   @CanIgnoreReturnValue
+  @J2ktIncompatible
   @GwtIncompatible
   @Deprecated
   public static RuntimeException propagate(Throwable throwable) {
@@ -386,6 +377,7 @@ public final class Throwables {
    *     possible use the {@code java.lang.StackWalker.walk} method introduced in JDK 9.
    */
   @Deprecated
+  @J2ktIncompatible
   @GwtIncompatible // lazyStackTraceIsLazy, jlaStackTrace
   public static List<StackTraceElement> lazyStackTrace(Throwable throwable) {
     return lazyStackTraceIsLazy()
@@ -402,11 +394,13 @@ public final class Throwables {
    *     versions.
    */
   @Deprecated
+  @J2ktIncompatible
   @GwtIncompatible // getStackTraceElementMethod
   public static boolean lazyStackTraceIsLazy() {
     return getStackTraceElementMethod != null && getStackTraceDepthMethod != null;
   }
 
+  @J2ktIncompatible
   @GwtIncompatible // invokeAccessibleNonThrowingMethod
   private static List<StackTraceElement> jlaStackTrace(Throwable t) {
     checkNotNull(t);
@@ -437,6 +431,7 @@ public final class Throwables {
     };
   }
 
+  @J2ktIncompatible
   @GwtIncompatible // java.lang.reflect
   private static Object invokeAccessibleNonThrowingMethod(
       Method method, Object receiver, Object... params) {
@@ -450,15 +445,17 @@ public final class Throwables {
   }
 
   /** JavaLangAccess class name to load using reflection */
-  @GwtIncompatible // not used by GWT emulation
+  @J2ktIncompatible @GwtIncompatible // not used by GWT emulation
   private static final String JAVA_LANG_ACCESS_CLASSNAME = "sun.misc.JavaLangAccess";
 
   /** SharedSecrets class name to load using reflection */
+  @J2ktIncompatible
   @GwtIncompatible // not used by GWT emulation
   @VisibleForTesting
   static final String SHARED_SECRETS_CLASSNAME = "sun.misc.SharedSecrets";
 
   /** Access to some fancy internal JVM internals. */
+  @J2ktIncompatible
   @GwtIncompatible // java.lang.reflect
   @CheckForNull
   private static final Object jla = getJLA();
@@ -467,6 +464,7 @@ public final class Throwables {
    * The "getStackTraceElementMethod" method, only available on some JDKs so we use reflection to
    * find it when available. When this is null, use the slow way.
    */
+  @J2ktIncompatible
   @GwtIncompatible // java.lang.reflect
   @CheckForNull
   private static final Method getStackTraceElementMethod = (jla == null) ? null : getGetMethod();
@@ -475,6 +473,7 @@ public final class Throwables {
    * The "getStackTraceDepth" method, only available on some JDKs so we use reflection to find it
    * when available. When this is null, use the slow way.
    */
+  @J2ktIncompatible
   @GwtIncompatible // java.lang.reflect
   @CheckForNull
   private static final Method getStackTraceDepthMethod = (jla == null) ? null : getSizeMethod(jla);
@@ -483,6 +482,8 @@ public final class Throwables {
    * Returns the JavaLangAccess class that is present in all Sun JDKs. It is not allowed in
    * AppEngine, and not present in non-Sun JDKs.
    */
+  @SuppressWarnings("removal") // b/318391980
+  @J2ktIncompatible
   @GwtIncompatible // java.lang.reflect
   @CheckForNull
   private static Object getJLA() {
@@ -509,6 +510,7 @@ public final class Throwables {
    * Returns the Method that can be used to resolve an individual StackTraceElement, or null if that
    * method cannot be found (it is only to be found in fairly recent JDKs).
    */
+  @J2ktIncompatible
   @GwtIncompatible // java.lang.reflect
   @CheckForNull
   private static Method getGetMethod() {
@@ -518,12 +520,13 @@ public final class Throwables {
   /**
    * Returns the Method that can be used to return the size of a stack, or null if that method
    * cannot be found (it is only to be found in fairly recent JDKs). Tries to test method {@link
-   * sun.misc.JavaLangAccess#getStackTraceDepth(Throwable)} getStackTraceDepth} prior to return it
+   * sun.misc.JavaLangAccess#getStackTraceDepth(Throwable) getStackTraceDepth} prior to return it
    * (might fail some JDKs).
    *
    * <p>See <a href="https://github.com/google/guava/issues/2887">Throwables#lazyStackTrace throws
    * UnsupportedOperationException</a>.
    */
+  @J2ktIncompatible
   @GwtIncompatible // java.lang.reflect
   @CheckForNull
   private static Method getSizeMethod(Object jla) {
@@ -539,6 +542,8 @@ public final class Throwables {
     }
   }
 
+  @SuppressWarnings("removal") // b/318391980
+  @J2ktIncompatible
   @GwtIncompatible // java.lang.reflect
   @CheckForNull
   private static Method getJlaMethod(String name, Class<?>... parameterTypes) throws ThreadDeath {

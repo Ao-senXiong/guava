@@ -19,12 +19,14 @@ import static com.google.common.util.concurrent.Futures.getDone;
 import static com.google.common.util.concurrent.MoreExecutors.rejectionPropagatingExecutor;
 import static com.google.common.util.concurrent.NullnessCasts.uncheckedCastNullableTToT;
 import static com.google.common.util.concurrent.Platform.isInstanceOfThrowableClass;
+import static com.google.common.util.concurrent.Platform.restoreInterruptIfIsInterruptedException;
 
 import com.google.common.annotations.GwtCompatible;
 import com.google.common.base.Function;
 import com.google.common.util.concurrent.internal.InternalFutureFailureAccess;
 import com.google.common.util.concurrent.internal.InternalFutures;
 import com.google.errorprone.annotations.ForOverride;
+import com.google.errorprone.annotations.concurrent.LazyInit;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import javax.annotation.CheckForNull;
@@ -61,9 +63,9 @@ abstract class AbstractCatchingFuture<
    * In certain circumstances, this field might theoretically not be visible to an afterDone() call
    * triggered by cancel(). For details, see the comments on the fields of TimeoutFuture.
    */
-  @CheckForNull ListenableFuture<? extends V> inputFuture;
-  @CheckForNull Class<X> exceptionType;
-  @CheckForNull F fallback;
+  @CheckForNull @LazyInit ListenableFuture<? extends V> inputFuture;
+  @CheckForNull @LazyInit Class<X> exceptionType;
+  @CheckForNull @LazyInit F fallback;
 
   AbstractCatchingFuture(
       ListenableFuture<? extends V> inputFuture, Class<X> exceptionType, F fallback) {
@@ -107,8 +109,8 @@ abstract class AbstractCatchingFuture<
                     + e.getClass()
                     + " without a cause");
       }
-    } catch (Throwable e) { // this includes cancellation exception
-      throwable = e;
+    } catch (Throwable t) { // this includes CancellationException and sneaky checked exception
+      throwable = t;
     }
 
     if (throwable == null) {
@@ -132,6 +134,7 @@ abstract class AbstractCatchingFuture<
     try {
       fallbackResult = doFallback(localFallback, castThrowable);
     } catch (Throwable t) {
+      restoreInterruptIfIsInterruptedException(t);
       setException(t);
       return;
     } finally {

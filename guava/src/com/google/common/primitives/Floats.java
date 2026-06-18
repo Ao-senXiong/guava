@@ -22,7 +22,6 @@ import static com.google.common.base.Strings.lenientFormat;
 import static java.lang.Float.NEGATIVE_INFINITY;
 import static java.lang.Float.POSITIVE_INFINITY;
 
-import com.google.common.annotations.Beta;
 import com.google.common.annotations.GwtCompatible;
 import com.google.common.annotations.GwtIncompatible;
 import com.google.common.base.Converter;
@@ -45,8 +44,6 @@ import org.checkerframework.checker.index.qual.LessThan;
 import org.checkerframework.checker.index.qual.NonNegative;
 import org.checkerframework.checker.index.qual.Positive;
 import org.checkerframework.checker.index.qual.SubstringIndexFor;
-import org.checkerframework.checker.nullness.qual.Nullable;
-import org.checkerframework.checker.signedness.qual.Signed;
 import org.checkerframework.checker.signedness.qual.UnknownSignedness;
 import org.checkerframework.common.value.qual.MinLen;
 import org.checkerframework.framework.qual.AnnotatedFor;
@@ -70,7 +67,7 @@ public final class Floats extends FloatsMethodsForWeb {
   /**
    * The number of bytes required to represent a primitive {@code float} value.
    *
-   * <p><b>Java 8 users:</b> use {@link Float#BYTES} instead.
+   * <p><b>Java 8+ users:</b> use {@link Float#BYTES} instead.
    *
    * @since 10.0
    */
@@ -80,7 +77,7 @@ public final class Floats extends FloatsMethodsForWeb {
    * Returns a hash code for {@code value}; equal to the result of invoking {@code ((Float)
    * value).hashCode()}.
    *
-   * <p><b>Java 8 users:</b> use {@link Float#hashCode(float)} instead.
+   * <p><b>Java 8+ users:</b> use {@link Float#hashCode(float)} instead.
    *
    * @param value a primitive {@code float} value
    * @return a hash code for the value
@@ -111,7 +108,7 @@ public final class Floats extends FloatsMethodsForWeb {
    * Returns {@code true} if {@code value} represents a real number. This is equivalent to, but not
    * necessarily implemented as, {@code !(Float.isInfinite(value) || Float.isNaN(value))}.
    *
-   * <p><b>Java 8 users:</b> use {@link Float#isFinite(float)} instead.
+   * <p><b>Java 8+ users:</b> use {@link Float#isFinite(float)} instead.
    *
    * @since 10.0
    */
@@ -267,7 +264,6 @@ public final class Floats extends FloatsMethodsForWeb {
    * @throws IllegalArgumentException if {@code min > max}
    * @since 21.0
    */
-  @Beta
   public static float constrainToRange(float value, float min, float max) {
     // avoid auto-boxing by not using Preconditions.checkArgument(); see Guava issue 3984
     // Reject NaN by testing for the good case (min <= max) instead of the bad (min > max).
@@ -309,7 +305,7 @@ public final class Floats extends FloatsMethodsForWeb {
 
   private static final class FloatConverter extends Converter<String, Float>
       implements Serializable {
-    static final FloatConverter INSTANCE = new FloatConverter();
+    static final Converter<String, Float> INSTANCE = new FloatConverter();
 
     @Override
     protected Float doForward(String value) {
@@ -339,7 +335,6 @@ public final class Floats extends FloatsMethodsForWeb {
    *
    * @since 16.0
    */
-  @Beta
   public static Converter<String, Float> stringConverter() {
     return FloatConverter.INSTANCE;
   }
@@ -489,6 +484,56 @@ public final class Floats extends FloatsMethodsForWeb {
   }
 
   /**
+   * Performs a right rotation of {@code array} of "distance" places, so that the first element is
+   * moved to index "distance", and the element at index {@code i} ends up at index {@code (distance
+   * + i) mod array.length}. This is equivalent to {@code Collections.rotate(Floats.asList(array),
+   * distance)}, but is considerably faster and avoids allocation and garbage collection.
+   *
+   * <p>The provided "distance" may be negative, which will rotate left.
+   *
+   * @since 32.0.0
+   */
+  public static void rotate(float[] array, int distance) {
+    rotate(array, distance, 0, array.length);
+  }
+
+  /**
+   * Performs a right rotation of {@code array} between {@code fromIndex} inclusive and {@code
+   * toIndex} exclusive. This is equivalent to {@code
+   * Collections.rotate(Floats.asList(array).subList(fromIndex, toIndex), distance)}, but is
+   * considerably faster and avoids allocations and garbage collection.
+   *
+   * <p>The provided "distance" may be negative, which will rotate left.
+   *
+   * @throws IndexOutOfBoundsException if {@code fromIndex < 0}, {@code toIndex > array.length}, or
+   *     {@code toIndex > fromIndex}
+   * @since 32.0.0
+   */
+  public static void rotate(float[] array, int distance, int fromIndex, int toIndex) {
+    // See Ints.rotate for more details about possible algorithms here.
+    checkNotNull(array);
+    checkPositionIndexes(fromIndex, toIndex, array.length);
+    if (array.length <= 1) {
+      return;
+    }
+
+    int length = toIndex - fromIndex;
+    // Obtain m = (-distance mod length), a non-negative value less than "length". This is how many
+    // places left to rotate.
+    int m = -distance % length;
+    m = (m < 0) ? m + length : m;
+    // The current index of what will become the first element of the rotated section.
+    int newFirstIndex = m + fromIndex;
+    if (newFirstIndex == fromIndex) {
+      return;
+    }
+
+    reverse(array, fromIndex, newFirstIndex);
+    reverse(array, newFirstIndex, toIndex);
+    reverse(array, fromIndex, toIndex);
+  }
+
+  /**
    * Returns an array containing each value of {@code collection}, converted to a {@code float}
    * value in the manner of {@link Number#floatValue}.
    *
@@ -527,6 +572,8 @@ public final class Floats extends FloatsMethodsForWeb {
    *
    * <p>The returned list may have unexpected behavior if it contains {@code NaN}, or if {@code NaN}
    * is used as a parameter to any of its methods.
+   *
+   * <p>The returned list is serializable.
    *
    * @param backingArray the array to back the list
    * @return a list view of the array
@@ -691,7 +738,6 @@ public final class Floats extends FloatsMethodsForWeb {
    * @throws NullPointerException if {@code string} is {@code null}
    * @since 14.0
    */
-  @Beta
   @GwtIncompatible // regular expressions
   @CheckForNull
   public static Float tryParse(String string) {

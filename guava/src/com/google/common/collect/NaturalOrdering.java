@@ -19,9 +19,9 @@ package com.google.common.collect;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.annotations.GwtCompatible;
+import com.google.errorprone.annotations.concurrent.LazyInit;
 import java.io.Serializable;
 import javax.annotation.CheckForNull;
-import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.dataflow.qual.Pure;
 import org.checkerframework.framework.qual.AnnotatedFor;
@@ -34,8 +34,9 @@ import org.checkerframework.framework.qual.AnnotatedFor;
 final class NaturalOrdering extends Ordering<Comparable<?>> implements Serializable {
   static final NaturalOrdering INSTANCE = new NaturalOrdering();
 
-  @CheckForNull private transient Ordering<@Nullable Comparable<?>> nullsFirst;
-  @CheckForNull private transient Ordering<@Nullable Comparable<?>> nullsLast;
+  // TODO: b/287198172 - Consider eagerly initializing these (but think about serialization).
+  @LazyInit @CheckForNull private transient Ordering<@Nullable Comparable<?>> nullsFirst;
+  @LazyInit @CheckForNull private transient Ordering<@Nullable Comparable<?>> nullsLast;
 
   @Pure
   @Override

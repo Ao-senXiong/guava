@@ -17,10 +17,12 @@
 package com.google.common.util.concurrent;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static java.util.Objects.requireNonNull;
 
-import com.google.common.annotations.Beta;
 import com.google.common.annotations.GwtCompatible;
+import com.google.common.annotations.J2ktIncompatible;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
+import com.google.errorprone.annotations.concurrent.LazyInit;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.Map;
@@ -45,6 +47,8 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
  * <p>Instances of this class may be used by multiple threads concurrently. All operations are
  * atomic unless otherwise noted.
  *
+ * <p>Instances of this class are serializable if the keys are serializable.
+ *
  * <p><b>Note:</b> If your values are always positive and less than 2^31, you may wish to use a
  * {@link com.google.common.collect.Multiset} such as {@link
  * com.google.common.collect.ConcurrentHashMultiset} instead.
@@ -56,6 +60,7 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
  * @since 11.0
  */
 @GwtCompatible
+@J2ktIncompatible
 @ElementTypesAreNonnullByDefault
 public final class AtomicLongMap<K> implements Serializable {
   private final ConcurrentHashMap<K, Long> map;
@@ -144,8 +149,11 @@ public final class AtomicLongMap<K> implements Serializable {
   @CanIgnoreReturnValue
   public long updateAndGet(K key, LongUnaryOperator updaterFunction) {
     checkNotNull(updaterFunction);
-    return map.compute(
-        key, (k, value) -> updaterFunction.applyAsLong((value == null) ? 0L : value.longValue()));
+    Long result =
+        map.compute(
+            key,
+            (k, value) -> updaterFunction.applyAsLong((value == null) ? 0L : value.longValue()));
+    return requireNonNull(result);
   }
 
   /**
@@ -239,7 +247,6 @@ public final class AtomicLongMap<K> implements Serializable {
    *
    * @since 20.0
    */
-  @Beta
   @CanIgnoreReturnValue
   public boolean removeIfZero(K key) {
     return remove(key, 0);
@@ -264,7 +271,7 @@ public final class AtomicLongMap<K> implements Serializable {
     return map.values().stream().mapToLong(Long::longValue).sum();
   }
 
-  @CheckForNull private transient Map<K, Long> asMap;
+  @LazyInit @CheckForNull private transient Map<K, Long> asMap;
 
   /** Returns a live, read-only view of the map backing this {@code AtomicLongMap}. */
   public Map<K, Long> asMap() {
@@ -327,7 +334,7 @@ public final class AtomicLongMap<K> implements Serializable {
                 return oldValue;
               }
             });
-    return noValue.get() ? 0L : result.longValue();
+    return noValue.get() ? 0L : requireNonNull(result).longValue();
   }
 
   /**

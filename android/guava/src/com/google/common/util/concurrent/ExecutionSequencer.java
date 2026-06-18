@@ -25,6 +25,8 @@ import static com.google.common.util.concurrent.Futures.immediateVoidFuture;
 import static com.google.common.util.concurrent.MoreExecutors.directExecutor;
 import static java.util.Objects.requireNonNull;
 
+import com.google.common.annotations.J2ktIncompatible;
+import com.google.errorprone.annotations.concurrent.LazyInit;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicReference;
@@ -54,7 +56,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  *       (However, cancellation can prevent an <i>unstarted</i> task from running.) Therefore, the
  *       next task will wait for any running callable (or pending {@code Future} returned by an
  *       {@code AsyncCallable}) to complete, without interrupting it (and without calling {@code
- *       cancel} on the {@code Future}). So beware: <i>Even if you cancel every precededing {@code
+ *       cancel} on the {@code Future}). So beware: <i>Even if you cancel every preceding {@code
  *       Future} returned by this class, the next task may still have to wait.</i>.
  *   <li>Once an {@code AsyncCallable} returns a {@code Future}, this class considers that task to
  *       be "done" as soon as <i>that</i> {@code Future} completes in any way. Notably, a {@code
@@ -84,6 +86,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  * @since 26.0
  */
 @ElementTypesAreNonnullByDefault
+@J2ktIncompatible
 public final class ExecutionSequencer {
 
   private ExecutionSequencer() {}
@@ -97,7 +100,7 @@ public final class ExecutionSequencer {
   private final AtomicReference<ListenableFuture<@Nullable Void>> ref =
       new AtomicReference<>(immediateVoidFuture());
 
-  private ThreadConfinedTaskQueue latestTaskQueue = new ThreadConfinedTaskQueue();
+  private @LazyInit ThreadConfinedTaskQueue latestTaskQueue = new ThreadConfinedTaskQueue();
 
   /**
    * This object is unsafely published, but avoids problematic races by relying exclusively on the
@@ -128,9 +131,11 @@ public final class ExecutionSequencer {
      * All the states where thread != currentThread are identical for our purposes, and so even
      * though it's racy, we don't care which of those values we get, so no need to synchronize.
      */
-    @CheckForNull Thread thread;
+    @CheckForNull @LazyInit Thread thread;
+
     /** Only used by the thread associated with this object */
     @CheckForNull Runnable nextTask;
+
     /** Only used by the thread associated with this object */
     @CheckForNull Executor nextExecutor;
   }
@@ -250,7 +255,7 @@ public final class ExecutionSequencer {
             taskFuture.cancel(false);
           }
         };
-    // Adding the listener to both futures guarantees that newFuture will aways be set. Adding to
+    // Adding the listener to both futures guarantees that newFuture will always be set. Adding to
     // taskFuture guarantees completion if the callable is invoked, and adding to outputFuture
     // propagates cancellation if the callable has not yet been invoked.
     outputFuture.addListener(listener, directExecutor());
@@ -305,7 +310,7 @@ public final class ExecutionSequencer {
     @CheckForNull Runnable task;
 
     /** Thread that called execute(). Set in execute, cleared when delegate.execute() returns. */
-    @CheckForNull Thread submitting;
+    @CheckForNull @LazyInit Thread submitting;
 
     private TaskNonReentrantExecutor(Executor delegate, ExecutionSequencer sequencer) {
       super(NOT_RUN);

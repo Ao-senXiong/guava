@@ -27,10 +27,10 @@ import com.google.common.annotations.GwtCompatible;
 import com.google.common.collect.ImmutableCollection;
 import com.google.errorprone.annotations.ForOverride;
 import com.google.errorprone.annotations.OverridingMethodsMustInvokeSuper;
+import com.google.errorprone.annotations.concurrent.LazyInit;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-import java.util.logging.Logger;
 import javax.annotation.CheckForNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
@@ -44,7 +44,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 @ElementTypesAreNonnullByDefault
 abstract class AggregateFuture<InputT extends @Nullable Object, OutputT extends @Nullable Object>
     extends AggregateFutureState<OutputT> {
-  private static final Logger logger = Logger.getLogger(AggregateFuture.class.getName());
+  private static final LazyLogger logger = new LazyLogger(AggregateFuture.class);
 
   /**
    * The input futures. After {@link #init}, this field is read only by {@link #afterDone()} (to
@@ -56,7 +56,8 @@ abstract class AggregateFuture<InputT extends @Nullable Object, OutputT extends 
    * In certain circumstances, this field might theoretically not be visible to an afterDone() call
    * triggered by cancel(). For details, see the comments on the fields of TimeoutFuture.
    */
-  @CheckForNull private ImmutableCollection<? extends ListenableFuture<? extends InputT>> futures;
+  @CheckForNull @LazyInit
+  private ImmutableCollection<? extends ListenableFuture<? extends InputT>> futures;
 
   private final boolean allMustSucceed;
   private final boolean collectsValues;
@@ -230,7 +231,7 @@ abstract class AggregateFuture<InputT extends @Nullable Object, OutputT extends 
         (throwable instanceof Error)
             ? "Input Future failed with Error"
             : "Got more than one input Future failure. Logging failures after the first";
-    logger.log(SEVERE, message, throwable);
+    logger.get().log(SEVERE, message, throwable);
   }
 
   @Override
@@ -268,7 +269,7 @@ abstract class AggregateFuture<InputT extends @Nullable Object, OutputT extends 
       collectOneValue(index, getDone(future));
     } catch (ExecutionException e) {
       handleException(e.getCause());
-    } catch (Throwable t) {
+    } catch (Throwable t) { // sneaky checked exception
       handleException(t);
     }
   }
@@ -357,7 +358,7 @@ abstract class AggregateFuture<InputT extends @Nullable Object, OutputT extends 
          * We've seen this, so we've seen its causes, too. No need to re-add them. (There's one case
          * where this isn't true, but we ignore it: If we record an exception, then someone calls
          * initCause() on it, and then we examine it again, we'll conclude that we've seen the whole
-         * chain before when it fact we haven't. But this should be rare.)
+         * chain before when in fact we haven't. But this should be rare.)
          */
         return false;
       }

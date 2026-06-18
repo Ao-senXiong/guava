@@ -79,7 +79,6 @@ class CacheTesting {
    * that the given entry is a weak or soft reference, and throws an IllegalStateException if that
    * assumption does not hold.
    */
-  @SuppressWarnings("unchecked") // the instanceof check and the cast generate this warning
   static <K, V> void simulateKeyReclamation(Cache<K, V> cache, K key) {
     ReferenceEntry<K, V> entry = getReferenceEntry(cache, key);
 
@@ -98,7 +97,7 @@ class CacheTesting {
   }
 
   /**
-   * Forces the segment containing the given {@code key} to expand (see {@link Segment#expand()}.
+   * Forces the segment containing the given {@code key} to expand (see {@link Segment#expand()}).
    */
   static <K, V> void forceExpandSegment(Cache<K, V> cache, K key) {
     checkNotNull(cache);

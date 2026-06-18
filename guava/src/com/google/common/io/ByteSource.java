@@ -19,8 +19,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.io.ByteStreams.createBuffer;
 import static com.google.common.io.ByteStreams.skipUpTo;
 
-import com.google.common.annotations.Beta;
 import com.google.common.annotations.GwtIncompatible;
+import com.google.common.annotations.J2ktIncompatible;
 import com.google.common.base.Ascii;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
@@ -40,10 +40,10 @@ import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
-import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.checker.index.qual.IndexOrHigh;
 import org.checkerframework.checker.index.qual.LTLengthOf;
 import org.checkerframework.checker.index.qual.NonNegative;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * A readable source of bytes, such as a file. Unlike an {@link InputStream}, a {@code ByteSource}
@@ -76,6 +76,7 @@ import org.checkerframework.checker.index.qual.NonNegative;
  * @since 14.0
  * @author Colin Decker
  */
+@J2ktIncompatible
 @GwtIncompatible
 @ElementTypesAreNonnullByDefault
 public abstract class ByteSource {
@@ -181,7 +182,6 @@ public abstract class ByteSource {
    *
    * @since 19.0
    */
-  @Beta
   public Optional<@NonNegative Long> sizeIfKnown() {
     return Optional.absent();
   }
@@ -317,8 +317,8 @@ public abstract class ByteSource {
    *     processor} throws an {@code IOException}
    * @since 16.0
    */
-  @Beta
   @CanIgnoreReturnValue // some processors won't return a useful result
+  @ParametricNullness
   public <T extends @Nullable Object> T read(ByteProcessor<T> processor) throws IOException {
     checkNotNull(processor);
 
@@ -558,7 +558,11 @@ public abstract class ByteSource {
     }
 
     @Override
-    @SuppressWarnings("value:return") // off is at most equal to unslicedSize and length is non-negative
+    @SuppressWarnings({
+        // off is at most equal to unslicedSize and length is non-negative.
+        "value:return",
+        // poly + inference problem.
+        "type.arguments.not.inferred"})
     public Optional<@NonNegative Long> sizeIfKnown() {
       Optional<@NonNegative Long> optionalUnslicedSize = ByteSource.this.sizeIfKnown();
       if (optionalUnslicedSize.isPresent()) {
@@ -575,12 +579,15 @@ public abstract class ByteSource {
     }
   }
 
-  private static class ByteArrayByteSource extends ByteSource {
+  private static class ByteArrayByteSource extends
+      ByteSource
+  {
 
     final byte[] bytes;
     final @IndexOrHigh("this.bytes") int offset;
     final @NonNegative @LTLengthOf(value = "this.bytes", offset = "this.offset - 1") int length;
 
+    // NOTE: Preconditions are enforced by slice, the only non-trivial caller.
     ByteArrayByteSource(byte[] bytes) {
       this(bytes, 0, bytes.length);
     }
@@ -597,7 +604,7 @@ public abstract class ByteSource {
     }
 
     @Override
-    public InputStream openBufferedStream() throws IOException {
+    public InputStream openBufferedStream() {
       return openStream();
     }
 
@@ -708,7 +715,7 @@ public abstract class ByteSource {
     }
 
     @Override
-    @SuppressWarnings("value:return") // Long.MAX_VALUE is non-negative
+    @SuppressWarnings("value:type.arguments.not.inferred") // Long.MAX_VALUE is non-negative
     public Optional<@NonNegative Long> sizeIfKnown() {
       if (!(sources instanceof Collection)) {
         // Infinite Iterables can cause problems here. Of course, it's true that most of the other

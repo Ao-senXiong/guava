@@ -20,6 +20,7 @@ import static java.util.Collections.unmodifiableList;
 import com.google.common.annotations.GwtCompatible;
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.Lists;
+import com.google.errorprone.annotations.concurrent.LazyInit;
 import java.util.Collections;
 import java.util.List;
 import javax.annotation.CheckForNull;
@@ -32,11 +33,11 @@ abstract class CollectionFuture<V extends @Nullable Object, C extends @Nullable 
     extends AggregateFuture<V, C> {
   /*
    * We access this field racily but safely. For discussion of a similar situation, see the comments
-   * on the fields of TimeoutFuture. This field is slightly different than the fields discussed
+   * on the fields of TimeoutFuture. This field is slightly different from the fields discussed
    * there: cancel() never reads this field, only writes to it. That makes the race here completely
    * harmless, rather than just 99.99% harmless.
    */
-  @CheckForNull private List<@Nullable Present<V>> values;
+  @CheckForNull @LazyInit private List<@Nullable Present<V>> values;
 
   CollectionFuture(
       ImmutableCollection<? extends ListenableFuture<? extends V>> futures,
@@ -102,9 +103,9 @@ abstract class CollectionFuture<V extends @Nullable Object, C extends @Nullable 
 
   /** The result of a successful {@code Future}. */
   private static final class Present<V extends @Nullable Object> {
-    V value;
+    @ParametricNullness final V value;
 
-    Present(V value) {
+    Present(@ParametricNullness V value) {
       this.value = value;
     }
   }

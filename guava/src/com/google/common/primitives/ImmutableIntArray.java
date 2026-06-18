@@ -17,11 +17,9 @@ package com.google.common.primitives;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import com.google.common.annotations.Beta;
 import com.google.common.annotations.GwtCompatible;
 import com.google.common.base.Preconditions;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
-import com.google.errorprone.annotations.CheckReturnValue;
 import com.google.errorprone.annotations.Immutable;
 import java.io.Serializable;
 import java.util.AbstractList;
@@ -45,7 +43,6 @@ import org.checkerframework.checker.index.qual.LTLengthOf;
 import org.checkerframework.checker.index.qual.LessThan;
 import org.checkerframework.checker.index.qual.NonNegative;
 import org.checkerframework.checker.index.qual.SameLen;
-import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.checker.signedness.qual.Signed;
 import org.checkerframework.checker.signedness.qual.UnknownSignedness;
 import org.checkerframework.dataflow.qual.Pure;
@@ -103,7 +100,6 @@ import org.checkerframework.framework.qual.CFComment;
  * @since 22.0
  */
 @AnnotatedFor({"signedness"})
-@Beta
 @GwtCompatible
 @Immutable
 @ElementTypesAreNonnullByDefault
@@ -226,7 +222,6 @@ public final class ImmutableIntArray implements Serializable {
    * A builder for {@link ImmutableIntArray} instances; obtained using {@link
    * ImmutableIntArray#builder}.
    */
-  @CanIgnoreReturnValue
   public static final class Builder {
     private int[] array;
     private @IndexOrHigh("array") int count = 0; // <= array.length
@@ -239,6 +234,7 @@ public final class ImmutableIntArray implements Serializable {
      * Appends {@code value} to the end of the values the built {@link ImmutableIntArray} will
      * contain.
      */
+    @CanIgnoreReturnValue
     public Builder add(int value) {
       ensureRoomFor(1);
       array[count] = value;
@@ -254,6 +250,7 @@ public final class ImmutableIntArray implements Serializable {
      * Calling ensureRoomFor(values.length) ensures that count is @LTLengthOf(value="array", offset="values.length-1").
      * That also implies that values.length is @LTLengthOf(value="array", offset="count-1")
      */
+    @CanIgnoreReturnValue
     public Builder addAll(int[] values) {
       ensureRoomFor(values.length);
       System.arraycopy(values, 0, array, count, values.length);
@@ -265,6 +262,7 @@ public final class ImmutableIntArray implements Serializable {
      * Appends {@code values}, in order, to the end of the values the built {@link
      * ImmutableIntArray} will contain.
      */
+    @CanIgnoreReturnValue
     public Builder addAll(Iterable<Integer> values) {
       if (values instanceof Collection) {
         return addAll((Collection<Integer>) values);
@@ -286,6 +284,7 @@ public final class ImmutableIntArray implements Serializable {
      *   https://github.com/kelloggm/checker-framework/issues/197
      */
     @SuppressWarnings("upperbound") // increment index in for-each for Collection
+    @CanIgnoreReturnValue
     public Builder addAll(Collection<Integer> values) {
       ensureRoomFor(values.size());
       for (Integer value : values) {
@@ -298,6 +297,7 @@ public final class ImmutableIntArray implements Serializable {
      * Appends all values from {@code stream}, in order, to the end of the values the built {@link
      * ImmutableIntArray} will contain.
      */
+    @CanIgnoreReturnValue
     public Builder addAll(IntStream stream) {
       Spliterator.OfInt spliterator = stream.spliterator();
       long size = spliterator.getExactSizeIfKnown();
@@ -319,6 +319,7 @@ public final class ImmutableIntArray implements Serializable {
          */
         "upperbound:argument" // LTLengthOf inversion
       )
+    @CanIgnoreReturnValue
     public Builder addAll(ImmutableIntArray values) {
       ensureRoomFor(values.length());
       System.arraycopy(values.array, values.start, array, count, values.length());
@@ -369,7 +370,6 @@ public final class ImmutableIntArray implements Serializable {
      * no data is copied as part of this step, but this may occupy more memory than strictly
      * necessary. To copy the data to a right-sized backing array, use {@code .build().trimmed()}.
      */
-    @CheckReturnValue
     public ImmutableIntArray build() {
       return count == 0 ? EMPTY : new ImmutableIntArray(array, 0, count);
     }
