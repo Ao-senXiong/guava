@@ -195,10 +195,7 @@ public final class UnsignedInteger extends Number implements Comparable<Unsigned
 
   /** Returns the value of this {@code UnsignedInteger} as a {@code long}. */
   @Override
-  @SuppressWarnings({
-    "value:cast.unsafe",
-    "cast.incomparable"
-  }) // Unknown long to PolyValue long is ok
+  @SuppressWarnings("value:cast.incomparable") // Unknown long to PolyValue long is ok
   public @PolyValue long longValue(@PolyValue UnsignedInteger this) {
     return (@PolyValue long) toLong(value);
   }
