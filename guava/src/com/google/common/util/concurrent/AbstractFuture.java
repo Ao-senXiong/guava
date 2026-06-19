@@ -66,8 +66,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  */
 @SuppressWarnings({
   "ShortCircuitBoolean", // we use non-short circuiting comparisons intentionally
-  "nullness", // TODO(b/147136275): Remove once our checker understands & and |.
-        "pico"
+  "nullness" // TODO(b/147136275): Remove once our checker understands & and |.
 })
 @GwtCompatible(emulated = true)
 @ReflectionSupport(value = ReflectionSupport.Level.FULL)

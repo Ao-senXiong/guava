@@ -23,7 +23,6 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  */
 @GwtIncompatible
 @ElementTypesAreNonnullByDefault
-@SuppressWarnings("pico")
 abstract class Striped64 extends Number {
   /*
    * This class maintains a lazily-initialized table of atomically

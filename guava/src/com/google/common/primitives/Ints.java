@@ -64,7 +64,6 @@ import org.checkerframework.framework.qual.CFComment;
 @AnnotatedFor({"signedness"})
 @GwtCompatible(emulated = true)
 @ElementTypesAreNonnullByDefault
-@SuppressWarnings("pico")
 public final class Ints extends IntsMethodsForWeb {
   private Ints() {}
 

@@ -39,7 +39,6 @@ import org.checkerframework.common.value.qual.MinLen;
  */
 @Beta
 @ElementTypesAreNonnullByDefault
-@SuppressWarnings("pico")
 public final class Funnels {
   private Funnels() {}
 

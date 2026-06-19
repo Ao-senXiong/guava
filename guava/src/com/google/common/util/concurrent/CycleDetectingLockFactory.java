@@ -161,7 +161,6 @@ import javax.annotation.CheckForNull;
 @J2ktIncompatible
 @GwtIncompatible
 @ElementTypesAreNonnullByDefault
-@SuppressWarnings("pico")
 public class CycleDetectingLockFactory {
 
   /**

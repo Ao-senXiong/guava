@@ -193,7 +193,6 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 @J2ktIncompatible
 @ElementTypesAreNonnullByDefault
 // TODO(dpb): GWT compatibility.
-@SuppressWarnings("pico")
 public final class ClosingFuture<V extends @Nullable Object> {
 
   private static final LazyLogger logger = new LazyLogger(ClosingFuture.class);

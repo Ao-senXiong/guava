@@ -53,7 +53,6 @@ import java.util.stream.Stream;
 @J2ktIncompatible
 @GwtIncompatible
 @ElementTypesAreNonnullByDefault
-@SuppressWarnings("pico")
 public abstract class CharSink {
 
   /** Constructor for use by subclasses. */

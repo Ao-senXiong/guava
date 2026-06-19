@@ -135,7 +135,6 @@ import org.checkerframework.common.value.qual.MinLen;
 @J2ktIncompatible
 @GwtIncompatible
 @ElementTypesAreNonnullByDefault
-@SuppressWarnings("pico")
 public final class Quantiles {
 
   /** Specifies the computation of a median (i.e. the 1st 2-quantile). */

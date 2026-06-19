@@ -61,7 +61,6 @@ import org.checkerframework.framework.qual.CFComment;
 @AnnotatedFor({"signedness"})
 @GwtCompatible(emulated = true)
 @ElementTypesAreNonnullByDefault
-@SuppressWarnings("pico")
 public final class Shorts extends ShortsMethodsForWeb {
   private Shorts() {}
 

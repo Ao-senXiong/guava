@@ -77,7 +77,6 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  */
 @GwtCompatible(emulated = true)
 @ElementTypesAreNonnullByDefault
-@SuppressWarnings("pico")
 public final class Futures extends GwtFuturesCatchingSpecialization {
 
   // A note on memory visibility.

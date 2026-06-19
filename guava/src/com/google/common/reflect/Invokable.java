@@ -64,7 +64,6 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
  *     31.0)
  */
 @ElementTypesAreNonnullByDefault
-@SuppressWarnings("pico")
 public abstract class Invokable<T, R> implements AnnotatedElement, Member {
   private final AccessibleObject accessibleObject;
   private final Member member;

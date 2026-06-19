@@ -40,7 +40,6 @@ import java.util.concurrent.ExecutionException;
  */
 @GwtIncompatible
 @ElementTypesAreNonnullByDefault
-@SuppressWarnings("pico")
 public abstract class AbstractLoadingCache<K, V> extends AbstractCache<K, V>
     implements LoadingCache<K, V> {
 

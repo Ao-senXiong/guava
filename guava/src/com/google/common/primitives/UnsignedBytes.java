@@ -57,7 +57,6 @@ import sun.misc.Unsafe;
 @J2ktIncompatible
 @GwtIncompatible
 @ElementTypesAreNonnullByDefault
-@SuppressWarnings("pico")
 public final class UnsignedBytes {
   private UnsignedBytes() {}
 

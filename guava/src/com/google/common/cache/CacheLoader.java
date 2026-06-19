@@ -54,7 +54,6 @@ import java.util.concurrent.Executor;
  * @author Charles Fry
  * @since 10.0
  */
-@SuppressWarnings("pico")
 @GwtCompatible(emulated = true)
 @ElementTypesAreNonnullByDefault
 public abstract class CacheLoader<K, V> {

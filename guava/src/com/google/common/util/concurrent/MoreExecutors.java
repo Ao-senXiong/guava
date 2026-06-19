@@ -66,7 +66,6 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
  */
 @GwtCompatible(emulated = true)
 @ElementTypesAreNonnullByDefault
-@SuppressWarnings("pico")
 public final class MoreExecutors {
   private MoreExecutors() {}
 

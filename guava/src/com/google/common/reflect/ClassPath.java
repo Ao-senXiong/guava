@@ -92,7 +92,6 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
  * @since 14.0
  */
 @ElementTypesAreNonnullByDefault
-@SuppressWarnings("pico")
 public final class ClassPath {
   private static final Logger logger = Logger.getLogger(ClassPath.class.getName());
 

@@ -38,7 +38,6 @@ import javax.annotation.CheckForNull;
  * @param <V> Value parameter type
  */
 @ElementTypesAreNonnullByDefault
-@SuppressWarnings("pico")
 final class UndirectedGraphConnections<N, V> implements GraphConnections<N, V> {
   private final Map<N, V> adjacentNodeValues;
 

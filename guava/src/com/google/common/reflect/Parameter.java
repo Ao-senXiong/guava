@@ -33,7 +33,6 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
  * @since 14.0
  */
 @ElementTypesAreNonnullByDefault
-@SuppressWarnings("pico")
 public final class Parameter implements AnnotatedElement {
 
   private final Invokable<?, ?> declaration;

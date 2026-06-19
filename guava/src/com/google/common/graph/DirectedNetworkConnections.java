@@ -33,7 +33,6 @@ import java.util.Set;
  * @param <E> Edge parameter type
  */
 @ElementTypesAreNonnullByDefault
-@SuppressWarnings("pico")
 final class DirectedNetworkConnections<N, E> extends AbstractDirectedNetworkConnections<N, E> {
 
   DirectedNetworkConnections(Map<E, N> inEdgeMap, Map<E, N> outEdgeMap, int selfLoopCount) {

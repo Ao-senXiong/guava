@@ -134,7 +134,6 @@ import org.checkerframework.common.value.qual.MinLen;
  */
 @GwtCompatible(emulated = true)
 @ElementTypesAreNonnullByDefault
-@SuppressWarnings("pico")
 public abstract class BaseEncoding {
   // TODO(lowasser): consider making encodeTo(Appendable, byte[], int, int) public.
 

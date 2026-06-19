@@ -42,7 +42,6 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 @J2ktIncompatible
 @GwtIncompatible
 @ElementTypesAreNonnullByDefault
-@SuppressWarnings("pico")
 final class FuturesGetChecked {
   @CanIgnoreReturnValue
   @ParametricNullness

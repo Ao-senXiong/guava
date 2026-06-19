@@ -55,7 +55,6 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
  * @author Colin Decker
  */
 @ElementTypesAreNonnullByDefault
-@SuppressWarnings("pico")
 final class SubscriberRegistry {
 
   /**

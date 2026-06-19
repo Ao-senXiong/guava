@@ -49,7 +49,6 @@ import java.util.TreeMap;
  * @param <E> Edge parameter type
  */
 @ElementTypesAreNonnullByDefault
-@SuppressWarnings("pico")
 class StandardNetwork<N, E> extends AbstractNetwork<N, E> {
   private final boolean isDirected;
   private final boolean allowsParallelEdges;

@@ -29,7 +29,6 @@ import javax.annotation.CheckForNull;
  * @since 13.0
  */
 @ElementTypesAreNonnullByDefault
-@SuppressWarnings("pico")
 public final class ImmutableTypeToInstanceMap<B> extends ForwardingMap<TypeToken<? extends B>, B>
     implements TypeToInstanceMap<B> {
 

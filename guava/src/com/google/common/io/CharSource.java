@@ -84,7 +84,6 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 @J2ktIncompatible
 @GwtIncompatible
 @ElementTypesAreNonnullByDefault
-@SuppressWarnings("pico")
 public abstract class CharSource {
 
   /** Constructor for use by subclasses. */

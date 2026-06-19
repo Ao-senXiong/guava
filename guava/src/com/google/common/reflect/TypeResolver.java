@@ -52,7 +52,6 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
  * @since 15.0
  */
 @ElementTypesAreNonnullByDefault
-@SuppressWarnings("pico")
 public final class TypeResolver {
 
   private final TypeTable typeTable;

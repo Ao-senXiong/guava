@@ -34,7 +34,6 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  */
 @GwtCompatible
 @ElementTypesAreNonnullByDefault
-@SuppressWarnings("pico")
 public final class RemovalNotification<K, V>
     extends SimpleImmutableEntry<@Nullable K, @Nullable V> {
   private final RemovalCause cause;

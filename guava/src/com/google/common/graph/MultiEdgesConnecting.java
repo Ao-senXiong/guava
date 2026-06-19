@@ -37,7 +37,6 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
  * @param <E> Edge parameter type
  */
 @ElementTypesAreNonnullByDefault
-@SuppressWarnings("pico")
 abstract class MultiEdgesConnecting<E> extends AbstractSet<E> {
 
   private final Map<E, ?> outEdgeToNode;

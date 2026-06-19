@@ -45,7 +45,6 @@ import org.checkerframework.framework.qual.AnnotatedFor;
  * stop itself.
  */
 @AnnotatedFor({"nullness"})
-@SuppressWarnings("pico")
 // no @ElementTypesAreNonNullByDefault for the reasons discussed above
 public class Finalizer implements Runnable {
 

@@ -44,7 +44,6 @@ import javax.annotation.CheckForNull;
  * @param <V> Value parameter type
  */
 @ElementTypesAreNonnullByDefault
-@SuppressWarnings("pico")
 class StandardValueGraph<N, V> extends AbstractValueGraph<N, V> {
   private final boolean isDirected;
   private final boolean allowsSelfLoops;

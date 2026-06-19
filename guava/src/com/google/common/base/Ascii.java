@@ -39,7 +39,6 @@ import org.checkerframework.checker.index.qual.NonNegative;
  */
 @GwtCompatible
 @ElementTypesAreNonnullByDefault
-@SuppressWarnings("pico")
 public final class Ascii {
 
   private Ascii() {}

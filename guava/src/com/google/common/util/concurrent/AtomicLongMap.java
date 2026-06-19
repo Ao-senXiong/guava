@@ -63,7 +63,6 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
 @GwtCompatible
 @J2ktIncompatible
 @ElementTypesAreNonnullByDefault
-@SuppressWarnings("pico")
 public final class AtomicLongMap<K> implements Serializable {
   private final ConcurrentHashMap<K, Long> map;
 

@@ -33,7 +33,6 @@ import java.util.Set;
  * @param <E> Edge parameter type
  */
 @ElementTypesAreNonnullByDefault
-@SuppressWarnings("pico")
 final class UndirectedNetworkConnections<N, E> extends AbstractUndirectedNetworkConnections<N, E> {
 
   UndirectedNetworkConnections(Map<E, N> incidentEdgeMap) {

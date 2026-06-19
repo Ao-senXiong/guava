@@ -40,7 +40,6 @@ import org.checkerframework.common.value.qual.MinLen;
 // javadoc?
 @GwtCompatible
 @ElementTypesAreNonnullByDefault
-@SuppressWarnings("pico")
 public final class SignedBytes {
   private SignedBytes() {}
 

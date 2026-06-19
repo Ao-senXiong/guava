@@ -36,7 +36,6 @@ import com.google.common.collect.ImmutableMap;
  */
 @GwtCompatible
 @Beta
-@SuppressWarnings("pico")
 public final class PublicSuffixPatterns {
   private PublicSuffixPatterns() {}
 
