@@ -43,7 +43,7 @@ import com.google.errorprone.annotations.Immutable;
  */
 @Beta
 @Immutable(containerOf = {"N", "V"})
-@SuppressWarnings({"Immutable", "pico"}) // Extends StandardValueGraph but uses ImmutableMaps.
+@SuppressWarnings("Immutable") // Extends StandardValueGraph but uses ImmutableMaps.
 @ElementTypesAreNonnullByDefault
 public final class ImmutableValueGraph<N, V> extends StandardValueGraph<N, V> {
 

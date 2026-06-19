@@ -45,7 +45,7 @@ import java.util.Map;
  */
 @Beta
 @Immutable(containerOf = {"N", "E"})
-@SuppressWarnings({"Immutable", "pico"}) // Extends StandardNetwork but uses ImmutableMaps.
+@SuppressWarnings("Immutable") // Extends StandardNetwork but uses ImmutableMaps.
 @ElementTypesAreNonnullByDefault
 public final class ImmutableNetwork<N, E> extends StandardNetwork<N, E> {
 
