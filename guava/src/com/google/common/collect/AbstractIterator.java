@@ -135,7 +135,6 @@ public abstract class AbstractIterator<T extends @Nullable @Readonly Object> ext
     return null;
   }
 
-  @CanIgnoreReturnValue // TODO(kak): Should we remove this? Some people are using it to prefetch?
   @Override
   public final boolean hasNext(@Readonly AbstractIterator<T> this) {
     checkState(state != State.FAILED);

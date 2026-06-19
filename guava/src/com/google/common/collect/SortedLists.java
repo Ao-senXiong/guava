@@ -16,7 +16,6 @@ package com.google.common.collect;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import com.google.common.annotations.Beta;
 import com.google.common.annotations.GwtCompatible;
 import com.google.common.base.Function;
 import java.util.Collections;
@@ -36,7 +35,6 @@ import org.checkerframework.checker.pico.qual.Immutable;
  * @author Louis Wasserman
  */
 @GwtCompatible
-@Beta
 @ElementTypesAreNonnullByDefault
 final class SortedLists {
   private SortedLists() {}
@@ -201,6 +199,7 @@ final class SortedLists {
    * <p>Equivalent to {@link #binarySearch(List, Function, Object, Comparator, KeyPresentBehavior,
    * KeyAbsentBehavior)} using {@link Ordering#natural}.
    */
+  @SuppressWarnings("rawtypes") // https://github.com/google/guava/issues/989
   public static <E extends Comparable> int binarySearch(
       List<? extends E> list,
       E e,
@@ -216,6 +215,7 @@ final class SortedLists {
    * <p>Equivalent to {@link #binarySearch(List, Function, Object, Comparator, KeyPresentBehavior,
    * KeyAbsentBehavior)} using {@link Ordering#natural}.
    */
+  @SuppressWarnings("rawtypes") // https://github.com/google/guava/issues/989
   public static <E extends @Nullable Object, K extends Comparable> int binarySearch(
       List<E> list,
       Function<? super E, K> keyFunction,

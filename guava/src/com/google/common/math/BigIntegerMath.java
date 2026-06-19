@@ -21,11 +21,8 @@ import static com.google.common.math.MathPreconditions.checkPositive;
 import static com.google.common.math.MathPreconditions.checkRoundingUnnecessary;
 import static java.math.RoundingMode.CEILING;
 import static java.math.RoundingMode.FLOOR;
-import static java.math.RoundingMode.HALF_DOWN;
 import static java.math.RoundingMode.HALF_EVEN;
-import static java.math.RoundingMode.UNNECESSARY;
 
-import com.google.common.annotations.Beta;
 import com.google.common.annotations.GwtCompatible;
 import com.google.common.annotations.GwtIncompatible;
 import com.google.common.annotations.VisibleForTesting;
@@ -63,7 +60,6 @@ public final class BigIntegerMath {
    * @throws IllegalArgumentException if {@code x <= 0}
    * @since 20.0
    */
-  @Beta
   public static BigInteger ceilingPowerOfTwo(BigInteger x) {
     return BigInteger.ZERO.setBit(log2(x, CEILING));
   }
@@ -75,7 +71,6 @@ public final class BigIntegerMath {
    * @throws IllegalArgumentException if {@code x <= 0}
    * @since 20.0
    */
-  @Beta
   public static BigInteger floorPowerOfTwo(BigInteger x) {
     return BigInteger.ZERO.setBit(log2(x, FLOOR));
   }
@@ -153,7 +148,8 @@ public final class BigIntegerMath {
    *     is not a power of ten
    */
   @GwtIncompatible // TODO
-  @SuppressWarnings({"fallthrough","lowerbound:argument"// x fits in a long, then longValue is polymorphic over x's value
+  @SuppressWarnings({"fallthrough",
+          "lowerbound:argument" // x fits in a long, then longValue is polymorphic over x's value
           // with respect to the lowerbound type system. 
   })
   public static int log10(BigInteger x, RoundingMode mode) {

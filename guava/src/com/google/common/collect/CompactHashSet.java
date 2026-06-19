@@ -23,6 +23,7 @@ import static com.google.common.collect.Hashing.smearedHash;
 import static java.util.Objects.requireNonNull;
 
 import com.google.common.annotations.GwtIncompatible;
+import com.google.common.annotations.J2ktIncompatible;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
@@ -113,6 +114,7 @@ class CompactHashSet<E extends @Nullable @Readonly Object> extends AbstractSet<E
    * @return a new {@code CompactHashSet} containing those elements (minus duplicates)
    */
   @SafeVarargs
+  @SuppressWarnings("nullness") // TODO: b/316358623 - Remove after checker fix.
   public static <E extends @Nullable Object> CompactHashSet<E> create(E... elements) {
     CompactHashSet<E> set = createWithExpectedSize(elements.length);
     Collections.addAll(set, elements);
@@ -704,6 +706,7 @@ class CompactHashSet<E extends @Nullable @Readonly Object> extends AbstractSet<E
     }
   }
 
+  @J2ktIncompatible
   private void writeObject(ObjectOutputStream stream) throws IOException {
     stream.defaultWriteObject();
     stream.writeInt(size());
@@ -713,6 +716,7 @@ class CompactHashSet<E extends @Nullable @Readonly Object> extends AbstractSet<E
   }
 
   @SuppressWarnings("unchecked")
+  @J2ktIncompatible
   private void readObject(ObjectInputStream stream) throws IOException, ClassNotFoundException {
     stream.defaultReadObject();
     int elementCount = stream.readInt();

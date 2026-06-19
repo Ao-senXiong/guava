@@ -25,13 +25,8 @@ import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.io.Serializable;
 import javax.annotation.CheckForNull;
 import org.checkerframework.checker.index.qual.LTLengthOf;
-import org.checkerframework.checker.index.qual.LengthOf;
 import org.checkerframework.checker.index.qual.NonNegative;
-import org.checkerframework.checker.index.qual.SameLen;
-import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.checker.signedness.qual.UnknownSignedness;
-import org.checkerframework.common.value.qual.ArrayLenRange;
-import org.checkerframework.common.value.qual.IntRange;
 import org.checkerframework.common.value.qual.MinLen;
 
 /**
@@ -259,7 +254,6 @@ public abstract class HashCode {
    * must be handed-off so as to preserve the immutability contract of {@code HashCode}.
    */
   static HashCode fromBytesNoCopy(byte @MinLen(1)[] bytes) {
-    checkArgument(bytes.length >= 1, "A HashCode must contain at least 1 byte.");
     return new BytesHashCode(bytes);
   }
 
@@ -363,6 +357,7 @@ public abstract class HashCode {
         string.length() % 2 == 0,
         "input string (%s) must have an even number of characters",
         string);
+
     byte[] bytes = new byte[string.length() / 2];
     for (int i = 0; i < string.length(); i += 2) {
       int ch1 = decode(string.charAt(i)) << 4;

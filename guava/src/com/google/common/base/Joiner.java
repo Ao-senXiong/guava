@@ -17,13 +17,13 @@ package com.google.common.base;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.Objects.requireNonNull;
 
-import com.google.common.annotations.Beta;
 import com.google.common.annotations.GwtCompatible;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.io.IOException;
 import java.util.AbstractList;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import javax.annotation.CheckForNull;
@@ -135,7 +135,9 @@ public class Joiner {
   @CanIgnoreReturnValue
   public final <A extends Appendable> A appendTo(A appendable, @Nullable Object[] parts)
       throws IOException {
-    return appendTo(appendable, Arrays.asList(parts));
+    @SuppressWarnings("nullness") // TODO: b/316358623 - Remove suppression after fixing checker
+    List<?> partsList = Arrays.<@Nullable Object>asList(parts);
+    return appendTo(appendable, partsList);
   }
 
   /** Appends to {@code appendable} the string representation of each of the remaining arguments. */
@@ -185,7 +187,9 @@ public class Joiner {
    */
   @CanIgnoreReturnValue
   public final StringBuilder appendTo(StringBuilder builder, @Nullable Object[] parts) {
-    return appendTo(builder, Arrays.asList(parts));
+    @SuppressWarnings("nullness") // TODO: b/316358623 - Remove suppression after fixing checker
+    List<?> partsList = Arrays.<@Nullable Object>asList(parts);
+    return appendTo(builder, partsList);
   }
 
   /**
@@ -225,7 +229,9 @@ public class Joiner {
    * previously configured separator between each.
    */
   public final String join(@Nullable Object[] parts) {
-    return join(Arrays.asList(parts));
+    @SuppressWarnings("nullness") // TODO: b/316358623 - Remove suppression after fixing checker
+    List<?> partsList = Arrays.<@Nullable Object>asList(parts);
+    return join(partsList);
   }
 
   /**
@@ -371,7 +377,6 @@ public class Joiner {
      *
      * @since 10.0
      */
-    @Beta
     @CanIgnoreReturnValue
     public <A extends Appendable> A appendTo(A appendable, Iterable<? extends Entry<?, ?>> entries)
         throws IOException {
@@ -384,7 +389,6 @@ public class Joiner {
      *
      * @since 11.0
      */
-    @Beta
     @CanIgnoreReturnValue
     public <A extends Appendable> A appendTo(A appendable, Iterator<? extends Entry<?, ?>> parts)
         throws IOException {
@@ -412,7 +416,6 @@ public class Joiner {
      *
      * @since 10.0
      */
-    @Beta
     @CanIgnoreReturnValue
     public StringBuilder appendTo(StringBuilder builder, Iterable<? extends Entry<?, ?>> entries) {
       return appendTo(builder, entries.iterator());
@@ -425,7 +428,6 @@ public class Joiner {
      *
      * @since 11.0
      */
-    @Beta
     @CanIgnoreReturnValue
     public StringBuilder appendTo(StringBuilder builder, Iterator<? extends Entry<?, ?>> entries) {
       try {
@@ -450,7 +452,6 @@ public class Joiner {
      *
      * @since 10.0
      */
-    @Beta
     public String join(Iterable<? extends Entry<?, ?>> entries) {
       return join(entries.iterator());
     }
@@ -461,7 +462,6 @@ public class Joiner {
      *
      * @since 11.0
      */
-    @Beta
     public String join(Iterator<? extends Entry<?, ?>> entries) {
       return appendTo(new StringBuilder(), entries).toString();
     }

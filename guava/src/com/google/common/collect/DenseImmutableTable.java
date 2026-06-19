@@ -17,6 +17,8 @@ package com.google.common.collect;
 import static java.util.Objects.requireNonNull;
 
 import com.google.common.annotations.GwtCompatible;
+import com.google.common.annotations.GwtIncompatible;
+import com.google.common.annotations.J2ktIncompatible;
 import com.google.common.collect.ImmutableMap.IteratorBasedImmutableMap;
 //import com.google.errorprone.annotations.Immutable;
 import com.google.j2objc.annotations.WeakOuter;
@@ -150,6 +152,15 @@ final class DenseImmutableTable<R extends @Immutable Object, C extends @Immutabl
         }
       };
     }
+
+    // redeclare to help optimizers with b/310253115
+    @SuppressWarnings("RedundantOverride")
+    @J2ktIncompatible // serialization
+    @Override
+    @GwtIncompatible // serialization
+    Object writeReplace() {
+      return super.writeReplace();
+    }
   }
 
   @Immutable
@@ -175,6 +186,15 @@ final class DenseImmutableTable<R extends @Immutable Object, C extends @Immutabl
     @Override
     boolean isPartialView() {
       return true;
+    }
+
+    // redeclare to help optimizers with b/310253115
+    @SuppressWarnings("RedundantOverride")
+    @Override
+    @J2ktIncompatible // serialization
+    @GwtIncompatible // serialization
+    Object writeReplace() {
+      return super.writeReplace();
     }
   }
 
@@ -202,6 +222,15 @@ final class DenseImmutableTable<R extends @Immutable Object, C extends @Immutabl
     boolean isPartialView() {
       return true;
     }
+
+    // redeclare to help optimizers with b/310253115
+    @SuppressWarnings("RedundantOverride")
+    @Override
+    @J2ktIncompatible // serialization
+    @GwtIncompatible // serialization
+    Object writeReplace() {
+      return super.writeReplace();
+    }
   }
 
   @WeakOuter
@@ -225,6 +254,15 @@ final class DenseImmutableTable<R extends @Immutable Object, C extends @Immutabl
     boolean isPartialView() {
       return false;
     }
+
+    // redeclare to help optimizers with b/310253115
+    @SuppressWarnings("RedundantOverride")
+    @Override
+    @J2ktIncompatible // serialization
+    @GwtIncompatible // serialization
+    Object writeReplace() {
+      return super.writeReplace();
+    }
   }
 
   @WeakOuter
@@ -247,6 +285,15 @@ final class DenseImmutableTable<R extends @Immutable Object, C extends @Immutabl
     @Override
     boolean isPartialView() {
       return false;
+    }
+
+    // redeclare to help optimizers with b/310253115
+    @SuppressWarnings("RedundantOverride")
+    @Override
+    @J2ktIncompatible // serialization
+    @GwtIncompatible // serialization
+    Object writeReplace() {
+      return super.writeReplace();
     }
   }
 
@@ -295,7 +342,9 @@ final class DenseImmutableTable<R extends @Immutable Object, C extends @Immutabl
   }
 
   @Override
-  SerializedForm createSerializedForm() {
+  @J2ktIncompatible // serialization
+  @GwtIncompatible // serialization
+  Object writeReplace() {
     return SerializedForm.create(this, cellRowIndices, cellColumnIndices);
   }
 }

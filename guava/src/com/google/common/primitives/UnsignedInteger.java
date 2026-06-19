@@ -22,11 +22,9 @@ import static com.google.common.primitives.UnsignedInts.toLong;
 
 import com.google.common.annotations.GwtCompatible;
 import com.google.common.annotations.GwtIncompatible;
+import com.google.common.annotations.J2ktIncompatible;
 import java.math.BigInteger;
 import javax.annotation.CheckForNull;
-import org.checkerframework.checker.index.qual.NonNegative;
-import org.checkerframework.checker.index.qual.Positive;
-import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.checker.signedness.qual.UnknownSignedness;
 import org.checkerframework.common.value.qual.IntRange;
 import org.checkerframework.common.value.qual.PolyValue;
@@ -152,6 +150,7 @@ public final class UnsignedInteger extends Number implements Comparable<Unsigned
    *
    * @since 14.0
    */
+  @J2ktIncompatible
   @GwtIncompatible // Does not truncate correctly
   public UnsignedInteger times(UnsignedInteger val) {
     // TODO(lowasser): make this GWT-compatible

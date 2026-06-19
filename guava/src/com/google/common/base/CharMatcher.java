@@ -20,6 +20,7 @@ import static com.google.common.base.Preconditions.checkPositionIndex;
 
 import com.google.common.annotations.GwtCompatible;
 import com.google.common.annotations.GwtIncompatible;
+import com.google.common.annotations.J2ktIncompatible;
 import com.google.common.annotations.VisibleForTesting;
 import java.util.Arrays;
 import java.util.BitSet;
@@ -999,7 +1000,7 @@ public abstract class CharMatcher implements Predicate<Character> {
   }
 
   /** Negation of a {@link FastMatcher}. */
-  static class NegatedFastMatcher extends Negated {
+  private static class NegatedFastMatcher extends Negated {
 
     NegatedFastMatcher(CharMatcher original) {
       super(original);
@@ -1042,7 +1043,7 @@ public abstract class CharMatcher implements Predicate<Character> {
   /** Implementation of {@link #any()}. */
   private static final class Any extends NamedFastMatcher {
 
-    static final Any INSTANCE = new Any();
+    static final CharMatcher INSTANCE = new Any();
 
     private Any() {
       super("CharMatcher.any()");
@@ -1145,7 +1146,7 @@ public abstract class CharMatcher implements Predicate<Character> {
   /** Implementation of {@link #none()}. */
   private static final class None extends NamedFastMatcher {
 
-    static final None INSTANCE = new None();
+    static final CharMatcher INSTANCE = new None();
 
     private None() {
       super("CharMatcher.none()");
@@ -1261,7 +1262,7 @@ public abstract class CharMatcher implements Predicate<Character> {
     static final int MULTIPLIER = 1682554634;
     static final @IntVal(27) int SHIFT = Integer.numberOfLeadingZeros(TABLE.length() - 1);
 
-    static final Whitespace INSTANCE = new Whitespace();
+    static final CharMatcher INSTANCE = new Whitespace();
 
     Whitespace() {
       super("CharMatcher.whitespace()");
@@ -1318,7 +1319,7 @@ public abstract class CharMatcher implements Predicate<Character> {
   /** Implementation of {@link #ascii()}. */
   private static final class Ascii extends NamedFastMatcher {
 
-    static final Ascii INSTANCE = new Ascii();
+    static final CharMatcher INSTANCE = new Ascii();
 
     Ascii() {
       super("CharMatcher.ascii()");
@@ -1392,7 +1393,7 @@ public abstract class CharMatcher implements Predicate<Character> {
       return nines;
     }
 
-    static final Digit INSTANCE = new Digit();
+    static final CharMatcher INSTANCE = new Digit();
 
     private Digit() {
       super("CharMatcher.digit()", zeroes(), nines());
@@ -1402,7 +1403,7 @@ public abstract class CharMatcher implements Predicate<Character> {
   /** Implementation of {@link #javaDigit()}. */
   private static final class JavaDigit extends CharMatcher {
 
-    static final JavaDigit INSTANCE = new JavaDigit();
+    static final CharMatcher INSTANCE = new JavaDigit();
 
     @Override
     public boolean matches(char c) {
@@ -1418,7 +1419,7 @@ public abstract class CharMatcher implements Predicate<Character> {
   /** Implementation of {@link #javaLetter()}. */
   private static final class JavaLetter extends CharMatcher {
 
-    static final JavaLetter INSTANCE = new JavaLetter();
+    static final CharMatcher INSTANCE = new JavaLetter();
 
     @Override
     public boolean matches(char c) {
@@ -1434,7 +1435,7 @@ public abstract class CharMatcher implements Predicate<Character> {
   /** Implementation of {@link #javaLetterOrDigit()}. */
   private static final class JavaLetterOrDigit extends CharMatcher {
 
-    static final JavaLetterOrDigit INSTANCE = new JavaLetterOrDigit();
+    static final CharMatcher INSTANCE = new JavaLetterOrDigit();
 
     @Override
     public boolean matches(char c) {
@@ -1450,7 +1451,7 @@ public abstract class CharMatcher implements Predicate<Character> {
   /** Implementation of {@link #javaUpperCase()}. */
   private static final class JavaUpperCase extends CharMatcher {
 
-    static final JavaUpperCase INSTANCE = new JavaUpperCase();
+    static final CharMatcher INSTANCE = new JavaUpperCase();
 
     @Override
     public boolean matches(char c) {
@@ -1466,7 +1467,7 @@ public abstract class CharMatcher implements Predicate<Character> {
   /** Implementation of {@link #javaLowerCase()}. */
   private static final class JavaLowerCase extends CharMatcher {
 
-    static final JavaLowerCase INSTANCE = new JavaLowerCase();
+    static final CharMatcher INSTANCE = new JavaLowerCase();
 
     @Override
     public boolean matches(char c) {
@@ -1482,7 +1483,7 @@ public abstract class CharMatcher implements Predicate<Character> {
   /** Implementation of {@link #javaIsoControl()}. */
   private static final class JavaIsoControl extends NamedFastMatcher {
 
-    static final JavaIsoControl INSTANCE = new JavaIsoControl();
+    static final CharMatcher INSTANCE = new JavaIsoControl();
 
     private JavaIsoControl() {
       super("CharMatcher.javaIsoControl()");
@@ -1507,7 +1508,7 @@ public abstract class CharMatcher implements Predicate<Character> {
         "\u0020\u00a0\u00ad\u0605\u061c\u06dd\u070f\u0891\u08e2\u1680\u180e\u200f\u202f\u2064\u206f"
             + "\u3000\uf8ff\ufeff\ufffb";
 
-    static final Invisible INSTANCE = new Invisible();
+    static final CharMatcher INSTANCE = new Invisible();
 
     private Invisible() {
       super("CharMatcher.invisible()", RANGE_STARTS.toCharArray(), RANGE_ENDS.toCharArray());
@@ -1517,7 +1518,7 @@ public abstract class CharMatcher implements Predicate<Character> {
   /** Implementation of {@link #singleWidth()}. */
   private static final class SingleWidth extends RangesMatcher {
 
-    static final SingleWidth INSTANCE = new SingleWidth();
+    static final CharMatcher INSTANCE = new SingleWidth();
 
     private SingleWidth() {
       super(
@@ -1844,8 +1845,9 @@ public abstract class CharMatcher implements Predicate<Character> {
       return predicate.apply(c);
     }
 
+    @SuppressWarnings({"deprecation", // intentional; deprecation is for callers primarily
+            "signature.argument"})
     @Override
-    @SuppressWarnings("signature.argument")
     public boolean apply(Character character) {
       return predicate.apply(checkNotNull(character));
     }

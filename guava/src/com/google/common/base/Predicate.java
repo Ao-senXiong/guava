@@ -15,7 +15,6 @@
 package com.google.common.base;
 
 import com.google.common.annotations.GwtCompatible;
-import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import javax.annotation.CheckForNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.checker.pico.qual.Readonly;
@@ -53,7 +52,7 @@ import org.checkerframework.framework.qual.AnnotatedFor;
 @ReceiverDependentMutable
 public interface Predicate<T extends @Nullable @Readonly Object> extends java.util.function.Predicate<T> {
   /**
-   * Returns the result of applying this predicate to {@code input} (Java 8 users, see notes in the
+   * Returns the result of applying this predicate to {@code input} (Java 8+ users, see notes in the
    * class documentation above). This method is <i>generally expected</i>, but not absolutely
    * required, to have the following properties:
    *
@@ -67,7 +66,6 @@ public interface Predicate<T extends @Nullable @Readonly Object> extends java.ut
    * @throws NullPointerException if {@code input} is null and this predicate does not accept null
    *     arguments
    */
-  @CanIgnoreReturnValue
   boolean apply(@ParametricNullness T input);
 
   /**

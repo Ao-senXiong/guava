@@ -16,9 +16,9 @@ package com.google.common.base;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import com.google.common.annotations.Beta;
 import com.google.common.annotations.GwtCompatible;
 import com.google.common.annotations.GwtIncompatible;
+import com.google.common.annotations.J2ktIncompatible;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -201,8 +201,8 @@ public final class Predicates {
    *
    * @since 20.0 (since 10.0 under the incorrect name {@code assignableFrom})
    */
+  @J2ktIncompatible
   @GwtIncompatible // Class.isAssignableFrom
-  @Beta
   public static Predicate<Class<?>> subtypeOf(Class<?> clazz) {
     return new SubtypeOfPredicate(clazz);
   }
@@ -504,7 +504,9 @@ public final class Predicates {
     }
   }
 
-  /** @see Predicates#instanceOf(Class) */
+  /**
+   * @see Predicates#instanceOf(Class)
+   */
   @GwtIncompatible // Class.isInstance
   private static class InstanceOfPredicate<T extends @Nullable @Readonly Object>
       implements Predicate<T>, Serializable {
@@ -541,10 +543,13 @@ public final class Predicates {
       return "Predicates.instanceOf(" + clazz.getName() + ")";
     }
 
-    private static final long serialVersionUID = 0;
+    @J2ktIncompatible private static final long serialVersionUID = 0;
   }
 
-  /** @see Predicates#subtypeOf(Class) */
+  /**
+   * @see Predicates#subtypeOf(Class)
+   */
+  @J2ktIncompatible
   @GwtIncompatible // Class.isAssignableFrom
   private static class SubtypeOfPredicate implements Predicate<Class<?>>, Serializable {
     private final Class<?> clazz;
@@ -665,7 +670,9 @@ public final class Predicates {
     private static final long serialVersionUID = 0;
   }
 
-  /** @see Predicates#contains(Pattern) */
+  /**
+   * @see Predicates#contains(Pattern)
+   */
   @GwtIncompatible // Only used by other GWT-incompatible code.
   private static class ContainsPatternPredicate implements Predicate<CharSequence>, Serializable {
     final CommonPattern pattern;
@@ -713,7 +720,9 @@ public final class Predicates {
     private static final long serialVersionUID = 0;
   }
 
-  /** @see Predicates#containsPattern(String) */
+  /**
+   * @see Predicates#containsPattern(String)
+   */
   @GwtIncompatible // Only used by other GWT-incompatible code.
   private static class ContainsPatternFromStringPredicate extends ContainsPatternPredicate {
 

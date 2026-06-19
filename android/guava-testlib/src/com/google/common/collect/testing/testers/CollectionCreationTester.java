@@ -21,6 +21,7 @@ import static com.google.common.collect.testing.features.CollectionSize.ZERO;
 
 import com.google.common.annotations.GwtCompatible;
 import com.google.common.annotations.GwtIncompatible;
+import com.google.common.annotations.J2ktIncompatible;
 import com.google.common.collect.testing.AbstractCollectionTester;
 import com.google.common.collect.testing.Helpers;
 import com.google.common.collect.testing.features.CollectionFeature;
@@ -52,7 +53,8 @@ public class CollectionCreationTester<E> extends AbstractCollectionTester<E> {
     E[] array = createArrayWithNullElement();
 
     try {
-      getSubjectGenerator().create(array);
+      // TODO(kak): remove unused capture
+      Object unused = getSubjectGenerator().create(array);
       fail("Creating a collection containing null should fail");
     } catch (NullPointerException expected) {
     }
@@ -63,6 +65,7 @@ public class CollectionCreationTester<E> extends AbstractCollectionTester<E> {
    * can suppress it with {@code FeatureSpecificTestSuiteBuilder.suppressing()} until <a
    * href="http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=5045147">Sun bug 5045147</a> is fixed.
    */
+  @J2ktIncompatible
   @GwtIncompatible // reflection
   public static Method getCreateWithNullUnsupportedMethod() {
     return Helpers.getMethod(CollectionCreationTester.class, "testCreateWithNull_unsupported");

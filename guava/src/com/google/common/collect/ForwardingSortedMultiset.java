@@ -14,7 +14,6 @@
 
 package com.google.common.collect;
 
-import com.google.common.annotations.Beta;
 import com.google.common.annotations.GwtCompatible;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -46,7 +45,6 @@ import org.checkerframework.checker.pico.qual.ReceiverDependentMutable;
  * @author Louis Wasserman
  * @since 15.0
  */
-@Beta
 @GwtCompatible(emulated = true)
 @ElementTypesAreNonnullByDefault
 @ReceiverDependentMutable

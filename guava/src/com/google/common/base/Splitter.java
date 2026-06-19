@@ -17,7 +17,6 @@ package com.google.common.base;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import com.google.common.annotations.Beta;
 import com.google.common.annotations.GwtCompatible;
 import com.google.common.annotations.GwtIncompatible;
 import java.util.ArrayList;
@@ -223,10 +222,11 @@ public final class Splitter {
    */
   @GwtIncompatible // java.util.regex
   public static Splitter on(Pattern separatorPattern) {
-    return on(new JdkPattern(separatorPattern));
+    return onPatternInternal(new JdkPattern(separatorPattern));
   }
 
-  private static Splitter on(final CommonPattern separatorPattern) {
+  /** Internal utility; see {@link #on(Pattern)} instead. */
+  static Splitter onPatternInternal(final CommonPattern separatorPattern) {
     checkArgument(
         !separatorPattern.matcher("").matches(),
         "The pattern may not match the empty string: %s",
@@ -266,7 +266,7 @@ public final class Splitter {
    */
   @GwtIncompatible // java.util.regex
   public static Splitter onPattern(String separatorPattern) {
-    return on(Platform.compilePattern(separatorPattern));
+    return onPatternInternal(Platform.compilePattern(separatorPattern));
   }
 
   /**
@@ -338,7 +338,7 @@ public final class Splitter {
    * <p>For example, {@code Splitter.on(',').limit(3).split("a,b,c,d")} returns an iterable
    * containing {@code ["a", "b", "c,d"]}. When omitting empty strings, the omitted strings do not
    * count. Hence, {@code Splitter.on(',').limit(3).omitEmptyStrings().split("a,,,b,,,c,d")} returns
-   * an iterable containing {@code ["a", "b", "c,d"}. When trim is requested, all entries are
+   * an iterable containing {@code ["a", "b", "c,d"]}. When trim is requested, all entries are
    * trimmed, including the last. Hence {@code Splitter.on(',').limit(3).trimResults().split(" a , b
    * , c , d ")} results in {@code ["a", "b", "c , d"]}.
    *
@@ -383,7 +383,7 @@ public final class Splitter {
   /**
    * Splits {@code sequence} into string components and makes them available through an {@link
    * Iterator}, which may be lazily evaluated. If you want an eagerly computed {@link List}, use
-   * {@link #splitToList(CharSequence)}. Java 8 users may prefer {@link #splitToStream} instead.
+   * {@link #splitToList(CharSequence)}. Java 8+ users may prefer {@link #splitToStream} instead.
    *
    * @param sequence the sequence of characters to split
    * @return an iteration over the segments split from the parameter
@@ -441,7 +441,6 @@ public final class Splitter {
    * @return a stream over the segments split from the parameter
    * @since 28.2
    */
-  @Beta
   public Stream<String> splitToStream(CharSequence sequence) {
     // Can't use Streams.stream() from base
     return StreamSupport.stream(split(sequence).spliterator(), false);
@@ -454,7 +453,6 @@ public final class Splitter {
    * @since 10.0
    */
   // MinLen requirement not in javadoc
-  @Beta
   public MapSplitter withKeyValueSeparator(@MinLen(1) String separator) {
     return withKeyValueSeparator(on(separator));
   }
@@ -465,7 +463,6 @@ public final class Splitter {
    *
    * @since 14.0
    */
-  @Beta
   public MapSplitter withKeyValueSeparator(char separator) {
     return withKeyValueSeparator(on(separator));
   }
@@ -489,7 +486,6 @@ public final class Splitter {
    *
    * @since 10.0
    */
-  @Beta
   public MapSplitter withKeyValueSeparator(Splitter keyValueSplitter) {
     return new MapSplitter(this, keyValueSplitter);
   }
@@ -502,7 +498,6 @@ public final class Splitter {
    *
    * @since 10.0
    */
-  @Beta
   public static final class MapSplitter {
     private static final String INVALID_ENTRY_MESSAGE = "Chunk [%s] is not a valid entry";
     private final Splitter outerSplitter;

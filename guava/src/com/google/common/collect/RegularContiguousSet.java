@@ -22,6 +22,9 @@ import static java.util.Objects.requireNonNull;
 
 import com.google.common.annotations.GwtCompatible;
 import com.google.common.annotations.GwtIncompatible;
+import com.google.common.annotations.J2ktIncompatible;
+import java.io.InvalidObjectException;
+import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.Collection;
 import javax.annotation.CheckForNull;
@@ -36,7 +39,7 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
  * @author Gregory Kick
  */
 @GwtCompatible(emulated = true)
-@SuppressWarnings("unchecked") // allow ungenerified Comparable types
+@SuppressWarnings("rawtypes") // https://github.com/google/guava/issues/989
 @ElementTypesAreNonnullByDefault
 @Immutable
 final class RegularContiguousSet<C extends @Readonly Comparable> extends ContiguousSet<C> {
@@ -59,6 +62,7 @@ final class RegularContiguousSet<C extends @Readonly Comparable> extends Contigu
   }
 
   @Override
+  @SuppressWarnings("unchecked") // TODO(cpovirk): Use a shared unsafeCompare method.
   ContiguousSet<C> subSetImpl(
       C fromElement, boolean fromInclusive, C toElement, boolean toInclusive) {
     if (fromElement.compareTo(toElement) == 0 && !fromInclusive && !toInclusive) {
@@ -79,8 +83,14 @@ final class RegularContiguousSet<C extends @Readonly Comparable> extends Contigu
   @GwtIncompatible // not used by GWT emulation
   @Override
   int indexOf(@CheckForNull Object target) {
+    if (!contains(target)) {
+      return -1;
+    }
+    // The cast is safe because of the contains check—at least for any reasonable Comparable class.
+    @SuppressWarnings("unchecked")
     // requireNonNull is safe because of the contains check.
-    return contains(target) ? (int) domain.distance(first(), (C) requireNonNull(target)) : -1;
+    C c = (C) requireNonNull(target);
+    return (int) domain.distance(first(), c);
   }
 
   @Override
@@ -145,6 +155,15 @@ final class RegularContiguousSet<C extends @Readonly Comparable> extends Contigu
           checkElementIndex(i, size());
           return domain.offset(first(), i);
         }
+
+        // redeclare to help optimizers with b/310253115
+        @SuppressWarnings("RedundantOverride")
+        @Override
+        @J2ktIncompatible // serialization
+        @GwtIncompatible // serialization
+        Object writeReplace() {
+          return super.writeReplace();
+        }
       };
     } else {
       return super.createAsList();
@@ -163,7 +182,9 @@ final class RegularContiguousSet<C extends @Readonly Comparable> extends Contigu
       return false;
     }
     try {
-      return range.contains((C) object);
+      @SuppressWarnings("unchecked") // The worst case is usually CCE, which we catch.
+      C c = (C) object;
+      return range.contains(c);
     } catch (ClassCastException e) {
       return false;
     }
@@ -180,14 +201,15 @@ final class RegularContiguousSet<C extends @Readonly Comparable> extends Contigu
   }
 
   @Override
+  @SuppressWarnings("unchecked") // TODO(cpovirk): Use a shared unsafeCompare method.
   public ContiguousSet<C> intersection(ContiguousSet<C> other) {
     checkNotNull(other);
     checkArgument(this.domain.equals(other.domain));
     if (other.isEmpty()) {
       return other;
     } else {
-      C lowerEndpoint = Ordering.natural().max(this.first(), other.first());
-      C upperEndpoint = Ordering.natural().min(this.last(), other.last());
+      C lowerEndpoint = Ordering.<C>natural().max(this.first(), other.first());
+      C upperEndpoint = Ordering.<C>natural().min(this.last(), other.last());
       return (lowerEndpoint.compareTo(upperEndpoint) <= 0)
           ? ContiguousSet.create(Range.closed(lowerEndpoint, upperEndpoint), domain)
           : new EmptyContiguousSet<C>(domain);
@@ -226,6 +248,7 @@ final class RegularContiguousSet<C extends @Readonly Comparable> extends Contigu
   }
 
   @GwtIncompatible // serialization
+  @J2ktIncompatible
   private static final class SerializedForm<C extends Comparable> implements Serializable {
     final Range<C> range;
     final DiscreteDomain<C> domain;
@@ -241,9 +264,16 @@ final class RegularContiguousSet<C extends @Readonly Comparable> extends Contigu
   }
 
   @GwtIncompatible // serialization
+  @J2ktIncompatible
   @Override
   Object writeReplace() {
     return new SerializedForm<>(range, domain);
+  }
+
+  @GwtIncompatible // serialization
+  @J2ktIncompatible
+  private void readObject(ObjectInputStream stream) throws InvalidObjectException {
+    throw new InvalidObjectException("Use SerializedForm");
   }
 
   private static final long serialVersionUID = 0;

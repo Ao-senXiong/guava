@@ -40,7 +40,7 @@ abstract class TransformedListIterator<F extends @Nullable @Readonly Object, T e
   }
 
   private ListIterator<? extends F> backingIterator() {
-    return Iterators.cast(backingIterator);
+    return (ListIterator<? extends F>) backingIterator;
   }
 
   @Override

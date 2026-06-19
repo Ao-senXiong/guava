@@ -19,6 +19,7 @@ package com.google.common.collect;
 import static java.util.Objects.requireNonNull;
 
 import com.google.common.annotations.GwtIncompatible;
+import com.google.common.annotations.J2ktIncompatible;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.j2objc.annotations.WeakOuter;
@@ -58,6 +59,7 @@ import org.checkerframework.framework.qual.CFComment;
  *
  * @author Louis Wasserman
  */
+@J2ktIncompatible // no support for access-order mode in LinkedHashMap delegate
 @GwtIncompatible // not worth using in GWT for now
 @ElementTypesAreNonnullByDefault
 @ReceiverDependentMutable

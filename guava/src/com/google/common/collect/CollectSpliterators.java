@@ -217,7 +217,7 @@ final class CollectSpliterators {
   static <InElementT extends @Nullable @Readonly Object, OutElementT extends @Nullable @Readonly Object>
       Spliterator<OutElementT> flatMap(
           Spliterator<InElementT> fromSpliterator,
-          Function<? super InElementT, Spliterator<OutElementT>> function,
+          Function<? super InElementT, @Nullable Spliterator<OutElementT>> function,
           int topCharacteristics,
           long topSize) {
     checkArgument(
@@ -239,7 +239,7 @@ final class CollectSpliterators {
    */
   static <InElementT extends @Nullable Object> Spliterator.OfInt flatMapToInt(
       Spliterator<InElementT> fromSpliterator,
-      Function<? super InElementT, Spliterator.OfInt> function,
+      Function<? super InElementT, Spliterator.@Nullable OfInt> function,
       int topCharacteristics,
       long topSize) {
     checkArgument(
@@ -261,7 +261,7 @@ final class CollectSpliterators {
    */
   static <InElementT extends @Nullable Object> Spliterator.OfLong flatMapToLong(
       Spliterator<InElementT> fromSpliterator,
-      Function<? super InElementT, Spliterator.OfLong> function,
+      Function<? super InElementT, Spliterator.@Nullable OfLong> function,
       int topCharacteristics,
       long topSize) {
     checkArgument(
@@ -283,7 +283,7 @@ final class CollectSpliterators {
    */
   static <InElementT extends @Nullable Object> Spliterator.OfDouble flatMapToDouble(
       Spliterator<InElementT> fromSpliterator,
-      Function<? super InElementT, Spliterator.OfDouble> function,
+      Function<? super InElementT, Spliterator.@Nullable OfDouble> function,
       int topCharacteristics,
       long topSize) {
     checkArgument(
@@ -316,14 +316,14 @@ final class CollectSpliterators {
       OutSpliteratorT newFlatMapSpliterator(
           @CheckForNull OutSpliteratorT prefix,
           Spliterator<InElementT> fromSplit,
-          Function<? super InElementT, OutSpliteratorT> function,
+          Function<? super InElementT, @Nullable OutSpliteratorT> function,
           int splitCharacteristics,
           long estSplitSize);
     }
 
     @Weak @CheckForNull @Assignable OutSpliteratorT prefix;
     final Spliterator<InElementT> from;
-    final Function<? super InElementT, OutSpliteratorT> function;
+    final Function<? super InElementT, @Nullable OutSpliteratorT> function;
     final Factory<InElementT, OutSpliteratorT> factory;
     @Assignable int characteristics;
     @Assignable long estimatedSize;
@@ -331,7 +331,7 @@ final class CollectSpliterators {
     FlatMapSpliterator(
         @CheckForNull OutSpliteratorT prefix,
         Spliterator<InElementT> from,
-        Function<? super InElementT, OutSpliteratorT> function,
+        Function<? super InElementT, @Nullable OutSpliteratorT> function,
         Factory<InElementT, OutSpliteratorT> factory,
         int characteristics,
         long estimatedSize) {
@@ -351,7 +351,7 @@ final class CollectSpliterators {
      */
 
     @Override
-    public final boolean tryAdvance(Consumer<? super OutElementT> action) {
+    public /*non-final for J2KT*/ boolean tryAdvance(Consumer<? super OutElementT> action) {
       while (true) {
         if (prefix != null && prefix.tryAdvance(action)) {
           if (estimatedSize != Long.MAX_VALUE) {
@@ -368,7 +368,7 @@ final class CollectSpliterators {
     }
 
     @Override
-    public final void forEachRemaining(Consumer<? super OutElementT> action) {
+    public /*non-final for J2KT*/ void forEachRemaining(Consumer<? super OutElementT> action) {
       if (prefix != null) {
         prefix.forEachRemaining(action);
         prefix = null;
@@ -440,7 +440,7 @@ final class CollectSpliterators {
     FlatMapSpliteratorOfObject(
         @CheckForNull Spliterator<OutElementT> prefix,
         Spliterator<InElementT> from,
-        Function<? super InElementT, Spliterator<OutElementT>> function,
+        Function<? super InElementT, @Nullable Spliterator<OutElementT>> function,
         int characteristics,
         long estimatedSize) {
       super(
@@ -468,7 +468,7 @@ final class CollectSpliterators {
     FlatMapSpliteratorOfPrimitive(
         @CheckForNull OutSpliteratorT prefix,
         Spliterator<InElementT> from,
-        Function<? super InElementT, OutSpliteratorT> function,
+        Function<? super InElementT, @Nullable OutSpliteratorT> function,
         Factory<InElementT, OutSpliteratorT> factory,
         int characteristics,
         long estimatedSize) {
@@ -516,7 +516,7 @@ final class CollectSpliterators {
     FlatMapSpliteratorOfInt(
         @CheckForNull Spliterator.OfInt prefix,
         Spliterator<InElementT> from,
-        Function<? super InElementT, Spliterator.OfInt> function,
+        Function<? super InElementT, Spliterator.@Nullable OfInt> function,
         int characteristics,
         long estimatedSize) {
       super(prefix, from, function, FlatMapSpliteratorOfInt::new, characteristics, estimatedSize);
@@ -530,7 +530,7 @@ final class CollectSpliterators {
     FlatMapSpliteratorOfLong(
         @CheckForNull Spliterator.OfLong prefix,
         Spliterator<InElementT> from,
-        Function<? super InElementT, Spliterator.OfLong> function,
+        Function<? super InElementT, Spliterator.@Nullable OfLong> function,
         int characteristics,
         long estimatedSize) {
       super(prefix, from, function, FlatMapSpliteratorOfLong::new, characteristics, estimatedSize);
@@ -545,7 +545,7 @@ final class CollectSpliterators {
     FlatMapSpliteratorOfDouble(
         @CheckForNull Spliterator.OfDouble prefix,
         Spliterator<InElementT> from,
-        Function<? super InElementT, Spliterator.OfDouble> function,
+        Function<? super InElementT, Spliterator.@Nullable OfDouble> function,
         int characteristics,
         long estimatedSize) {
       super(

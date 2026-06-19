@@ -95,8 +95,8 @@ public interface SortedMultiset<E extends @Nullable @Readonly Object>
   /**
    * {@inheritDoc}
    *
-   * <p>The {@code entrySet}'s iterator returns entries in ascending element order according to the
-   * this multiset's comparator.
+   * <p>The {@code entrySet}'s iterator returns entries in ascending element order according to this
+   * multiset's comparator.
    */
   @Override
   Set<Entry<E>> entrySet();

@@ -41,7 +41,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javax.annotation.CheckForNull;
-
 import org.checkerframework.checker.index.qual.NonNegative;
 import org.checkerframework.checker.pico.qual.Immutable;
 import org.checkerframework.checker.pico.qual.Readonly;
@@ -438,7 +437,6 @@ final class DirectedGraphConnections<N extends @Immutable Object, V> implements 
     return (V) value;
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   public void removePredecessor(N node) {
     checkNotNull(node);

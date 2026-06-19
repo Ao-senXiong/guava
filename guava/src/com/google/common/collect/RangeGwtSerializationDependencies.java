@@ -31,6 +31,7 @@ import org.checkerframework.checker.pico.qual.Readonly;
  *
  * <p>TODO(cpovirk): Consider applying this subclass approach to our other types.
  */
+@SuppressWarnings("rawtypes") // https://github.com/google/guava/issues/989
 @GwtCompatible(emulated = true)
 @Immutable
 abstract class RangeGwtSerializationDependencies<C extends @Readonly Comparable> implements Serializable {}

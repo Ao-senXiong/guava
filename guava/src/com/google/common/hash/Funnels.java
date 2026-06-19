@@ -17,6 +17,8 @@ package com.google.common.hash;
 import com.google.common.annotations.Beta;
 import com.google.common.base.Preconditions;
 import java.io.IOException;
+import java.io.InvalidObjectException;
+import java.io.ObjectInputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.nio.charset.Charset;
@@ -130,6 +132,10 @@ public final class Funnels {
 
     Object writeReplace() {
       return new SerializedForm(charset);
+    }
+
+    private void readObject(ObjectInputStream stream) throws InvalidObjectException {
+      throw new InvalidObjectException("Use SerializedForm");
     }
 
     private static class SerializedForm implements Serializable {
@@ -272,7 +278,7 @@ public final class Funnels {
     }
 
     @Override
-    public void write(@PolySigned byte[] bytes, @IndexOrHigh({"#1"}) int off, @LTLengthOf(value={"#1"}, offset={"#2 - 1"}) @NonNegative int len) throws IOException {
+    public void write(@PolySigned byte[] bytes, @IndexOrHigh({"#1"}) int off, @LTLengthOf(value={"#1"}, offset={"#2 - 1"}) @NonNegative int len) {
       sink.putBytes(bytes, off, len);
     }
 

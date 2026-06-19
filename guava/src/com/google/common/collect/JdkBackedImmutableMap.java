@@ -21,6 +21,8 @@ import static com.google.common.collect.RegularImmutableMap.makeImmutable;
 import static java.util.Objects.requireNonNull;
 
 import com.google.common.annotations.GwtCompatible;
+import com.google.common.annotations.GwtIncompatible;
+import com.google.common.annotations.J2ktIncompatible;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiConsumer;
@@ -137,5 +139,14 @@ final class JdkBackedImmutableMap<K extends @Immutable Object, V> extends Immuta
   @Override
   boolean isPartialView() {
     return false;
+  }
+
+  // redeclare to help optimizers with b/310253115
+  @SuppressWarnings("RedundantOverride")
+  @Override
+  @J2ktIncompatible // serialization
+  @GwtIncompatible // serialization
+  Object writeReplace() {
+    return super.writeReplace();
   }
 }

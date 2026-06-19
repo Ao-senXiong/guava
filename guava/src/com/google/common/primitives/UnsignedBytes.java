@@ -19,8 +19,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkPositionIndexes;
 import static java.util.Objects.requireNonNull;
 
-import com.google.common.annotations.Beta;
 import com.google.common.annotations.GwtIncompatible;
+import com.google.common.annotations.J2ktIncompatible;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.nio.ByteOrder;
@@ -54,6 +54,7 @@ import sun.misc.Unsafe;
  * @since 1.0
  */
 @AnnotatedFor({"signedness"})
+@J2ktIncompatible
 @GwtIncompatible
 @ElementTypesAreNonnullByDefault
 @SuppressWarnings("pico")
@@ -80,7 +81,7 @@ public final class UnsignedBytes {
    * Returns the value of the given byte as an integer, when treated as unsigned. That is, returns
    * {@code value + 256} if {@code value} is negative; {@code value} itself otherwise.
    *
-   * <p><b>Java 8 users:</b> use {@link Byte#toUnsignedInt(byte)} instead.
+   * <p><b>Java 8+ users:</b> use {@link Byte#toUnsignedInt(byte)} instead.
    *
    * @since 6.0
    */
@@ -179,7 +180,6 @@ public final class UnsignedBytes {
    *
    * @since 13.0
    */
-  @Beta
   public static String toString(@Unsigned byte x) {
     return toString(x, 10);
   }
@@ -194,7 +194,6 @@ public final class UnsignedBytes {
    *     and {@link Character#MAX_RADIX}.
    * @since 13.0
    */
-  @Beta
   public static String toString(@Unsigned byte x, @IntRange(from=2, to=36) int radix) {
     checkArgument(
         radix >= Character.MIN_RADIX && radix <= Character.MAX_RADIX,
@@ -213,7 +212,6 @@ public final class UnsignedBytes {
    *     Byte#parseByte(String)})
    * @since 13.0
    */
-  @Beta
   @CanIgnoreReturnValue
   public static @Unsigned byte parseUnsignedByte(String string) {
     return parseUnsignedByte(string, 10);
@@ -232,7 +230,6 @@ public final class UnsignedBytes {
    * @since 13.0
    */
   @SuppressWarnings("signedness:cast") // if statement guarantees all is ok
-  @Beta
   @CanIgnoreReturnValue
   public static @Unsigned byte parseUnsignedByte(String string, @IntRange(from=2, to=36) int radix) {
     int parse = Integer.parseInt(checkNotNull(string), radix);
@@ -349,6 +346,7 @@ public final class UnsignedBytes {
        *
        * @return a sun.misc.Unsafe
        */
+      @SuppressWarnings("removal") // b/318391980
       private static sun.misc.Unsafe getUnsafe() {
         try {
           return sun.misc.Unsafe.getUnsafe();

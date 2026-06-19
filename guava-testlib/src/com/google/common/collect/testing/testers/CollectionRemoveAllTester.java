@@ -29,6 +29,7 @@ import com.google.common.collect.testing.MinimalCollection;
 import com.google.common.collect.testing.WrongType;
 import com.google.common.collect.testing.features.CollectionFeature;
 import com.google.common.collect.testing.features.CollectionSize;
+import java.util.AbstractSet;
 import java.util.Collections;
 import java.util.ConcurrentModificationException;
 import java.util.Iterator;
@@ -41,7 +42,6 @@ import org.junit.Ignore;
  * @author George van den Driessche
  * @author Chris Povirk
  */
-@SuppressWarnings("unchecked") // too many "unchecked generic array creations"
 @GwtCompatible
 @Ignore // Affects only Android test runner, which respects JUnit 4 annotations on JUnit 3 tests.
 public class CollectionRemoveAllTester<E> extends AbstractCollectionTester<E> {
@@ -92,7 +92,7 @@ public class CollectionRemoveAllTester<E> extends AbstractCollectionTester<E> {
     }
   }
 
-  /** Trigger the {@code other.size() >= this.size()} case in {@link AbstractSet#removeAll()}. */
+  /** Trigger the {@code other.size() >= this.size()} case in {@link AbstractSet#removeAll}. */
   @CollectionFeature.Require(SUPPORTS_REMOVE)
   @CollectionSize.Require(absent = ZERO)
   public void testRemoveAll_somePresentLargeCollectionToRemove() {

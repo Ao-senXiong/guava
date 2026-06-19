@@ -17,6 +17,7 @@ package com.google.common.io;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.annotations.GwtIncompatible;
+import com.google.common.annotations.J2ktIncompatible;
 import com.google.common.base.Preconditions;
 import java.io.IOException;
 import java.io.Reader;
@@ -27,7 +28,6 @@ import org.checkerframework.checker.index.qual.IndexOrHigh;
 import org.checkerframework.checker.index.qual.LTEqLengthOf;
 import org.checkerframework.checker.index.qual.LTLengthOf;
 import org.checkerframework.checker.index.qual.NonNegative;
-import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * A {@link Reader} that concatenates multiple readers.
@@ -35,6 +35,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  * @author Bin Zhu
  * @since 1.0
  */
+@J2ktIncompatible
 @GwtIncompatible
 @ElementTypesAreNonnullByDefault
 class MultiReader extends Reader {

@@ -24,8 +24,8 @@ import static java.lang.Double.NaN;
 import static java.lang.Double.doubleToLongBits;
 import static java.lang.Double.isNaN;
 
-import com.google.common.annotations.Beta;
 import com.google.common.annotations.GwtIncompatible;
+import com.google.common.annotations.J2ktIncompatible;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 import java.io.Serializable;
@@ -37,7 +37,6 @@ import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 import javax.annotation.CheckForNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.checker.signedness.qual.UnknownSignedness;
 import org.checkerframework.common.value.qual.MinLen;
 
@@ -58,14 +57,14 @@ import org.checkerframework.common.value.qual.MinLen;
  * <p>Static convenience methods called {@code meanOf} are also provided for users who wish to
  * calculate <i>only</i> the mean.
  *
- * <p><b>Java 8 users:</b> If you are not using any of the variance statistics, you may wish to use
+ * <p><b>Java 8+ users:</b> If you are not using any of the variance statistics, you may wish to use
  * built-in JDK libraries instead of this class.
  *
  * @author Pete Gillin
  * @author Kevin Bourrillion
  * @since 20.0
  */
-@Beta
+@J2ktIncompatible
 @GwtIncompatible
 @ElementTypesAreNonnullByDefault
 public final class Stats implements Serializable {
@@ -129,9 +128,9 @@ public final class Stats implements Serializable {
    * @param values a series of values
    */
   public static Stats of(double... values) {
-    StatsAccumulator acummulator = new StatsAccumulator();
-    acummulator.addAll(values);
-    return acummulator.snapshot();
+    StatsAccumulator accumulator = new StatsAccumulator();
+    accumulator.addAll(values);
+    return accumulator.snapshot();
   }
 
   /**
@@ -140,9 +139,9 @@ public final class Stats implements Serializable {
    * @param values a series of values
    */
   public static Stats of(int... values) {
-    StatsAccumulator acummulator = new StatsAccumulator();
-    acummulator.addAll(values);
-    return acummulator.snapshot();
+    StatsAccumulator accumulator = new StatsAccumulator();
+    accumulator.addAll(values);
+    return accumulator.snapshot();
   }
 
   /**
@@ -152,9 +151,9 @@ public final class Stats implements Serializable {
    *     cause loss of precision for longs of magnitude over 2^53 (slightly over 9e15))
    */
   public static Stats of(long... values) {
-    StatsAccumulator acummulator = new StatsAccumulator();
-    acummulator.addAll(values);
-    return acummulator.snapshot();
+    StatsAccumulator accumulator = new StatsAccumulator();
+    accumulator.addAll(values);
+    return accumulator.snapshot();
   }
 
   /**
