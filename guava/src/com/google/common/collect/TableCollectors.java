@@ -83,17 +83,17 @@ final class TableCollectors {
   }
 
   static <
-          T extends @Nullable @Readonly Object,
-          R extends @Nullable @Immutable Object,
-          C extends @Nullable @Immutable Object,
-          V extends @Nullable @Readonly Object,
+          T extends @Nullable Object,
+          R extends @Nullable Object,
+          C extends @Nullable Object,
+          V,
           I extends Table<R, C, V>>
       Collector<T, ?, I> toTable(
           java.util.function.Function<? super T, ? extends R> rowFunction,
           java.util.function.Function<? super T, ? extends C> columnFunction,
           java.util.function.Function<? super T, ? extends V> valueFunction,
           java.util.function.Supplier<I> tableSupplier) {
-    return toTable(
+    return TableCollectors.<T, R, C, V, I>toTable(
         rowFunction,
         columnFunction,
         valueFunction,
@@ -104,10 +104,10 @@ final class TableCollectors {
   }
 
   static <
-          T extends @Nullable @Readonly Object,
-          R extends @Nullable @Immutable Object,
-          C extends @Nullable @Immutable Object,
-          V extends @Nullable @Readonly Object,
+          T extends @Nullable Object,
+          R extends @Nullable Object,
+          C extends @Nullable Object,
+          V,
           I extends Table<R, C, V>>
       Collector<T, ?, I> toTable(
           java.util.function.Function<? super T, ? extends R> rowFunction,
@@ -199,14 +199,12 @@ final class TableCollectors {
     }
   }
 
-  private static <
-          R extends @Nullable @Immutable Object, C extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object>
-      void mergeTables(
-              Table<R, C, V> table,
-          @ParametricNullness R row,
-          @ParametricNullness C column,
-          @ParametricNullness V value,
-          BinaryOperator<V> mergeFunction) {
+  private static <R extends @Nullable Object, C extends @Nullable Object, V> void mergeTables(
+      Table<R, C, V> table,
+      @ParametricNullness R row,
+      @ParametricNullness C column,
+      V value,
+      BinaryOperator<V> mergeFunction) {
     checkNotNull(value);
     V oldValue = table.get(row, column);
     if (oldValue == null) {

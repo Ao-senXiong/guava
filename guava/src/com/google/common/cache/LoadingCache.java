@@ -19,6 +19,7 @@ import com.google.common.base.Function;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.util.concurrent.ExecutionError;
 import com.google.common.util.concurrent.UncheckedExecutionException;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
 
@@ -76,7 +77,8 @@ public interface LoadingCache<K extends @Immutable Object, V> extends Cache<K, V
    *     value
    * @throws ExecutionError if an error was thrown while loading the value
    */
-  V get(@Readonly LoadingCache<K, V> this, K key) throws ExecutionException;
+  @CanIgnoreReturnValue // TODO(b/27479612): consider removing this?
+  V get(K key) throws ExecutionException;
 
   /**
    * Returns the value associated with {@code key} in this cache, first loading that value if
@@ -102,7 +104,8 @@ public interface LoadingCache<K extends @Immutable Object, V> extends Cache<K, V
    *     explained in the last paragraph above, this should be an unchecked exception only.)
    * @throws ExecutionError if an error was thrown while loading the value
    */
-  V getUnchecked(@Readonly LoadingCache<K, V> this, K key);
+  @CanIgnoreReturnValue // TODO(b/27479612): consider removing this?
+  V getUnchecked(K key);
 
   /**
    * Returns a map of the values associated with {@code keys}, creating or retrieving those values
@@ -128,7 +131,8 @@ public interface LoadingCache<K extends @Immutable Object, V> extends Cache<K, V
    * @throws ExecutionError if an error was thrown while loading the values
    * @since 11.0
    */
-  ImmutableMap<K, V> getAll(@Readonly LoadingCache<K, V> this, @Readonly Iterable<? extends K> keys) throws ExecutionException;
+  @CanIgnoreReturnValue // TODO(b/27479612): consider removing this
+  ImmutableMap<K, V> getAll(Iterable<? extends K> keys) throws ExecutionException;
 
   /**
    * @deprecated Provided to satisfy the {@code Function} interface; use {@link #get} or {@link

@@ -49,10 +49,13 @@ import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.SettableFuture;
 import com.google.common.util.concurrent.UncheckedExecutionException;
 import com.google.common.util.concurrent.Uninterruptibles;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.errorprone.annotations.concurrent.GuardedBy;
+import com.google.errorprone.annotations.concurrent.LazyInit;
 import com.google.j2objc.annotations.RetainedWith;
 import com.google.j2objc.annotations.Weak;
 import java.io.IOException;
+import java.io.InvalidObjectException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.lang.ref.Reference;
@@ -67,7 +70,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.Queue;
 import java.util.Set;
@@ -85,6 +87,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.annotation.CheckForNull;
 import org.checkerframework.checker.index.qual.NonNegative;
 import org.checkerframework.checker.nullness.qual.KeyFor;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -242,13 +245,13 @@ class LocalCache<K extends @Immutable Object, V> extends AbstractMap<K, V> imple
   final StatsCounter globalStatsCounter;
 
   /** The default cache loader to use on loading operations. */
-  final @Nullable CacheLoader<? super K, V> defaultLoader;
+  @CheckForNull final CacheLoader<? super K, V> defaultLoader;
 
   /**
    * Creates a new, empty map with the specified strategy, initial capacity and concurrency level.
    */
   LocalCache(
-      CacheBuilder<? super K, ? super V> builder, @Nullable CacheLoader<? super K, V> loader) {
+      CacheBuilder<? super K, ? super V> builder, @CheckForNull CacheLoader<? super K, V> loader) {
     concurrencyLevel = Math.min(builder.getConcurrencyLevel(), MAX_SEGMENTS);
 
     keyStrength = builder.getKeyStrength();
@@ -266,8 +269,8 @@ class LocalCache<K extends @Immutable Object, V> extends AbstractMap<K, V> imple
     removalListener = builder.getRemovalListener();
     removalNotificationQueue =
         (removalListener == NullListener.INSTANCE)
-            ? LocalCache.<RemovalNotification<K, V>>discardingQueue()
-            : new ConcurrentLinkedQueue<RemovalNotification<K, V>>();
+            ? LocalCache.discardingQueue()
+            : new ConcurrentLinkedQueue<>();
 
     ticker = builder.getTicker(recordsTime());
     entryFactory = EntryFactory.getFactory(keyStrength, usesAccessEntries(), usesWriteEntries());
@@ -286,7 +289,8 @@ class LocalCache<K extends @Immutable Object, V> extends AbstractMap<K, V> imple
     // will result in random eviction behavior.
     int segmentShift = 0;
     int segmentCount = 1;
-    while (segmentCount < concurrencyLevel && (!evictsBySize() || segmentCount * 20 <= maxWeight)) {
+    while (segmentCount < concurrencyLevel
+        && (!evictsBySize() || segmentCount * 20L <= maxWeight)) {
       ++segmentShift;
       segmentCount <<= 1;
     }
@@ -451,52 +455,61 @@ class LocalCache<K extends @Immutable Object, V> extends AbstractMap<K, V> imple
   enum EntryFactory {
     STRONG {
       @Override
-      <K extends @Immutable Object, V> ReferenceEntry<K, V> newEntry(
-          Segment<K, V> segment, K key, int hash, @Nullable ReferenceEntry<K, V> next) {
+      <K, V> ReferenceEntry<K, V> newEntry(
+          Segment<K, V> segment, K key, int hash, @CheckForNull ReferenceEntry<K, V> next) {
         return new StrongEntry<>(key, hash, next);
       }
     },
     STRONG_ACCESS {
       @Override
-      <K extends @Immutable Object, V> ReferenceEntry<K, V> newEntry(
-          Segment<K, V> segment, K key, int hash, @Nullable ReferenceEntry<K, V> next) {
+      <K, V> ReferenceEntry<K, V> newEntry(
+          Segment<K, V> segment, K key, int hash, @CheckForNull ReferenceEntry<K, V> next) {
         return new StrongAccessEntry<>(key, hash, next);
       }
 
       @Override
-      <K extends @Immutable Object, V> ReferenceEntry<K, V> copyEntry(
-          Segment<K, V> segment, ReferenceEntry<K, V> original, ReferenceEntry<K, V> newNext) {
-        ReferenceEntry<K, V> newEntry = super.copyEntry(segment, original, newNext);
+      <K, V> ReferenceEntry<K, V> copyEntry(
+          Segment<K, V> segment,
+          ReferenceEntry<K, V> original,
+          ReferenceEntry<K, V> newNext,
+          K key) {
+        ReferenceEntry<K, V> newEntry = super.copyEntry(segment, original, newNext, key);
         copyAccessEntry(original, newEntry);
         return newEntry;
       }
     },
     STRONG_WRITE {
       @Override
-      <K extends @Immutable Object, V> ReferenceEntry<K, V> newEntry(
-          Segment<K, V> segment, K key, int hash, @Nullable ReferenceEntry<K, V> next) {
+      <K, V> ReferenceEntry<K, V> newEntry(
+          Segment<K, V> segment, K key, int hash, @CheckForNull ReferenceEntry<K, V> next) {
         return new StrongWriteEntry<>(key, hash, next);
       }
 
       @Override
-      <K extends @Immutable Object, V> ReferenceEntry<K, V> copyEntry(
-          Segment<K, V> segment, ReferenceEntry<K, V> original, ReferenceEntry<K, V> newNext) {
-        ReferenceEntry<K, V> newEntry = super.copyEntry(segment, original, newNext);
+      <K, V> ReferenceEntry<K, V> copyEntry(
+          Segment<K, V> segment,
+          ReferenceEntry<K, V> original,
+          ReferenceEntry<K, V> newNext,
+          K key) {
+        ReferenceEntry<K, V> newEntry = super.copyEntry(segment, original, newNext, key);
         copyWriteEntry(original, newEntry);
         return newEntry;
       }
     },
     STRONG_ACCESS_WRITE {
       @Override
-      <K extends @Immutable Object, V> ReferenceEntry<K, V> newEntry(
-          Segment<K, V> segment, K key, int hash, @Nullable ReferenceEntry<K, V> next) {
+      <K, V> ReferenceEntry<K, V> newEntry(
+          Segment<K, V> segment, K key, int hash, @CheckForNull ReferenceEntry<K, V> next) {
         return new StrongAccessWriteEntry<>(key, hash, next);
       }
 
       @Override
-      <K extends @Immutable Object, V> ReferenceEntry<K, V> copyEntry(
-          Segment<K, V> segment, ReferenceEntry<K, V> original, ReferenceEntry<K, V> newNext) {
-        ReferenceEntry<K, V> newEntry = super.copyEntry(segment, original, newNext);
+      <K, V> ReferenceEntry<K, V> copyEntry(
+          Segment<K, V> segment,
+          ReferenceEntry<K, V> original,
+          ReferenceEntry<K, V> newNext,
+          K key) {
+        ReferenceEntry<K, V> newEntry = super.copyEntry(segment, original, newNext, key);
         copyAccessEntry(original, newEntry);
         copyWriteEntry(original, newEntry);
         return newEntry;
@@ -504,52 +517,61 @@ class LocalCache<K extends @Immutable Object, V> extends AbstractMap<K, V> imple
     },
     WEAK {
       @Override
-      <K extends @Immutable Object, V> ReferenceEntry<K, V> newEntry(
-          Segment<K, V> segment, K key, int hash, @Nullable ReferenceEntry<K, V> next) {
+      <K, V> ReferenceEntry<K, V> newEntry(
+          Segment<K, V> segment, K key, int hash, @CheckForNull ReferenceEntry<K, V> next) {
         return new WeakEntry<>(segment.keyReferenceQueue, key, hash, next);
       }
     },
     WEAK_ACCESS {
       @Override
-      <K extends @Immutable Object, V> ReferenceEntry<K, V> newEntry(
-          Segment<K, V> segment, K key, int hash, @Nullable ReferenceEntry<K, V> next) {
+      <K, V> ReferenceEntry<K, V> newEntry(
+          Segment<K, V> segment, K key, int hash, @CheckForNull ReferenceEntry<K, V> next) {
         return new WeakAccessEntry<>(segment.keyReferenceQueue, key, hash, next);
       }
 
       @Override
-      <K extends @Immutable Object, V> ReferenceEntry<K, V> copyEntry(
-          Segment<K, V> segment, ReferenceEntry<K, V> original, ReferenceEntry<K, V> newNext) {
-        ReferenceEntry<K, V> newEntry = super.copyEntry(segment, original, newNext);
+      <K, V> ReferenceEntry<K, V> copyEntry(
+          Segment<K, V> segment,
+          ReferenceEntry<K, V> original,
+          ReferenceEntry<K, V> newNext,
+          K key) {
+        ReferenceEntry<K, V> newEntry = super.copyEntry(segment, original, newNext, key);
         copyAccessEntry(original, newEntry);
         return newEntry;
       }
     },
     WEAK_WRITE {
       @Override
-      <K extends @Immutable Object, V> ReferenceEntry<K, V> newEntry(
-          Segment<K, V> segment, K key, int hash, @Nullable ReferenceEntry<K, V> next) {
+      <K, V> ReferenceEntry<K, V> newEntry(
+          Segment<K, V> segment, K key, int hash, @CheckForNull ReferenceEntry<K, V> next) {
         return new WeakWriteEntry<>(segment.keyReferenceQueue, key, hash, next);
       }
 
       @Override
-      <K extends @Immutable Object, V> ReferenceEntry<K, V> copyEntry(
-          Segment<K, V> segment, ReferenceEntry<K, V> original, ReferenceEntry<K, V> newNext) {
-        ReferenceEntry<K, V> newEntry = super.copyEntry(segment, original, newNext);
+      <K, V> ReferenceEntry<K, V> copyEntry(
+          Segment<K, V> segment,
+          ReferenceEntry<K, V> original,
+          ReferenceEntry<K, V> newNext,
+          K key) {
+        ReferenceEntry<K, V> newEntry = super.copyEntry(segment, original, newNext, key);
         copyWriteEntry(original, newEntry);
         return newEntry;
       }
     },
     WEAK_ACCESS_WRITE {
       @Override
-      <K extends @Immutable Object, V> ReferenceEntry<K, V> newEntry(
-          Segment<K, V> segment, K key, int hash, @Nullable ReferenceEntry<K, V> next) {
+      <K, V> ReferenceEntry<K, V> newEntry(
+          Segment<K, V> segment, K key, int hash, @CheckForNull ReferenceEntry<K, V> next) {
         return new WeakAccessWriteEntry<>(segment.keyReferenceQueue, key, hash, next);
       }
 
       @Override
-      <K extends @Immutable Object, V> ReferenceEntry<K, V> copyEntry(
-          Segment<K, V> segment, ReferenceEntry<K, V> original, ReferenceEntry<K, V> newNext) {
-        ReferenceEntry<K, V> newEntry = super.copyEntry(segment, original, newNext);
+      <K, V> ReferenceEntry<K, V> copyEntry(
+          Segment<K, V> segment,
+          ReferenceEntry<K, V> original,
+          ReferenceEntry<K, V> newNext,
+          K key) {
+        ReferenceEntry<K, V> newEntry = super.copyEntry(segment, original, newNext, key);
         copyAccessEntry(original, newEntry);
         copyWriteEntry(original, newEntry);
         return newEntry;
@@ -591,19 +613,24 @@ class LocalCache<K extends @Immutable Object, V> extends AbstractMap<K, V> imple
      * @param hash of the key
      * @param next entry in the same bucket
      */
-    abstract <K extends @Immutable Object, V> ReferenceEntry<K, V> newEntry(
-        Segment<K, V> segment, K key, int hash, @Nullable ReferenceEntry<K, V> next);
+    abstract <K, V> ReferenceEntry<K, V> newEntry(
+        Segment<K, V> segment, K key, int hash, @CheckForNull ReferenceEntry<K, V> next);
 
     /**
      * Copies an entry, assigning it a new {@code next} entry.
      *
-     * @param original the entry to copy
+     * @param original the entry to copy. But avoid calling {@code getKey} on it: Instead, use the
+     *     {@code key} parameter. That way, we prevent the key from being garbage collected in the
+     *     case of weak keys. If we create a new entry with a key that is null at construction time,
+     *     we're not sure if entry will necessarily ever be garbage collected.
      * @param newNext entry in the same bucket
+     * @param key the key to copy from the original entry to the new one. Use this in preference to
+     *     {@code original.getKey()}.
      */
     // Guarded By Segment.this
-    <K extends @Immutable Object, V> ReferenceEntry<K, V> copyEntry(
-        Segment<K, V> segment, ReferenceEntry<K, V> original, ReferenceEntry<K, V> newNext) {
-      return newEntry(segment, original.getKey(), original.getHash(), newNext);
+    <K, V> ReferenceEntry<K, V> copyEntry(
+        Segment<K, V> segment, ReferenceEntry<K, V> original, ReferenceEntry<K, V> newNext, K key) {
+      return newEntry(segment, key, original.getHash(), newNext);
     }
 
     // Guarded By Segment.this
@@ -634,7 +661,7 @@ class LocalCache<K extends @Immutable Object, V> extends AbstractMap<K, V> imple
   /** A reference to a value. */
   interface ValueReference<K extends @Immutable Object, V> {
     /** Returns the value. Does not block or throw exceptions. */
-    @Nullable
+    @CheckForNull
     V get();
 
     /**
@@ -653,7 +680,7 @@ class LocalCache<K extends @Immutable Object, V> extends AbstractMap<K, V> imple
      * Returns the entry associated with this value reference, or {@code null} if this value
      * reference is independent of any entry.
      */
-    @Nullable
+    @CheckForNull
     ReferenceEntry<K, V> getEntry();
 
     /**
@@ -662,17 +689,17 @@ class LocalCache<K extends @Immutable Object, V> extends AbstractMap<K, V> imple
      * <p>{@code value} may be null only for a loading reference.
      */
     ValueReference<K, V> copyFor(
-        ReferenceQueue<V> queue, @Nullable V value, ReferenceEntry<K, V> entry);
+        ReferenceQueue<V> queue, @CheckForNull V value, ReferenceEntry<K, V> entry);
 
     /**
      * Notify pending loads that a new value was set. This is only relevant to loading value
      * references.
      */
-    void notifyNewValue(@Nullable V newValue);
+    void notifyNewValue(@CheckForNull V newValue);
 
     /**
-     * Returns true if a new value is currently loading, regardless of whether or not there is an
-     * existing value. It is assumed that the return value of this method is constant for any given
+     * Returns true if a new value is currently loading, regardless of whether there is an existing
+     * value. It is assumed that the return value of this method is constant for any given
      * ValueReference instance.
      */
     boolean isLoading();
@@ -688,8 +715,9 @@ class LocalCache<K extends @Immutable Object, V> extends AbstractMap<K, V> imple
   }
 
   /** Placeholder. Indicates that the value hasn't been set yet. */
-  static final ValueReference<@Immutable Object, @Readonly Object> UNSET =
-      new ValueReference<@Immutable Object, @Readonly Object>() {
+  static final ValueReference<Object, Object> UNSET =
+      new ValueReference<Object, Object>() {
+        @CheckForNull
         @Override
         public Object get() {
           return null;
@@ -700,6 +728,7 @@ class LocalCache<K extends @Immutable Object, V> extends AbstractMap<K, V> imple
           return 0;
         }
 
+        @CheckForNull
         @Override
         public ReferenceEntry<Object, Object> getEntry() {
           return null;
@@ -708,7 +737,7 @@ class LocalCache<K extends @Immutable Object, V> extends AbstractMap<K, V> imple
         @Override
         public ValueReference<Object, Object> copyFor(
             ReferenceQueue<Object> queue,
-            @Nullable Object value,
+            @CheckForNull Object value,
             ReferenceEntry<Object, Object> entry) {
           return this;
         }
@@ -723,6 +752,7 @@ class LocalCache<K extends @Immutable Object, V> extends AbstractMap<K, V> imple
           return false;
         }
 
+        @CheckForNull
         @Override
         public Object waitForValue() {
           return null;
@@ -741,6 +771,7 @@ class LocalCache<K extends @Immutable Object, V> extends AbstractMap<K, V> imple
   private enum NullEntry implements ReferenceEntry<Object, Object> {
     INSTANCE;
 
+    @CheckForNull
     @Override
     public ValueReference<Object, Object> getValueReference() {
       return null;
@@ -749,6 +780,7 @@ class LocalCache<K extends @Immutable Object, V> extends AbstractMap<K, V> imple
     @Override
     public void setValueReference(ValueReference<Object, Object> valueReference) {}
 
+    @CheckForNull
     @Override
     public ReferenceEntry<Object, Object> getNext() {
       return null;
@@ -759,6 +791,7 @@ class LocalCache<K extends @Immutable Object, V> extends AbstractMap<K, V> imple
       return 0;
     }
 
+    @CheckForNull
     @Override
     public Object getKey() {
       return null;
@@ -912,11 +945,13 @@ class LocalCache<K extends @Immutable Object, V> extends AbstractMap<K, V> imple
           return true;
         }
 
+        @CheckForNull
         @Override
         public Object peek() {
           return null;
         }
 
+        @CheckForNull
         @Override
         public Object poll() {
           return null;
@@ -951,7 +986,7 @@ class LocalCache<K extends @Immutable Object, V> extends AbstractMap<K, V> imple
   static class StrongEntry<K, V> extends AbstractReferenceEntry<K, V> {
     final K key;
 
-    StrongEntry(K key, int hash, @Nullable ReferenceEntry<K, V> next) {
+    StrongEntry(K key, int hash, @CheckForNull ReferenceEntry<K, V> next) {
       this.key = key;
       this.hash = hash;
       this.next = next;
@@ -965,7 +1000,7 @@ class LocalCache<K extends @Immutable Object, V> extends AbstractMap<K, V> imple
     // The code below is exactly the same for each entry type.
 
     final int hash;
-    final @Nullable ReferenceEntry<K, V> next;
+    @CheckForNull final ReferenceEntry<K, V> next;
     volatile ValueReference<K, V> valueReference = unset();
 
     @Override
@@ -990,7 +1025,7 @@ class LocalCache<K extends @Immutable Object, V> extends AbstractMap<K, V> imple
   }
 
   static final class StrongAccessEntry<K, V> extends StrongEntry<K, V> {
-    StrongAccessEntry(K key, int hash, @Nullable ReferenceEntry<K, V> next) {
+    StrongAccessEntry(K key, int hash, @CheckForNull ReferenceEntry<K, V> next) {
       super(key, hash, next);
     }
 
@@ -1036,7 +1071,7 @@ class LocalCache<K extends @Immutable Object, V> extends AbstractMap<K, V> imple
   }
 
   static final class StrongWriteEntry<K, V> extends StrongEntry<K, V> {
-    StrongWriteEntry(K key, int hash, @Nullable ReferenceEntry<K, V> next) {
+    StrongWriteEntry(K key, int hash, @CheckForNull ReferenceEntry<K, V> next) {
       super(key, hash, next);
     }
 
@@ -1082,7 +1117,7 @@ class LocalCache<K extends @Immutable Object, V> extends AbstractMap<K, V> imple
   }
 
   static final class StrongAccessWriteEntry<K, V> extends StrongEntry<K, V> {
-    StrongAccessWriteEntry(K key, int hash, @Nullable ReferenceEntry<K, V> next) {
+    StrongAccessWriteEntry(K key, int hash, @CheckForNull ReferenceEntry<K, V> next) {
       super(key, hash, next);
     }
 
@@ -1169,7 +1204,7 @@ class LocalCache<K extends @Immutable Object, V> extends AbstractMap<K, V> imple
 
   /** Used for weakly-referenced keys. */
   static class WeakEntry<K, V> extends WeakReference<K> implements ReferenceEntry<K, V> {
-    WeakEntry(ReferenceQueue<K> queue, K key, int hash, @Nullable ReferenceEntry<K, V> next) {
+    WeakEntry(ReferenceQueue<K> queue, K key, int hash, @CheckForNull ReferenceEntry<K, V> next) {
       super(key, queue);
       this.hash = hash;
       this.next = next;
@@ -1252,7 +1287,7 @@ class LocalCache<K extends @Immutable Object, V> extends AbstractMap<K, V> imple
     // The code below is exactly the same for each entry type.
 
     final int hash;
-    final @Nullable ReferenceEntry<K, V> next;
+    @CheckForNull final ReferenceEntry<K, V> next;
     volatile ValueReference<K, V> valueReference = unset();
 
     @Override
@@ -1277,7 +1312,8 @@ class LocalCache<K extends @Immutable Object, V> extends AbstractMap<K, V> imple
   }
 
   static final class WeakAccessEntry<K, V> extends WeakEntry<K, V> {
-    WeakAccessEntry(ReferenceQueue<K> queue, K key, int hash, @Nullable ReferenceEntry<K, V> next) {
+    WeakAccessEntry(
+        ReferenceQueue<K> queue, K key, int hash, @CheckForNull ReferenceEntry<K, V> next) {
       super(queue, key, hash, next);
     }
 
@@ -1323,7 +1359,8 @@ class LocalCache<K extends @Immutable Object, V> extends AbstractMap<K, V> imple
   }
 
   static final class WeakWriteEntry<K, V> extends WeakEntry<K, V> {
-    WeakWriteEntry(ReferenceQueue<K> queue, K key, int hash, @Nullable ReferenceEntry<K, V> next) {
+    WeakWriteEntry(
+        ReferenceQueue<K> queue, K key, int hash, @CheckForNull ReferenceEntry<K, V> next) {
       super(queue, key, hash, next);
     }
 
@@ -1370,7 +1407,7 @@ class LocalCache<K extends @Immutable Object, V> extends AbstractMap<K, V> imple
 
   static final class WeakAccessWriteEntry<K, V> extends WeakEntry<K, V> {
     WeakAccessWriteEntry(
-        ReferenceQueue<K> queue, K key, int hash, @Nullable ReferenceEntry<K, V> next) {
+        ReferenceQueue<K> queue, K key, int hash, @CheckForNull ReferenceEntry<K, V> next) {
       super(queue, key, hash, next);
     }
 
@@ -1674,7 +1711,7 @@ class LocalCache<K extends @Immutable Object, V> extends AbstractMap<K, V> imple
    * This method is a convenience for testing. Code should call {@link Segment#newEntry} directly.
    */
   @VisibleForTesting
-  ReferenceEntry<K, V> newEntry(K key, int hash, @Nullable ReferenceEntry<K, V> next) {
+  ReferenceEntry<K, V> newEntry(K key, int hash, @CheckForNull ReferenceEntry<K, V> next) {
     Segment<K, V> segment = segmentFor(hash);
     segment.lock();
     try {
@@ -1705,7 +1742,7 @@ class LocalCache<K extends @Immutable Object, V> extends AbstractMap<K, V> imple
     return valueStrength.referenceValue(segmentFor(hash), entry, checkNotNull(value), weight);
   }
 
-  int hash(@Nullable Object key) {
+  int hash(@CheckForNull Object key) {
     int h = keyEquivalence.hash(key);
     return rehash(h);
   }
@@ -1748,11 +1785,11 @@ class LocalCache<K extends @Immutable Object, V> extends AbstractMap<K, V> imple
 
   /**
    * Gets the value from an entry. Returns null if the entry is invalid, partially-collected,
-   * loading, or expired. Unlike {@link Segment#getLiveValue} this method does not attempt to
-   * cleanup stale entries. As such it should only be called outside of a segment context, such as
-   * during iteration.
+   * loading, or expired. Unlike {@link Segment#getLiveValue} this method does not attempt to clean
+   * up stale entries. As such it should only be called outside a segment context, such as during
+   * iteration.
    */
-  @Nullable
+  @CheckForNull
   V getLiveValue(ReferenceEntry<K, V> entry, long now) {
     if (entry.getKey() == null) {
       return null;
@@ -1828,7 +1865,7 @@ class LocalCache<K extends @Immutable Object, V> extends AbstractMap<K, V> imple
 
   @SuppressWarnings("unchecked")
   final Segment<K, V>[] newSegmentArray(int ssize) {
-    return new Segment[ssize];
+    return (Segment<K, V>[]) new Segment<?, ?>[ssize];
   }
 
   // Inner Classes
@@ -1897,7 +1934,7 @@ class LocalCache<K extends @Immutable Object, V> extends AbstractMap<K, V> imple
     int threshold;
 
     /** The per-segment table. */
-    volatile @Nullable AtomicReferenceArray<ReferenceEntry<K, V>> table;
+    @CheckForNull volatile AtomicReferenceArray<ReferenceEntry<K, V>> table;
 
     /** The maximum weight of this segment. UNSET_INT if there is no maximum. */
     final long maxSegmentWeight;
@@ -1906,13 +1943,13 @@ class LocalCache<K extends @Immutable Object, V> extends AbstractMap<K, V> imple
      * The key reference queue contains entries whose keys have been garbage collected, and which
      * need to be cleaned up internally.
      */
-    final @Nullable ReferenceQueue<K> keyReferenceQueue;
+    @CheckForNull final ReferenceQueue<K> keyReferenceQueue;
 
     /**
      * The value reference queue contains value references whose values have been garbage collected,
      * and which need to be cleaned up internally.
      */
-    final @Nullable ReferenceQueue<V> valueReferenceQueue;
+    @CheckForNull final ReferenceQueue<V> valueReferenceQueue;
 
     /**
      * The recency queue is used to record which entries were accessed for updating the access
@@ -1954,24 +1991,16 @@ class LocalCache<K extends @Immutable Object, V> extends AbstractMap<K, V> imple
       this.statsCounter = checkNotNull(statsCounter);
       initTable(newEntryArray(initialCapacity));
 
-      keyReferenceQueue = map.usesKeyReferences() ? new ReferenceQueue<K>() : null;
+      keyReferenceQueue = map.usesKeyReferences() ? new ReferenceQueue<>() : null;
 
-      valueReferenceQueue = map.usesValueReferences() ? new ReferenceQueue<V>() : null;
+      valueReferenceQueue = map.usesValueReferences() ? new ReferenceQueue<>() : null;
 
       recencyQueue =
-          map.usesAccessQueue()
-              ? new ConcurrentLinkedQueue<ReferenceEntry<K, V>>()
-              : LocalCache.<ReferenceEntry<K, V>>discardingQueue();
+          map.usesAccessQueue() ? new ConcurrentLinkedQueue<>() : LocalCache.discardingQueue();
 
-      writeQueue =
-          map.usesWriteQueue()
-              ? new WriteQueue<K, V>()
-              : LocalCache.<ReferenceEntry<K, V>>discardingQueue();
+      writeQueue = map.usesWriteQueue() ? new WriteQueue<>() : LocalCache.discardingQueue();
 
-      accessQueue =
-          map.usesAccessQueue()
-              ? new AccessQueue<K, V>()
-              : LocalCache.<ReferenceEntry<K, V>>discardingQueue();
+      accessQueue = map.usesAccessQueue() ? new AccessQueue<>() : LocalCache.discardingQueue();
     }
 
     AtomicReferenceArray<ReferenceEntry<K, V>> newEntryArray(int size) {
@@ -1988,7 +2017,7 @@ class LocalCache<K extends @Immutable Object, V> extends AbstractMap<K, V> imple
     }
 
     @GuardedBy("this")
-    ReferenceEntry<K, V> newEntry(K key, int hash, @Nullable ReferenceEntry<K, V> next) {
+    ReferenceEntry<K, V> newEntry(K key, int hash, @CheckForNull ReferenceEntry<K, V> next) {
       return map.entryFactory.newEntry(this, checkNotNull(key), hash, next);
     }
 
@@ -1996,9 +2025,11 @@ class LocalCache<K extends @Immutable Object, V> extends AbstractMap<K, V> imple
      * Copies {@code original} into a new entry chained to {@code newNext}. Returns the new entry,
      * or {@code null} if {@code original} was already garbage collected.
      */
+    @CheckForNull
     @GuardedBy("this")
     ReferenceEntry<K, V> copyEntry(ReferenceEntry<K, V> original, ReferenceEntry<K, V> newNext) {
-      if (original.getKey() == null) {
+      K key = original.getKey();
+      if (key == null) {
         // key collected
         return null;
       }
@@ -2010,7 +2041,7 @@ class LocalCache<K extends @Immutable Object, V> extends AbstractMap<K, V> imple
         return null;
       }
 
-      ReferenceEntry<K, V> newEntry = map.entryFactory.copyEntry(this, original, newNext);
+      ReferenceEntry<K, V> newEntry = map.entryFactory.copyEntry(this, original, newNext, key);
       newEntry.setValueReference(valueReference.copyFor(this.valueReferenceQueue, value, newEntry));
       return newEntry;
     }
@@ -2031,6 +2062,7 @@ class LocalCache<K extends @Immutable Object, V> extends AbstractMap<K, V> imple
 
     // loading
 
+    @CanIgnoreReturnValue
     V get(K key, int hash, CacheLoader<? super K, V> loader) throws ExecutionException {
       checkNotNull(key);
       checkNotNull(loader);
@@ -2068,7 +2100,7 @@ class LocalCache<K extends @Immutable Object, V> extends AbstractMap<K, V> imple
       }
     }
 
-    @Nullable
+    @CheckForNull
     V get(Object key, int hash) {
       try {
         if (count != 0) { // read-volatile
@@ -2197,7 +2229,11 @@ class LocalCache<K extends @Immutable Object, V> extends AbstractMap<K, V> imple
       }
     }
 
-    V compute(K key, int hash, BiFunction<? super K, ? super @Nullable V, ? extends V> function) {
+    @CheckForNull
+    V compute(
+        K key,
+        int hash,
+        BiFunction<? super K, ? super @Nullable V, ? extends @Nullable V> function) {
       ReferenceEntry<K, V> e;
       ValueReference<K, V> valueReference = null;
       ComputingValueReference<K, V> computingValueReference = null;
@@ -2222,7 +2258,7 @@ class LocalCache<K extends @Immutable Object, V> extends AbstractMap<K, V> imple
             valueReference = e.getValueReference();
             if (map.isExpired(e, now)) {
               // This is a duplicate check, as preWriteCleanup already purged expired
-              // entries, but let's accomodate an incorrect expiration queue.
+              // entries, but let's accommodate an incorrect expiration queue.
               enqueueNotification(
                   entryKey,
                   hash,
@@ -2298,15 +2334,12 @@ class LocalCache<K extends @Immutable Object, V> extends AbstractMap<K, V> imple
         CacheLoader<? super K, V> loader) {
       final ListenableFuture<V> loadingFuture = loadingValueReference.loadFuture(key, loader);
       loadingFuture.addListener(
-          new Runnable() {
-            @Override
-            public void run() {
-              try {
-                getAndRecordStats(key, hash, loadingValueReference, loadingFuture);
-              } catch (Throwable t) {
-                logger.log(Level.WARNING, "Exception thrown during refresh", t);
-                loadingValueReference.setException(t);
-              }
+          () -> {
+            try {
+              getAndRecordStats(key, hash, loadingValueReference, loadingFuture);
+            } catch (Throwable t) {
+              logger.log(Level.WARNING, "Exception thrown during refresh", t);
+              loadingValueReference.setException(t);
             }
           },
           directExecutor());
@@ -2314,6 +2347,7 @@ class LocalCache<K extends @Immutable Object, V> extends AbstractMap<K, V> imple
     }
 
     /** Waits uninterruptibly for {@code newValue} to be loaded, and then records loading stats. */
+    @CanIgnoreReturnValue
     V getAndRecordStats(
         K key,
         int hash,
@@ -2361,7 +2395,8 @@ class LocalCache<K extends @Immutable Object, V> extends AbstractMap<K, V> imple
      * {@code null} if another thread is performing the refresh or if an error occurs during
      * refresh.
      */
-    @Nullable
+    @CanIgnoreReturnValue
+    @CheckForNull
     V refresh(K key, int hash, CacheLoader<? super K, V> loader, boolean checkTime) {
       final LoadingValueReference<K, V> loadingValueReference =
           insertLoadingValueReference(key, hash, checkTime);
@@ -2384,7 +2419,7 @@ class LocalCache<K extends @Immutable Object, V> extends AbstractMap<K, V> imple
      * Returns a newly inserted {@code LoadingValueReference}, or null if the live value reference
      * is already loading.
      */
-    @Nullable
+    @CheckForNull
     LoadingValueReference<K, V> insertLoadingValueReference(
         final K key, final int hash, boolean checkTime) {
       ReferenceEntry<K, V> e = null;
@@ -2572,7 +2607,7 @@ class LocalCache<K extends @Immutable Object, V> extends AbstractMap<K, V> imple
         // An entry may be in the recency queue despite it being removed from
         // the map . This can occur when the entry was concurrently read while a
         // writer is removing it from the segment or after a clear has removed
-        // all of the segment's entries.
+        // all the segment's entries.
         if (accessQueue.contains(e)) {
           accessQueue.add(e);
         }
@@ -2614,7 +2649,7 @@ class LocalCache<K extends @Immutable Object, V> extends AbstractMap<K, V> imple
 
     @GuardedBy("this")
     void enqueueNotification(
-        @Nullable K key, int hash, @Nullable V value, int weight, RemovalCause cause) {
+        @CheckForNull K key, int hash, @CheckForNull V value, int weight, RemovalCause cause) {
       totalWeight -= weight;
       if (cause.wasEvicted()) {
         statsCounter.recordEviction();
@@ -2676,7 +2711,7 @@ class LocalCache<K extends @Immutable Object, V> extends AbstractMap<K, V> imple
 
     // Specialized implementations of map methods
 
-    @Nullable
+    @CheckForNull
     ReferenceEntry<K, V> getEntry(Object key, int hash) {
       for (ReferenceEntry<K, V> e = getFirst(hash); e != null; e = e.getNext()) {
         if (e.getHash() != hash) {
@@ -2697,7 +2732,7 @@ class LocalCache<K extends @Immutable Object, V> extends AbstractMap<K, V> imple
       return null;
     }
 
-    @Nullable
+    @CheckForNull
     ReferenceEntry<K, V> getLiveEntry(Object key, int hash, long now) {
       ReferenceEntry<K, V> e = getEntry(key, hash);
       if (e == null) {
@@ -2778,7 +2813,8 @@ class LocalCache<K extends @Immutable Object, V> extends AbstractMap<K, V> imple
       }
     }
 
-    @Nullable
+    @CanIgnoreReturnValue
+    @CheckForNull
     V put(K key, int hash, V value, boolean onlyIfAbsent) {
       lock();
       try {
@@ -2984,7 +3020,7 @@ class LocalCache<K extends @Immutable Object, V> extends AbstractMap<K, V> imple
       }
     }
 
-    @Nullable
+    @CheckForNull
     V replace(K key, int hash, V newValue) {
       lock();
       try {
@@ -3039,7 +3075,7 @@ class LocalCache<K extends @Immutable Object, V> extends AbstractMap<K, V> imple
       }
     }
 
-    @Nullable
+    @CheckForNull
     V remove(Object key, int hash) {
       lock();
       try {
@@ -3132,6 +3168,7 @@ class LocalCache<K extends @Immutable Object, V> extends AbstractMap<K, V> imple
       }
     }
 
+    @CanIgnoreReturnValue
     boolean storeLoadedValue(
         K key, int hash, LoadingValueReference<K, V> oldValueReference, V newValue) {
       lock();
@@ -3231,11 +3268,11 @@ class LocalCache<K extends @Immutable Object, V> extends AbstractMap<K, V> imple
     }
 
     @GuardedBy("this")
-    @Nullable
+    @CheckForNull
     ReferenceEntry<K, V> removeValueFromChain(
         ReferenceEntry<K, V> first,
         ReferenceEntry<K, V> entry,
-        @Nullable K key,
+        @CheckForNull K key,
         int hash,
         V value,
         ValueReference<K, V> valueReference,
@@ -3253,7 +3290,7 @@ class LocalCache<K extends @Immutable Object, V> extends AbstractMap<K, V> imple
     }
 
     @GuardedBy("this")
-    @Nullable
+    @CheckForNull
     ReferenceEntry<K, V> removeEntryFromChain(
         ReferenceEntry<K, V> first, ReferenceEntry<K, V> entry) {
       int newCount = count;
@@ -3284,6 +3321,7 @@ class LocalCache<K extends @Immutable Object, V> extends AbstractMap<K, V> imple
     }
 
     /** Removes an entry whose key has been garbage collected. */
+    @CanIgnoreReturnValue
     boolean reclaimKey(ReferenceEntry<K, V> entry, int hash) {
       lock();
       try {
@@ -3319,6 +3357,7 @@ class LocalCache<K extends @Immutable Object, V> extends AbstractMap<K, V> imple
     }
 
     /** Removes an entry whose value has been garbage collected. */
+    @CanIgnoreReturnValue
     boolean reclaimValue(K key, int hash, ValueReference<K, V> valueReference) {
       lock();
       try {
@@ -3356,12 +3395,13 @@ class LocalCache<K extends @Immutable Object, V> extends AbstractMap<K, V> imple
         return false;
       } finally {
         unlock();
-        if (!isHeldByCurrentThread()) { // don't cleanup inside of put
+        if (!isHeldByCurrentThread()) { // don't clean up inside of put
           postWriteCleanup();
         }
       }
     }
 
+    @CanIgnoreReturnValue
     boolean removeLoadingValue(K key, int hash, LoadingValueReference<K, V> valueReference) {
       lock();
       try {
@@ -3397,6 +3437,7 @@ class LocalCache<K extends @Immutable Object, V> extends AbstractMap<K, V> imple
 
     @VisibleForTesting
     @GuardedBy("this")
+    @CanIgnoreReturnValue
     boolean removeEntry(ReferenceEntry<K, V> entry, int hash, RemovalCause cause) {
       int newCount = this.count - 1;
       AtomicReferenceArray<ReferenceEntry<K, V>> table = this.table;
@@ -3488,8 +3529,8 @@ class LocalCache<K extends @Immutable Object, V> extends AbstractMap<K, V> imple
       this(null);
     }
 
-    public LoadingValueReference(ValueReference<K, V> oldValue) {
-      this.oldValue = (oldValue == null) ? LocalCache.<K, V>unset() : oldValue;
+    public LoadingValueReference(@CheckForNull ValueReference<K, V> oldValue) {
+      this.oldValue = (oldValue == null) ? LocalCache.unset() : oldValue;
     }
 
     @Override
@@ -3507,10 +3548,12 @@ class LocalCache<K extends @Immutable Object, V> extends AbstractMap<K, V> imple
       return oldValue.getWeight();
     }
 
-    public boolean set(@Nullable V newValue) {
+    @CanIgnoreReturnValue
+    public boolean set(@CheckForNull V newValue) {
       return futureValue.set(newValue);
     }
 
+    @CanIgnoreReturnValue
     public boolean setException(Throwable t) {
       return futureValue.setException(t);
     }
@@ -3520,7 +3563,7 @@ class LocalCache<K extends @Immutable Object, V> extends AbstractMap<K, V> imple
     }
 
     @Override
-    public void notifyNewValue(@Nullable V newValue) {
+    public void notifyNewValue(@CheckForNull V newValue) {
       if (newValue != null) {
         // The pending load was clobbered by a manual write.
         // Unblock all pending gets, and have them return the new value.
@@ -3549,12 +3592,9 @@ class LocalCache<K extends @Immutable Object, V> extends AbstractMap<K, V> imple
         // *before* returning newValue from the cache query.
         return transform(
             newValue,
-            new com.google.common.base.Function<V, V>() {
-              @Override
-              public V apply(V newValue) {
-                LoadingValueReference.this.set(newValue);
-                return newValue;
-              }
+            newResult -> {
+              LoadingValueReference.this.set(newResult);
+              return newResult;
             },
             directExecutor());
       } catch (Throwable t) {
@@ -3566,7 +3606,9 @@ class LocalCache<K extends @Immutable Object, V> extends AbstractMap<K, V> imple
       }
     }
 
-    public V compute(K key, BiFunction<? super K, ? super @Nullable V, ? extends V> function) {
+    @CheckForNull
+    public V compute(
+        K key, BiFunction<? super K, ? super @Nullable V, ? extends @Nullable V> function) {
       stopwatch.start();
       V previousValue;
       try {
@@ -3610,7 +3652,7 @@ class LocalCache<K extends @Immutable Object, V> extends AbstractMap<K, V> imple
 
     @Override
     public ValueReference<K, V> copyFor(
-        ReferenceQueue<V> queue, @Nullable V value, ReferenceEntry<K, V> entry) {
+        ReferenceQueue<V> queue, @CheckForNull V value, ReferenceEntry<K, V> entry) {
       return this;
     }
   }
@@ -3690,12 +3732,14 @@ class LocalCache<K extends @Immutable Object, V> extends AbstractMap<K, V> imple
       return true;
     }
 
+    @CheckForNull
     @Override
     public ReferenceEntry<K, V> peek() {
       ReferenceEntry<K, V> next = head.getNextInWriteQueue();
       return (next == head) ? null : next;
     }
 
+    @CheckForNull
     @Override
     public ReferenceEntry<K, V> poll() {
       ReferenceEntry<K, V> next = head.getNextInWriteQueue();
@@ -3709,6 +3753,7 @@ class LocalCache<K extends @Immutable Object, V> extends AbstractMap<K, V> imple
 
     @Override
     @SuppressWarnings("unchecked")
+    @CanIgnoreReturnValue
     public boolean remove(@UnknownSignedness Object o) {
       ReferenceEntry<K, V> e = (ReferenceEntry<K, V>) o;
       ReferenceEntry<K, V> previous = e.getPreviousInWriteQueue();
@@ -3758,6 +3803,7 @@ class LocalCache<K extends @Immutable Object, V> extends AbstractMap<K, V> imple
     @Override
     public Iterator<ReferenceEntry<K, V>> iterator() {
       return new AbstractSequentialIterator<ReferenceEntry<K, V>>(peek()) {
+        @CheckForNull
         @Override
         protected ReferenceEntry<K, V> computeNext(ReferenceEntry<K, V> previous) {
           ReferenceEntry<K, V> next = previous.getNextInWriteQueue();
@@ -3829,12 +3875,14 @@ class LocalCache<K extends @Immutable Object, V> extends AbstractMap<K, V> imple
       return true;
     }
 
+    @CheckForNull
     @Override
     public ReferenceEntry<K, V> peek() {
       ReferenceEntry<K, V> next = head.getNextInAccessQueue();
       return (next == head) ? null : next;
     }
 
+    @CheckForNull
     @Override
     public ReferenceEntry<K, V> poll() {
       ReferenceEntry<K, V> next = head.getNextInAccessQueue();
@@ -3848,6 +3896,7 @@ class LocalCache<K extends @Immutable Object, V> extends AbstractMap<K, V> imple
 
     @Override
     @SuppressWarnings("unchecked")
+    @CanIgnoreReturnValue
     public boolean remove(@UnknownSignedness Object o) {
       ReferenceEntry<K, V> e = (ReferenceEntry<K, V>) o;
       ReferenceEntry<K, V> previous = e.getPreviousInAccessQueue();
@@ -3897,6 +3946,7 @@ class LocalCache<K extends @Immutable Object, V> extends AbstractMap<K, V> imple
     @Override
     public Iterator<ReferenceEntry<K, V>> iterator() {
       return new AbstractSequentialIterator<ReferenceEntry<K, V>>(peek()) {
+        @CheckForNull
         @Override
         protected ReferenceEntry<K, V> computeNext(ReferenceEntry<K, V> previous) {
           ReferenceEntry<K, V> next = previous.getNextInAccessQueue();
@@ -3927,19 +3977,19 @@ class LocalCache<K extends @Immutable Object, V> extends AbstractMap<K, V> imple
      */
     long sum = 0L;
     Segment<K, V>[] segments = this.segments;
-    for (int i = 0; i < segments.length; ++i) {
-      if (segments[i].count != 0) {
+    for (Segment<K, V> segment : segments) {
+      if (segment.count != 0) {
         return false;
       }
-      sum += segments[i].modCount;
+      sum += segment.modCount;
     }
 
     if (sum != 0L) { // recheck unless no modifications
-      for (int i = 0; i < segments.length; ++i) {
-        if (segments[i].count != 0) {
+      for (Segment<K, V> segment : segments) {
+        if (segment.count != 0) {
           return false;
         }
-        sum -= segments[i].modCount;
+        sum -= segment.modCount;
       }
       return sum == 0L;
     }
@@ -3949,8 +3999,8 @@ class LocalCache<K extends @Immutable Object, V> extends AbstractMap<K, V> imple
   long longSize() {
     Segment<K, V>[] segments = this.segments;
     long sum = 0;
-    for (int i = 0; i < segments.length; ++i) {
-      sum += segments[i].count;
+    for (Segment<K, V> segment : segments) {
+      sum += segment.count;
     }
     return sum;
   }
@@ -3960,8 +4010,10 @@ class LocalCache<K extends @Immutable Object, V> extends AbstractMap<K, V> imple
     return Ints.saturatedCast(longSize());
   }
 
+  @CanIgnoreReturnValue // TODO(b/27479612): consider removing this
   @Override
-  public @Nullable V get(@Nullable @UnknownSignedness Object key) {
+  @CheckForNull
+  public V get(@CheckForNull @UnknownSignedness Object key) {
     if (key == null) {
       return null;
     }
@@ -3969,12 +4021,14 @@ class LocalCache<K extends @Immutable Object, V> extends AbstractMap<K, V> imple
     return segmentFor(hash).get(key, hash);
   }
 
+  @CanIgnoreReturnValue // TODO(b/27479612): consider removing this
   V get(K key, CacheLoader<? super K, V> loader) throws ExecutionException {
     int hash = hash(checkNotNull(key));
     return segmentFor(hash).get(key, hash, loader);
   }
 
-  public @Nullable V getIfPresent(Object key) {
+  @CheckForNull
+  public V getIfPresent(Object key) {
     int hash = hash(checkNotNull(key));
     V value = segmentFor(hash).get(key, hash);
     if (value == null) {
@@ -3985,10 +4039,9 @@ class LocalCache<K extends @Immutable Object, V> extends AbstractMap<K, V> imple
     return value;
   }
 
-  // Only becomes available in Java 8 when it's on the interface.
-  // @Override
   @Override
-  public @Nullable V getOrDefault(@Nullable @UnknownSignedness Object key, @Nullable V defaultValue) {
+  @CheckForNull
+  public V getOrDefault(@CheckForNull @UnknownSignedness Object key, @CheckForNull V defaultValue) {
     V result = get(key);
     return (result != null) ? result : defaultValue;
   }
@@ -4068,7 +4121,7 @@ class LocalCache<K extends @Immutable Object, V> extends AbstractMap<K, V> imple
    * Returns the result of calling {@link CacheLoader#loadAll}, or null if {@code loader} doesn't
    * implement {@code loadAll}.
    */
-  @Nullable
+  @CheckForNull
   Map<K, V> loadAll(Set<? extends K> keys, CacheLoader<? super K, V> loader)
       throws ExecutionException {
     checkNotNull(loader);
@@ -4132,7 +4185,8 @@ class LocalCache<K extends @Immutable Object, V> extends AbstractMap<K, V> imple
    * Returns the internal entry for the specified key. The entry may be loading, expired, or
    * partially collected.
    */
-  ReferenceEntry<K, V> getEntry(@Nullable Object key) {
+  @CheckForNull
+  ReferenceEntry<K, V> getEntry(@CheckForNull Object key) {
     // does not impact recency ordering
     if (key == null) {
       return null;
@@ -4147,7 +4201,7 @@ class LocalCache<K extends @Immutable Object, V> extends AbstractMap<K, V> imple
   }
 
   @Override
-  public boolean containsKey(@Nullable @UnknownSignedness Object key) {
+  public boolean containsKey(@CheckForNull @UnknownSignedness Object key) {
     // does not impact recency ordering
     if (key == null) {
       return false;
@@ -4157,7 +4211,7 @@ class LocalCache<K extends @Immutable Object, V> extends AbstractMap<K, V> imple
   }
 
   @Override
-  public boolean containsValue(@Nullable @UnknownSignedness Object value) {
+  public boolean containsValue(@CheckForNull @UnknownSignedness Object value) {
     // does not impact recency ordering
     if (value == null) {
       return false;
@@ -4196,6 +4250,8 @@ class LocalCache<K extends @Immutable Object, V> extends AbstractMap<K, V> imple
     return false;
   }
 
+  @CheckForNull
+  @CanIgnoreReturnValue
   @Override
   public V put(K key, V value) {
     checkNotNull(key);
@@ -4204,6 +4260,7 @@ class LocalCache<K extends @Immutable Object, V> extends AbstractMap<K, V> imple
     return segmentFor(hash).put(key, hash, value, false);
   }
 
+  @CheckForNull
   @Override
   public V putIfAbsent(K key, V value) {
     checkNotNull(key);
@@ -4213,7 +4270,9 @@ class LocalCache<K extends @Immutable Object, V> extends AbstractMap<K, V> imple
   }
 
   @Override
-  public V compute(K key, BiFunction<? super K, ? super @Nullable V, ? extends V> function) {
+  @CheckForNull
+  public V compute(
+      K key, BiFunction<? super K, ? super @Nullable V, ? extends @Nullable V> function) {
     checkNotNull(key);
     checkNotNull(function);
     int hash = hash(key);
@@ -4228,14 +4287,17 @@ class LocalCache<K extends @Immutable Object, V> extends AbstractMap<K, V> imple
   }
 
   @Override
-  public @PolyNull V computeIfPresent(K key, BiFunction<? super K, ? super V, ? extends @PolyNull V> function) {
+  public @PolyNull V computeIfPresent(
+      K key, BiFunction<? super K, ? super V, ? extends @PolyNull V> function) {
     checkNotNull(key);
     checkNotNull(function);
     return compute(key, (k, oldValue) -> (oldValue == null) ? null : function.apply(k, oldValue));
   }
 
   @Override
-  public V merge(K key, V newValue, BiFunction<? super V, ? super V, ? extends V> function) {
+  @CheckForNull
+  public V merge(
+      K key, V newValue, BiFunction<? super V, ? super V, ? extends @Nullable V> function) {
     checkNotNull(key);
     checkNotNull(newValue);
     checkNotNull(function);
@@ -4250,8 +4312,10 @@ class LocalCache<K extends @Immutable Object, V> extends AbstractMap<K, V> imple
     }
   }
 
+  @CheckForNull
+  @CanIgnoreReturnValue
   @Override
-  public V remove(@Nullable @UnknownSignedness Object key) {
+  public V remove(@CheckForNull @UnknownSignedness Object key) {
     if (key == null) {
       return null;
     }
@@ -4259,8 +4323,9 @@ class LocalCache<K extends @Immutable Object, V> extends AbstractMap<K, V> imple
     return segmentFor(hash).remove(key, hash);
   }
 
+  @CanIgnoreReturnValue
   @Override
-  public boolean remove(@Nullable @UnknownSignedness Object key, @Nullable @UnknownSignedness Object value) {
+  public boolean remove(@CheckForNull @UnknownSignedness Object key, @CheckForNull @UnknownSignedness Object value) {
     if (key == null || value == null) {
       return false;
     }
@@ -4268,8 +4333,9 @@ class LocalCache<K extends @Immutable Object, V> extends AbstractMap<K, V> imple
     return segmentFor(hash).remove(key, hash, value);
   }
 
+  @CanIgnoreReturnValue
   @Override
-  public boolean replace(K key, @Nullable V oldValue, V newValue) {
+  public boolean replace(K key, @CheckForNull V oldValue, V newValue) {
     checkNotNull(key);
     checkNotNull(newValue);
     if (oldValue == null) {
@@ -4279,6 +4345,8 @@ class LocalCache<K extends @Immutable Object, V> extends AbstractMap<K, V> imple
     return segmentFor(hash).replace(key, hash, oldValue, newValue);
   }
 
+  @CheckForNull
+  @CanIgnoreReturnValue
   @Override
   public V replace(K key, V value) {
     checkNotNull(key);
@@ -4301,7 +4369,7 @@ class LocalCache<K extends @Immutable Object, V> extends AbstractMap<K, V> imple
     }
   }
 
-  @RetainedWith @Nullable Set<K> keySet;
+  @LazyInit @RetainedWith @CheckForNull Set<K> keySet;
 
   @Override
   public Set<@KeyFor({"this"}) K> keySet() {
@@ -4310,7 +4378,7 @@ class LocalCache<K extends @Immutable Object, V> extends AbstractMap<K, V> imple
     return (ks != null) ? ks : (keySet = new KeySet());
   }
 
-  @RetainedWith @Nullable Collection<V> values;
+  @LazyInit @RetainedWith @CheckForNull Collection<V> values;
 
   @Override
   public Collection<V> values() {
@@ -4319,7 +4387,7 @@ class LocalCache<K extends @Immutable Object, V> extends AbstractMap<K, V> imple
     return (vs != null) ? vs : (values = new Values());
   }
 
-  @RetainedWith @Nullable Set<Entry<K, V>> entrySet;
+  @LazyInit @RetainedWith @CheckForNull Set<Entry<K, V>> entrySet;
 
   @Override
   @GwtIncompatible // Not supported.
@@ -4335,11 +4403,11 @@ class LocalCache<K extends @Immutable Object, V> extends AbstractMap<K, V> imple
 
     int nextSegmentIndex;
     int nextTableIndex;
-    @Nullable Segment<K, V> currentSegment;
-    @Nullable AtomicReferenceArray<ReferenceEntry<K, V>> currentTable;
-    @Nullable ReferenceEntry<K, V> nextEntry;
-    @Nullable WriteThroughEntry nextExternal;
-    @Nullable WriteThroughEntry lastReturned;
+    @CheckForNull Segment<K, V> currentSegment;
+    @CheckForNull AtomicReferenceArray<ReferenceEntry<K, V>> currentTable;
+    @CheckForNull ReferenceEntry<K, V> nextEntry;
+    @CheckForNull WriteThroughEntry nextExternal;
+    @CheckForNull WriteThroughEntry lastReturned;
 
     HashIterator() {
       nextSegmentIndex = segments.length - 1;
@@ -4480,7 +4548,7 @@ class LocalCache<K extends @Immutable Object, V> extends AbstractMap<K, V> imple
     }
 
     @Override
-    public boolean equals(@Nullable Object object) {
+    public boolean equals(@CheckForNull Object object) {
       // Cannot use key and value equivalence
       if (object instanceof Entry) {
         Entry<?, ?> that = (Entry<?, ?>) object;
@@ -4548,7 +4616,7 @@ class LocalCache<K extends @Immutable Object, V> extends AbstractMap<K, V> imple
 
   private static <E> ArrayList<E> toArrayList(Collection<E> c) {
     // Avoid calling ArrayList(Collection), which may call back into toArray.
-    ArrayList<E> result = new ArrayList<E>(c.size());
+    ArrayList<E> result = new ArrayList<>(c.size());
     Iterators.addAll(result, c.iterator());
     return result;
   }
@@ -4697,10 +4765,10 @@ class LocalCache<K extends @Immutable Object, V> extends AbstractMap<K, V> imple
     final Weigher<K, V> weigher;
     final int concurrencyLevel;
     final RemovalListener<? super K, ? super V> removalListener;
-    final @Nullable Ticker ticker;
+    @CheckForNull final Ticker ticker;
     final CacheLoader<? super K, V> loader;
 
-    transient @Nullable Cache<K, V> delegate;
+    @CheckForNull transient Cache<K, V> delegate;
 
     ManualSerializationProxy(LocalCache<K, V> cache) {
       this(
@@ -4762,7 +4830,7 @@ class LocalCache<K extends @Immutable Object, V> extends AbstractMap<K, V> imple
         builder.expireAfterAccess(expireAfterAccessNanos, TimeUnit.NANOSECONDS);
       }
       if (weigher != OneWeigher.INSTANCE) {
-        builder.weigher(weigher);
+        Object unused = builder.weigher(weigher);
         if (maxWeight != UNSET_INT) {
           builder.maximumWeight(maxWeight);
         }
@@ -4805,7 +4873,7 @@ class LocalCache<K extends @Immutable Object, V> extends AbstractMap<K, V> imple
       implements LoadingCache<K, V>, Serializable {
     private static final long serialVersionUID = 1;
 
-    transient @Nullable LoadingCache<K, V> autoDelegate;
+    @CheckForNull transient LoadingCache<K, V> autoDelegate;
 
     LoadingSerializationProxy(LocalCache<K, V> cache) {
       super(cache);
@@ -4833,7 +4901,7 @@ class LocalCache<K extends @Immutable Object, V> extends AbstractMap<K, V> imple
     }
 
     @Override
-    public final V apply(K key) {
+    public V apply(K key) {
       return autoDelegate.apply(key);
     }
 
@@ -4851,7 +4919,7 @@ class LocalCache<K extends @Immutable Object, V> extends AbstractMap<K, V> imple
     final LocalCache<K, V> localCache;
 
     LocalManualCache(CacheBuilder<? super K, ? super V> builder) {
-      this(new LocalCache<K, V>(builder, null));
+      this(new LocalCache<>(builder, null));
     }
 
     private LocalManualCache(LocalCache<K, V> localCache) {
@@ -4861,7 +4929,8 @@ class LocalCache<K extends @Immutable Object, V> extends AbstractMap<K, V> imple
     // Cache methods
 
     @Override
-    public @Nullable V getIfPresent(Object key) {
+    @CheckForNull
+    public V getIfPresent(Object key) {
       return localCache.getIfPresent(key);
     }
 
@@ -4941,6 +5010,10 @@ class LocalCache<K extends @Immutable Object, V> extends AbstractMap<K, V> imple
     Object writeReplace() {
       return new ManualSerializationProxy<>(localCache);
     }
+
+    private void readObject(ObjectInputStream in) throws InvalidObjectException {
+      throw new InvalidObjectException("Use ManualSerializationProxy");
+    }
   }
 
   static class LocalLoadingCache<K, V> extends LocalManualCache<K, V>
@@ -4948,7 +5021,7 @@ class LocalCache<K extends @Immutable Object, V> extends AbstractMap<K, V> imple
 
     LocalLoadingCache(
         CacheBuilder<? super K, ? super V> builder, CacheLoader<? super K, V> loader) {
-      super(new LocalCache<K, V>(builder, checkNotNull(loader)));
+      super(new LocalCache<>(builder, checkNotNull(loader)));
     }
 
     // LoadingCache methods
@@ -4958,6 +5031,7 @@ class LocalCache<K extends @Immutable Object, V> extends AbstractMap<K, V> imple
       return localCache.getOrLoad(key);
     }
 
+    @CanIgnoreReturnValue // TODO(b/27479612): consider removing this
     @Override
     public V getUnchecked(K key) {
       try {
@@ -4989,6 +5063,10 @@ class LocalCache<K extends @Immutable Object, V> extends AbstractMap<K, V> imple
     @Override
     Object writeReplace() {
       return new LoadingSerializationProxy<>(localCache);
+    }
+
+    private void readObject(ObjectInputStream in) throws InvalidObjectException {
+      throw new InvalidObjectException("Use LoadingSerializationProxy");
     }
   }
 }

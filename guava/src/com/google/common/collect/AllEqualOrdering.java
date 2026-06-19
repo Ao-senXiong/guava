@@ -46,8 +46,7 @@ final class AllEqualOrdering extends Ordering<@Nullable @Readonly Object> implem
   }
 
   @Override
-  @SuppressWarnings("nullness") // unsafe: see supertype
-  public <E extends @Nullable @Readonly Object> ImmutableList<E> immutableSortedCopy(Iterable<E> iterable) {
+  public <E> ImmutableList<E> immutableSortedCopy(Iterable<E> iterable) {
     return ImmutableList.copyOf(iterable);
   }
 

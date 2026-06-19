@@ -22,6 +22,7 @@ import static com.google.common.collect.NullnessCasts.uncheckedCastNullableTToT;
 
 import com.google.common.annotations.GwtCompatible;
 import com.google.common.base.Objects;
+import com.google.errorprone.annotations.concurrent.LazyInit;
 import java.io.Serializable;
 import java.util.Comparator;
 import javax.annotation.CheckForNull;
@@ -42,7 +43,8 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
 @ElementTypesAreNonnullByDefault
 final class GeneralRange<T extends @Nullable @Readonly Object> implements Serializable {
   /** Converts a Range to a GeneralRange. */
-  static <T extends @Readonly Comparable> GeneralRange<T> from(Range<T> range) {
+  @SuppressWarnings("rawtypes") // https://github.com/google/guava/issues/989
+  static <T extends Comparable> GeneralRange<T> from(Range<T> range) {
     T lowerEndpoint = range.hasLowerBound() ? range.lowerEndpoint() : null;
     BoundType lowerBoundType = range.hasLowerBound() ? range.lowerBoundType() : OPEN;
 
@@ -124,12 +126,14 @@ final class GeneralRange<T extends @Nullable @Readonly Object> implements Serial
      * whenever they pass `true` for the matching `has*Bound` parameter.
      */
     if (hasLowerBound) {
-      comparator.compare(
-          uncheckedCastNullableTToT(lowerEndpoint), uncheckedCastNullableTToT(lowerEndpoint));
+      int unused =
+          comparator.compare(
+              uncheckedCastNullableTToT(lowerEndpoint), uncheckedCastNullableTToT(lowerEndpoint));
     }
     if (hasUpperBound) {
-      comparator.compare(
-          uncheckedCastNullableTToT(upperEndpoint), uncheckedCastNullableTToT(upperEndpoint));
+      int unused =
+          comparator.compare(
+              uncheckedCastNullableTToT(upperEndpoint), uncheckedCastNullableTToT(upperEndpoint));
     }
 
     if (hasLowerBound && hasUpperBound) {
@@ -263,7 +267,7 @@ final class GeneralRange<T extends @Nullable @Readonly Object> implements Serial
         getUpperBoundType());
   }
 
-  @CheckForNull private transient GeneralRange<T> reverse;
+  @LazyInit @CheckForNull private transient GeneralRange<T> reverse;
 
   /** Returns the same range relative to the reversed comparator. */
   GeneralRange<T> reverse() {

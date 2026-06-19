@@ -18,7 +18,6 @@ package com.google.common.collect;
 
 import static com.google.common.collect.ForwardingSortedMap.unsafeCompare;
 
-import com.google.common.annotations.Beta;
 import com.google.common.annotations.GwtCompatible;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -120,8 +119,7 @@ public abstract class ForwardingSortedSet<E extends @Nullable @Readonly Object> 
    * @since 7.0
    */
   @Override
-  @Beta
-  protected boolean standardContains(@Readonly ForwardingSortedSet<E> this, @CheckForNull @Readonly Object object) {
+  protected boolean standardContains(@CheckForNull Object object) {
     try {
       // any ClassCastExceptions and NullPointerExceptions are caught
       @SuppressWarnings({"unchecked", "nullness"})
@@ -141,8 +139,7 @@ public abstract class ForwardingSortedSet<E extends @Nullable @Readonly Object> 
    * @since 7.0
    */
   @Override
-  @Beta
-  protected boolean standardRemove(@Mutable ForwardingSortedSet<E> this, @CheckForNull @Readonly Object object) {
+  protected boolean standardRemove(@CheckForNull Object object) {
     try {
       // any ClassCastExceptions and NullPointerExceptions are caught
       @SuppressWarnings({"unchecked", "nullness"})
@@ -168,8 +165,7 @@ public abstract class ForwardingSortedSet<E extends @Nullable @Readonly Object> 
    *
    * @since 7.0
    */
-  @Beta
-  protected SortedSet<E> standardSubSet(@Readonly ForwardingSortedSet<E> this,
+  protected SortedSet<E> standardSubSet(
       @ParametricNullness E fromElement, @ParametricNullness E toElement) {
     return tailSet(fromElement).headSet(toElement);
   }

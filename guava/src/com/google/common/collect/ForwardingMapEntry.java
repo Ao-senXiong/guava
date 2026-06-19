@@ -16,7 +16,6 @@
 
 package com.google.common.collect;
 
-import com.google.common.annotations.Beta;
 import com.google.common.annotations.GwtCompatible;
 import com.google.common.base.Objects;
 import java.util.Map;
@@ -137,8 +136,7 @@ public abstract class ForwardingMapEntry<K extends @Nullable @Immutable Object, 
    *
    * @since 7.0
    */
-  @Beta
-  protected String standardToString(@Readonly ForwardingMapEntry<K, V> this) {
+  protected String standardToString() {
     return getKey() + "=" + getValue();
   }
 }

@@ -22,7 +22,6 @@ import static com.google.common.collect.CollectPreconditions.checkNonnegative;
 import static com.google.common.collect.CollectPreconditions.checkRemove;
 import static java.util.Objects.requireNonNull;
 
-import com.google.common.annotations.Beta;
 import com.google.common.annotations.GwtCompatible;
 import com.google.common.base.Objects;
 import com.google.common.base.Predicate;
@@ -31,6 +30,7 @@ import com.google.common.collect.Multiset.Entry;
 import com.google.common.math.IntMath;
 import com.google.common.primitives.Ints;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
+import com.google.errorprone.annotations.concurrent.LazyInit;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collection;
@@ -149,8 +149,7 @@ public final class Multisets {
       return (Multiset<E>) delegate;
     }
 
-    @CFComment("Change to @LazyFinal later")
-    @CheckForNull transient @Assignable Set<E> elementSet;
+    @LazyInit @CheckForNull transient Set<E> elementSet;
 
     Set<E> createElementSet() {
       return Collections.<E>unmodifiableSet(delegate.elementSet());
@@ -163,8 +162,7 @@ public final class Multisets {
       return (es == null) ? elementSet = createElementSet() : es;
     }
 
-    @CFComment("Change to @LazyFinal later")
-    @CheckForNull transient @Assignable Set<Multiset.Entry<E>> entrySet;
+    @LazyInit @CheckForNull transient Set<Multiset.Entry<E>> entrySet;
 
     @SideEffectFree
     @SuppressWarnings("unchecked")
@@ -214,7 +212,12 @@ public final class Multisets {
     }
 
     @Override
-    public boolean retainAll(@Readonly Collection<?> elementsToRetain) {
+    public boolean removeIf(java.util.function.Predicate<? super E> filter) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean retainAll(Collection<?> elementsToRetain) {
       throw new UnsupportedOperationException();
     }
 
@@ -247,8 +250,7 @@ public final class Multisets {
    * @return an unmodifiable view of the multiset
    * @since 11.0
    */
-  @Beta
-  public static <E extends @Nullable @Readonly Object> @Readonly SortedMultiset<E> unmodifiableSortedMultiset(
+  public static <E extends @Nullable Object> SortedMultiset<E> unmodifiableSortedMultiset(
       SortedMultiset<E> sortedMultiset) {
     // it's in its own file so it can be emulated for GWT
     return new UnmodifiableSortedMultiset<E>(checkNotNull(sortedMultiset));
@@ -323,8 +325,7 @@ public final class Multisets {
    *
    * @since 14.0
    */
-  @Beta
-  public static <E extends @Nullable @Readonly Object> Multiset<E> filter(
+  public static <E extends @Nullable Object> Multiset<E> filter(
       Multiset<E> unfiltered, Predicate<? super E> predicate) {
     if (unfiltered instanceof FilteredMultiset) {
       // Support clear(), removeAll(), and retainAll() when filtering a filtered
@@ -431,8 +432,7 @@ public final class Multisets {
    *
    * @since 14.0
    */
-  @Beta
-  public static <E extends @Nullable @Readonly Object> Multiset<E> union(
+  public static <E extends @Nullable Object> Multiset<E> union(
       final Multiset<? extends E> multiset1, final Multiset<? extends E> multiset2) {
     checkNotNull(multiset1);
     checkNotNull(multiset2);
@@ -561,8 +561,7 @@ public final class Multisets {
    *
    * @since 14.0
    */
-  @Beta
-  public static <E extends @Nullable @Readonly Object> Multiset<E> sum(
+  public static <E extends @Nullable Object> Multiset<E> sum(
       final Multiset<? extends E> multiset1, final Multiset<? extends E> multiset2) {
     checkNotNull(multiset1);
     checkNotNull(multiset2);
@@ -639,8 +638,7 @@ public final class Multisets {
    *
    * @since 14.0
    */
-  @Beta
-  public static <E extends @Nullable @Readonly Object> Multiset<E> difference(
+  public static <E extends @Nullable Object> Multiset<E> difference(
       final Multiset<E> multiset1, final Multiset<?> multiset2) {
     checkNotNull(multiset1);
     checkNotNull(multiset2);
@@ -1052,10 +1050,6 @@ public final class Multisets {
     @Override
     public boolean contains(@Readonly EntrySet<E> this, @CheckForNull @UnknownSignedness @Readonly Object o) {
       if (o instanceof Entry) {
-        /*
-         * The GWT compiler wrongly issues a warning here.
-         */
-        @SuppressWarnings("cast")
         Entry<?> entry = (Entry<?>) o;
         if (entry.getCount() <= 0) {
           return false;
@@ -1066,8 +1060,6 @@ public final class Multisets {
       return false;
     }
 
-    // GWT compiler warning; see contains().
-    @SuppressWarnings("cast")
     @Override
     public boolean remove(@Mutable EntrySet<E> this, @CheckForNull @UnknownSignedness @Readonly Object object) {
       if (object instanceof Multiset.Entry) {
@@ -1182,21 +1174,22 @@ public final class Multisets {
   }
 
   /**
-   * Returns a copy of {@code multiset} as an {@link ImmutableMultiset} whose iteration order is
-   * highest count first, with ties broken by the iteration order of the original multiset.
+   * Returns a copy of {@code multiset} as an {@link ImmutableMultiset} whose iteration order puts
+   * the highest count first, with ties broken by the iteration order of the original multiset.
    *
    * @since 11.0
    */
-  @Beta
   public static <E> ImmutableMultiset<E> copyHighestCountFirst(Multiset<E> multiset) {
-    Entry<E>[] entries = (Entry<E>[]) multiset.entrySet().toArray(new Entry[0]);
+    @SuppressWarnings("unchecked") // generics+arrays
+    // TODO(cpovirk): Consider storing an Entry<?> instead of Entry<E>.
+    Entry<E>[] entries = (Entry<E>[]) multiset.entrySet().toArray((Entry<E>[]) new Entry<?>[0]);
     Arrays.sort(entries, DecreasingCount.INSTANCE);
     return ImmutableMultiset.copyFromEntries(Arrays.asList(entries));
   }
 
   @Immutable
   private static final class DecreasingCount implements Comparator<Entry<?>> {
-    static final DecreasingCount INSTANCE = new DecreasingCount();
+    static final Comparator<Entry<?>> INSTANCE = new DecreasingCount();
 
     @Override
     public int compare(Entry<?> entry1, Entry<?> entry2) {

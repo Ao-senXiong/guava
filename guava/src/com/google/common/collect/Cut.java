@@ -35,7 +35,7 @@ import org.checkerframework.framework.qual.AnnotatedFor;
  *
  * @author Kevin Bourrillion
  */
-@AnnotatedFor("pico")
+@SuppressWarnings("rawtypes") // https://github.com/google/guava/issues/989
 @GwtCompatible
 @ElementTypesAreNonnullByDefault
 @Immutable

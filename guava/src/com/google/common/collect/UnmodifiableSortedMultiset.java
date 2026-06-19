@@ -18,6 +18,7 @@ package com.google.common.collect;
 
 import com.google.common.annotations.GwtCompatible;
 import com.google.common.collect.Multisets.UnmodifiableMultiset;
+import com.google.errorprone.annotations.concurrent.LazyInit;
 import java.util.Comparator;
 import java.util.NavigableSet;
 import javax.annotation.CheckForNull;
@@ -65,8 +66,7 @@ final class UnmodifiableSortedMultiset<E extends @Nullable @Readonly Object> ext
     return (NavigableSet<E>) super.elementSet();
   }
 
-  @CFComment("Change to @LazyFinal later")
-  @CheckForNull private transient @Assignable UnmodifiableSortedMultiset<E> descendingMultiset;
+  @LazyInit @CheckForNull private transient UnmodifiableSortedMultiset<E> descendingMultiset;
 
   @Override
   public @Readonly SortedMultiset<E> descendingMultiset(@Readonly UnmodifiableSortedMultiset<E> this) {

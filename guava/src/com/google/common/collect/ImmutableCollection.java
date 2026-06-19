@@ -19,9 +19,13 @@ package com.google.common.collect;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.annotations.GwtCompatible;
+import com.google.common.annotations.GwtIncompatible;
+import com.google.common.annotations.J2ktIncompatible;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.errorprone.annotations.DoNotCall;
 import com.google.errorprone.annotations.DoNotMock;
+import java.io.InvalidObjectException;
+import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.AbstractCollection;
 import java.util.Collection;
@@ -201,7 +205,8 @@ public abstract class ImmutableCollection<E extends @NonNull @Readonly Object> e
   private static final Object @Mutable [] EMPTY_ARRAY = new Object @Mutable [0];
 
   @Override
-  public final @PolyNull @PolySigned Object @Mutable [] toArray() {
+  @J2ktIncompatible // Incompatible return type change. Use inherited (unoptimized) implementation
+  public final @PolyNull @PolySigned Object[] toArray() {
     return toArray(EMPTY_ARRAY);
   }
 
@@ -400,9 +405,16 @@ public abstract class ImmutableCollection<E extends @NonNull @Readonly Object> e
     return offset;
   }
 
+  @J2ktIncompatible // serialization
+  @GwtIncompatible // serialization
   Object writeReplace() {
     // We serialize by default to ImmutableList, the simplest thing that works.
     return new ImmutableList.SerializedForm(toArray());
+  }
+
+  @J2ktIncompatible // serialization
+  private void readObject(ObjectInputStream stream) throws InvalidObjectException {
+    throw new InvalidObjectException("Use SerializedForm");
   }
 
   /**
@@ -507,4 +519,6 @@ public abstract class ImmutableCollection<E extends @NonNull @Readonly Object> e
      */
     public abstract ImmutableCollection<E> build();
   }
+
+  private static final long serialVersionUID = 0xcafebabe;
 }

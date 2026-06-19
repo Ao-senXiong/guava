@@ -17,6 +17,7 @@
 package com.google.common.collect;
 
 import com.google.common.annotations.GwtIncompatible;
+import com.google.common.annotations.J2ktIncompatible;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.util.Deque;
 import java.util.Iterator;
@@ -45,7 +46,7 @@ import org.checkerframework.framework.qual.AnnotatedFor;
  * @author Kurt Alfred Kluever
  * @since 12.0
  */
-@AnnotatedFor("pico")
+@J2ktIncompatible
 @GwtIncompatible
 @ElementTypesAreNonnullByDefault
 @ReceiverDependentMutable

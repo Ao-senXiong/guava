@@ -47,7 +47,7 @@ import org.checkerframework.framework.qual.AnnotatedFor;
  * @author Kevin Bourrillion
  * @since 10.0
  */
-@AnnotatedFor("pico")
+@SuppressWarnings("rawtypes") // https://github.com/google/guava/issues/989
 @GwtCompatible
 @ElementTypesAreNonnullByDefault
 @Immutable
@@ -55,6 +55,9 @@ public abstract class DiscreteDomain<C extends @Readonly Comparable> {
 
   /**
    * Returns the discrete domain for values of type {@code Integer}.
+   *
+   * <p>This method always returns the same object. That object is serializable; deserializing it
+   * results in the same object too.
    *
    * @since 14.0 (since 10.0 as {@code DiscreteDomains.integers()})
    */
@@ -120,6 +123,9 @@ public abstract class DiscreteDomain<C extends @Readonly Comparable> {
 
   /**
    * Returns the discrete domain for values of type {@code Long}.
+   *
+   * <p>This method always returns the same object. That object is serializable; deserializing it
+   * results in the same object too.
    *
    * @since 14.0 (since 10.0 as {@code DiscreteDomains.longs()})
    */
@@ -195,6 +201,9 @@ public abstract class DiscreteDomain<C extends @Readonly Comparable> {
 
   /**
    * Returns the discrete domain for values of type {@code BigInteger}.
+   *
+   * <p>This method always returns the same object. That object is serializable; deserializing it
+   * results in the same object too.
    *
    * @since 15.0
    */

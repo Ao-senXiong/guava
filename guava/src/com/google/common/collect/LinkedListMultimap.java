@@ -24,6 +24,7 @@ import static java.util.Objects.requireNonNull;
 
 import com.google.common.annotations.GwtCompatible;
 import com.google.common.annotations.GwtIncompatible;
+import com.google.common.annotations.J2ktIncompatible;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.j2objc.annotations.WeakOuter;
 import java.io.IOException;
@@ -118,8 +119,7 @@ public class LinkedListMultimap<K extends @Nullable @Immutable Object, V extends
    * ValueForKeyIterator} in constant time.
    */
 
-  @ReceiverDependentMutable
-  private static final class Node<K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object>
+  static final class Node<K extends @Nullable Object, V extends @Nullable Object>
       extends AbstractMapEntry<K, V> {
     @ParametricNullness final K key;
     @ParametricNullness V value;
@@ -226,7 +226,7 @@ public class LinkedListMultimap<K extends @Nullable @Immutable Object, V extends
   /**
    * Adds a new node for the specified key-value pair before the specified {@code nextSibling}
    * element, or at the end of the list if {@code nextSibling} is null. Note: if {@code nextSibling}
-   * is specified, it MUST be for an node for the same {@code key}!
+   * is specified, it MUST be for a node for the same {@code key}!
    */
   @CanIgnoreReturnValue
   private Node<K, V> addNode(
@@ -697,7 +697,7 @@ public class LinkedListMultimap<K extends @Nullable @Immutable Object, V extends
    */
   @CanIgnoreReturnValue
   @Override
-  public List<V> removeAll(@Mutable LinkedListMultimap<K,V> this, @Nullable @Readonly Object key) {
+  public List<V> removeAll(@CheckForNull Object key) {
     /*
      * Safe because all we do is remove values for the key, not add them. (If we wanted to make sure
      * to call getCopy and removeAllNodes only with a true K, then we could check containsKey first.
@@ -886,6 +886,7 @@ public class LinkedListMultimap<K extends @Nullable @Immutable Object, V extends
    *     from the entries() ordering
    */
   @GwtIncompatible // java.io.ObjectOutputStream
+  @J2ktIncompatible
   private void writeObject(ObjectOutputStream stream) throws IOException {
     stream.defaultWriteObject();
     stream.writeInt(size());
@@ -896,6 +897,7 @@ public class LinkedListMultimap<K extends @Nullable @Immutable Object, V extends
   }
 
   @GwtIncompatible // java.io.ObjectInputStream
+  @J2ktIncompatible
   private void readObject(ObjectInputStream stream) throws IOException, ClassNotFoundException {
     stream.defaultReadObject();
     keyToKeyList = Maps.newLinkedHashMap();
@@ -910,6 +912,7 @@ public class LinkedListMultimap<K extends @Nullable @Immutable Object, V extends
   }
 
   @GwtIncompatible // java serialization not supported
+  @J2ktIncompatible
   private static final long serialVersionUID = 0;
 
 @Pure

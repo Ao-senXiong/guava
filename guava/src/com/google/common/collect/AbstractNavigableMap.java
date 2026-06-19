@@ -53,14 +53,14 @@ abstract class AbstractNavigableMap<K extends @Nullable @Immutable Object, V ext
 
   @Override
   @CheckForNull
-  public @PolyMutable Entry<K, V> firstEntry(@PolyMutable AbstractNavigableMap<K,V> this) {
-    return Iterators.getNext(entryIterator(), null);
+  public Entry<K, V> firstEntry() {
+    return Iterators.<@Nullable Entry<K, V>>getNext(entryIterator(), null);
   }
 
   @Override
   @CheckForNull
-  public @PolyMutable Entry<K, V> lastEntry(@PolyMutable AbstractNavigableMap<K,V> this) {
-    return Iterators.getNext(descendingEntryIterator(), null);
+  public Entry<K, V> lastEntry() {
+    return Iterators.<@Nullable Entry<K, V>>getNext(descendingEntryIterator(), null);
   }
 
   @Override

@@ -1088,8 +1088,7 @@ abstract class AbstractMapBasedMultimap<K extends @Nullable @Immutable Object, V
   }
 
   @WeakOuter
-  @ReceiverDependentMutable
-  class NavigableKeySet extends SortedKeySet implements NavigableSet<K> {
+  private final class NavigableKeySet extends SortedKeySet implements NavigableSet<K> {
     NavigableKeySet(NavigableMap<K, Collection<V>> subMap) {
       super(subMap);
     }
@@ -1215,6 +1214,7 @@ abstract class AbstractMapBasedMultimap<K extends @Nullable @Immutable Object, V
     }
 
     @Override
+    @ParametricNullness
     public T next() {
       if (!valueIterator.hasNext()) {
         Entry<K, Collection<V>> mapEntry = keyIterator.next();
@@ -1583,8 +1583,7 @@ abstract class AbstractMapBasedMultimap<K extends @Nullable @Immutable Object, V
     }
   }
 
-  @ReceiverDependentMutable
-  class NavigableAsMap extends SortedAsMap implements NavigableMap<K, @ReceiverDependentMutable Collection<V>> {
+  private final class NavigableAsMap extends SortedAsMap implements NavigableMap<K, Collection<V>> {
 
     NavigableAsMap(NavigableMap<K, @ReceiverDependentMutable Collection<V>> submap) {
       super(submap);

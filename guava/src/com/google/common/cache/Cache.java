@@ -18,7 +18,7 @@ import com.google.common.annotations.GwtCompatible;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.util.concurrent.ExecutionError;
 import com.google.common.util.concurrent.UncheckedExecutionException;
-import com.google.errorprone.annotations.CheckReturnValue;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.errorprone.annotations.CompatibleWith;
 import com.google.errorprone.annotations.DoNotMock;
 import java.util.Map;
@@ -61,7 +61,8 @@ public interface Cache<K extends @Immutable Object, V> {
    * @since 11.0
    */
   @CheckForNull
-  V getIfPresent(@Readonly Cache<K, V> this, @CompatibleWith("K") @Readonly Object key);
+  @CanIgnoreReturnValue // TODO(b/27479612): consider removing this?
+  V getIfPresent(@CompatibleWith("K") Object key);
 
   /**
    * Returns the value associated with {@code key} in this cache, obtaining that value from {@code
@@ -109,7 +110,8 @@ public interface Cache<K extends @Immutable Object, V> {
    * @throws ExecutionError if an error was thrown while loading the value
    * @since 11.0
    */
-  V get(@Readonly Cache<K, V> this, K key, Callable<? extends V> loader) throws ExecutionException;
+  @CanIgnoreReturnValue // TODO(b/27479612): consider removing this
+  V get(K key, Callable<? extends V> loader) throws ExecutionException;
 
   /**
    * Returns a map of the values associated with {@code keys} in this cache. The returned map will
@@ -159,8 +161,7 @@ public interface Cache<K extends @Immutable Object, V> {
   void invalidateAll(@Mutable Cache<K, V> this);
 
   /** Returns the approximate number of entries in this cache. */
-  @CheckReturnValue
-  long size(@Readonly Cache<K, V> this);
+  long size();
 
   /**
    * Returns a current snapshot of this cache's cumulative statistics, or a set of default values if
@@ -173,8 +174,7 @@ public interface Cache<K extends @Immutable Object, V> {
    * all values is returned.
    *
    */
-  @CheckReturnValue
-  CacheStats stats(@Readonly Cache<K, V> this);
+  CacheStats stats();
 
   /**
    * Returns a view of the entries stored in this cache as a thread-safe map. Modifications made to
@@ -184,8 +184,7 @@ public interface Cache<K extends @Immutable Object, V> {
    * concurrent use, but if the cache is modified (including by eviction) after the iterator is
    * created, it is undefined which of the changes (if any) will be reflected in that iterator.
    */
-  @CheckReturnValue
-  @PolyMutable ConcurrentMap<K, V> asMap(@PolyMutable Cache<K, V> this);
+  ConcurrentMap<K, V> asMap();
 
   /**
    * Performs any pending maintenance operations needed by the cache. Exactly which activities are

@@ -21,13 +21,13 @@ import static com.google.common.base.Preconditions.checkElementIndex;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.Collections.emptyMap;
 
-import com.google.common.annotations.Beta;
 import com.google.common.annotations.GwtCompatible;
 import com.google.common.annotations.GwtIncompatible;
 import com.google.common.base.Objects;
 import com.google.common.collect.Maps.IteratorBasedAbstractMap;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.errorprone.annotations.DoNotCall;
+import com.google.errorprone.annotations.concurrent.LazyInit;
 import com.google.j2objc.annotations.WeakOuter;
 import java.io.Serializable;
 import java.lang.reflect.Array;
@@ -96,7 +96,6 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
  * @author Jared Levy
  * @since 10.0
  */
-@Beta
 @GwtCompatible(emulated = true)
 @ElementTypesAreNonnullByDefault
 @ReceiverDependentMutable
@@ -141,7 +140,8 @@ public final class ArrayTable<R extends @Immutable Object, C extends @Immutable 
    *
    * @throws NullPointerException if {@code table} has a null key
    */
-  public static <R extends @Immutable Object, C extends @Immutable Object, V> ArrayTable<R, C, V> create(Table<R, C, ? extends @Nullable V> table) {
+  @SuppressWarnings("unchecked") // TODO(cpovirk): Make constructor accept wildcard types?
+  public static <R, C, V> ArrayTable<R, C, V> create(Table<R, C, ? extends @Nullable V> table) {
     return (table instanceof ArrayTable)
         ? new ArrayTable<R, C, V>((ArrayTable<R, C, V>) table)
         : new ArrayTable<R, C, V>(table);
@@ -671,7 +671,7 @@ public final class ArrayTable<R extends @Immutable Object, C extends @Immutable 
     return columnKeyToIndex.keySet();
   }
 
-  @CheckForNull private transient ColumnMap columnMap;
+  @LazyInit @CheckForNull private transient ColumnMap columnMap;
 
   @Override
   public Map<C, Map<R, @Nullable V>> columnMap() {
@@ -766,7 +766,7 @@ public final class ArrayTable<R extends @Immutable Object, C extends @Immutable 
     return rowKeyToIndex.keySet();
   }
 
-  @CheckForNull private transient RowMap rowMap;
+  @LazyInit @CheckForNull private transient RowMap rowMap;
 
   @Override
   public Map<R, Map<C, @Nullable V>> rowMap() {

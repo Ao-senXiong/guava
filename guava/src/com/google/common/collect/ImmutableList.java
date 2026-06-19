@@ -25,8 +25,9 @@ import static com.google.common.collect.ObjectArrays.checkElementsNotNull;
 import static com.google.common.collect.RegularImmutableList.EMPTY;
 import static java.util.Objects.requireNonNull;
 
-import com.google.common.annotations.Beta;
 import com.google.common.annotations.GwtCompatible;
+import com.google.common.annotations.GwtIncompatible;
+import com.google.common.annotations.J2ktIncompatible;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.errorprone.annotations.DoNotCall;
@@ -151,8 +152,7 @@ public abstract class ImmutableList<E extends @Readonly Object> extends Immutabl
    *
    * @throws NullPointerException if any element is null
    */
-  public static <E extends @Readonly @NonNull Object> ImmutableList<E> of(
-      E e1, E e2, E e3, E e4, E e5, E e6) {
+  public static <E extends @NonNull Object> ImmutableList<E> of(E e1, E e2, E e3, E e4, E e5, E e6) {
     return construct(e1, e2, e3, e4, e5, e6);
   }
 
@@ -161,8 +161,7 @@ public abstract class ImmutableList<E extends @Readonly Object> extends Immutabl
    *
    * @throws NullPointerException if any element is null
    */
-  public static <E extends @Readonly @NonNull Object> ImmutableList<E> of(
-      E e1, E e2, E e3, E e4, E e5, E e6, E e7) {
+  public static <E extends @NonNull Object> ImmutableList<E> of(E e1, E e2, E e3, E e4, E e5, E e6, E e7) {
     return construct(e1, e2, e3, e4, e5, e6, e7);
   }
 
@@ -171,8 +170,7 @@ public abstract class ImmutableList<E extends @Readonly Object> extends Immutabl
    *
    * @throws NullPointerException if any element is null
    */
-  public static <E extends @Readonly @NonNull Object> ImmutableList<E> of(
-      E e1, E e2, E e3, E e4, E e5, E e6, E e7, E e8) {
+  public static <E extends @NonNull Object> ImmutableList<E> of(E e1, E e2, E e3, E e4, E e5, E e6, E e7, E e8) {
     return construct(e1, e2, e3, e4, e5, e6, e7, e8);
   }
 
@@ -181,8 +179,7 @@ public abstract class ImmutableList<E extends @Readonly Object> extends Immutabl
    *
    * @throws NullPointerException if any element is null
    */
-  public static <E extends @Readonly @NonNull Object> ImmutableList<E> of(
-      E e1, E e2, E e3, E e4, E e5, E e6, E e7, E e8, E e9) {
+  public static <E extends @NonNull Object> ImmutableList<E> of(E e1, E e2, E e3, E e4, E e5, E e6, E e7, E e8, E e9) {
     return construct(e1, e2, e3, e4, e5, e6, e7, e8, e9);
   }
 
@@ -246,8 +243,7 @@ public abstract class ImmutableList<E extends @Readonly Object> extends Immutabl
    *
    * @throws NullPointerException if {@code elements} contains a null element
    */
-  public static <E extends @Readonly @NonNull Object> ImmutableList<E> copyOf(
-      Iterable<? extends E> elements) {
+  public static <E extends @NonNull Object> ImmutableList<E> copyOf(Iterable<? extends E> elements) {
     checkNotNull(elements); // TODO(kevinb): is this here only for GWT?
     return (elements instanceof Collection)
         ? copyOf((Collection<? extends E>) elements)
@@ -263,16 +259,15 @@ public abstract class ImmutableList<E extends @Readonly Object> extends Immutabl
    *
    * <p>Note that if {@code list} is a {@code List<String>}, then {@code ImmutableList.copyOf(list)}
    * returns an {@code ImmutableList<String>} containing each of the strings in {@code list}, while
-   * ImmutableList.of(list)} returns an {@code ImmutableList<List<String>>} containing one element
-   * (the given list itself).
+   * {@code ImmutableList.of(list)} returns an {@code ImmutableList<List<String>>} containing one
+   * element (the given list itself).
    *
    * <p>This method is safe to use even when {@code elements} is a synchronized or concurrent
    * collection that is currently being modified by another thread.
    *
    * @throws NullPointerException if {@code elements} contains a null element
    */
-  public static <E extends @Readonly @NonNull Object> ImmutableList<E> copyOf(
-      Collection<? extends E> elements) {
+  public static <E extends @NonNull Object> ImmutableList<E> copyOf(Collection<? extends E> elements) {
     if (elements instanceof ImmutableCollection) {
       @SuppressWarnings("unchecked") // all supported methods are covariant
       ImmutableList<E> list = ((ImmutableCollection<E>) elements).asList();
@@ -286,8 +281,7 @@ public abstract class ImmutableList<E extends @Readonly Object> extends Immutabl
    *
    * @throws NullPointerException if {@code elements} contains a null element
    */
-  public static <E extends @Readonly @NonNull Object> ImmutableList<E> copyOf(
-      Iterator<? extends E> elements) {
+  public static <E extends @NonNull Object> ImmutableList<E> copyOf(Iterator<? extends E> elements) {
     // We special-case for 0 or 1 elements, but going further is madness.
     if (!elements.hasNext()) {
       return of();
@@ -326,7 +320,7 @@ public abstract class ImmutableList<E extends @Readonly Object> extends Immutabl
    * ImmutableSortedSet.copyOf(elements)}; if you want a {@code List} you can use its {@code
    * asList()} view.
    *
-   * <p><b>Java 8 users:</b> If you want to convert a {@link java.util.stream.Stream} to a sorted
+   * <p><b>Java 8+ users:</b> If you want to convert a {@link java.util.stream.Stream} to a sorted
    * {@code ImmutableList}, use {@code stream.sorted().collect(toImmutableList())}.
    *
    * @throws NullPointerException if any element in the input is null
@@ -349,7 +343,7 @@ public abstract class ImmutableList<E extends @Readonly Object> extends Immutabl
    * ImmutableSortedSet.copyOf(comparator, elements)}; if you want a {@code List} you can use its
    * {@code asList()} view.
    *
-   * <p><b>Java 8 users:</b> If you want to convert a {@link java.util.stream.Stream} to a sorted
+   * <p><b>Java 8+ users:</b> If you want to convert a {@link java.util.stream.Stream} to a sorted
    * {@code ImmutableList}, use {@code stream.sorted(comparator).collect(toImmutableList())}.
    *
    * @throws NullPointerException if any element in the input is null
@@ -463,6 +457,12 @@ public abstract class ImmutableList<E extends @Readonly Object> extends Immutabl
    * Returns an immutable list of the elements between the specified {@code fromIndex}, inclusive,
    * and {@code toIndex}, exclusive. (If {@code fromIndex} and {@code toIndex} are equal, the empty
    * immutable list is returned.)
+   *
+   * <p><b>Note:</b> in almost all circumstances, the returned {@link ImmutableList} retains a
+   * strong reference to {@code this}, which may prevent the original list from being garbage
+   * collected. If you want the original list to be eligible for garbage collection, you should
+   * create and use a copy of the sub list (e.g., {@code
+   * ImmutableList.copyOf(originalList.subList(...))}).
    */
   @Override
   public ImmutableList<E> subList(int fromIndex, int toIndex) {
@@ -517,6 +517,15 @@ public abstract class ImmutableList<E extends @Readonly Object> extends Immutabl
     @Override
     boolean isPartialView() {
       return true;
+    }
+
+    // redeclare to help optimizers with b/310253115
+    @SuppressWarnings("RedundantOverride")
+    @Override
+    @J2ktIncompatible // serialization
+    @GwtIncompatible // serialization
+    Object writeReplace() {
+      return super.writeReplace();
     }
   }
 
@@ -597,7 +606,7 @@ public abstract class ImmutableList<E extends @Readonly Object> extends Immutabl
   @Deprecated
   @Override
   @DoNotCall("Always throws UnsupportedOperationException")
-  public final void sort(Comparator<? super E> c) {
+  public final void sort(@Nullable Comparator<? super E> c) {
     throw new UnsupportedOperationException();
   }
 
@@ -700,6 +709,15 @@ public abstract class ImmutableList<E extends @Readonly Object> extends Immutabl
     boolean isPartialView() {
       return forwardList.isPartialView();
     }
+
+    // redeclare to help optimizers with b/310253115
+    @SuppressWarnings("RedundantOverride")
+    @Override
+    @J2ktIncompatible // serialization
+    @GwtIncompatible // serialization
+    Object writeReplace() {
+      return super.writeReplace();
+    }
   }
 
   @Override
@@ -724,6 +742,7 @@ public abstract class ImmutableList<E extends @Readonly Object> extends Immutabl
    * Serializes ImmutableLists as their logical contents. This ensures that
    * implementation types do not leak into the serialized representation.
    */
+  @J2ktIncompatible // serialization
   static class SerializedForm implements Serializable {
     final Object @Readonly [] elements;
 
@@ -738,11 +757,14 @@ public abstract class ImmutableList<E extends @Readonly Object> extends Immutabl
     private static final long serialVersionUID = 0;
   }
 
+  @J2ktIncompatible // serialization
   private void readObject(ObjectInputStream stream) throws InvalidObjectException {
     throw new InvalidObjectException("Use SerializedForm");
   }
 
   @Override
+  @J2ktIncompatible // serialization
+  @GwtIncompatible // serialization
   Object writeReplace() {
     return new SerializedForm(toArray());
   }
@@ -767,7 +789,6 @@ public abstract class ImmutableList<E extends @Readonly Object> extends Immutabl
    *
    * @since 23.1
    */
-  @Beta
   public static <E> Builder<E> builderWithExpectedSize(int expectedSize) {
     checkNonnegative(expectedSize, "expectedSize");
     return new ImmutableList.Builder<E>(expectedSize);
@@ -921,4 +942,6 @@ public abstract class ImmutableList<E extends @Readonly Object> extends Immutabl
       return asImmutableList(contents, size);
     }
   }
+
+  private static final long serialVersionUID = 0xcafebabe;
 }

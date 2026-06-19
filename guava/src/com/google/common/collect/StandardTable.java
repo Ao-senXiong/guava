@@ -34,6 +34,7 @@ import com.google.common.collect.Maps.IteratorBasedAbstractMap;
 import com.google.common.collect.Maps.ViewCachingAbstractMap;
 import com.google.common.collect.Sets.ImprovedAbstractSet;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
+import com.google.errorprone.annotations.concurrent.LazyInit;
 import com.google.j2objc.annotations.WeakOuter;
 import java.io.Serializable;
 import java.util.Collection;
@@ -689,8 +690,7 @@ class StandardTable<R extends @Immutable Object, C extends @Immutable Object, V>
     return rowMap().keySet();
   }
 
-  @CFComment("Change to @LazyFinal later")
-  @CheckForNull private transient @Assignable Set<C> columnKeySet;
+  @LazyInit @CheckForNull private transient Set<C> columnKeySet;
 
   /**
    * {@inheritDoc}
@@ -823,8 +823,7 @@ class StandardTable<R extends @Immutable Object, C extends @Immutable Object, V>
     return super.values();
   }
 
-  @CFComment("Change to @LazyFinal later")
-  @CheckForNull private transient @Assignable Map<R, Map<C, V>> rowMap;
+  @LazyInit @CheckForNull private transient Map<R, Map<C, V>> rowMap;
 
   @Override
   public @PolyMutable Map<R, Map<C, V>> rowMap(@PolyMutable StandardTable<R, C, V> this) {
@@ -865,7 +864,7 @@ class StandardTable<R extends @Immutable Object, C extends @Immutable Object, V>
     }
 
     @WeakOuter
-    class EntrySet extends TableSet<Entry<R, Map<C, V>>> {
+    private final class EntrySet extends TableSet<Entry<R, Map<C, V>>> {
       @Override
       public Iterator<Entry<R, Map<C, V>>> iterator() {
         return Maps.asMapEntryIterator(
@@ -907,8 +906,7 @@ class StandardTable<R extends @Immutable Object, C extends @Immutable Object, V>
     }
   }
 
-  @CFComment("Change to @LazyFinal later")
-  @CheckForNull private transient @Assignable ColumnMap columnMap;
+  @LazyInit @CheckForNull private transient ColumnMap columnMap;
 
   @Override
   public @PolyMutable Map<C, Map<R, V>> columnMap(@PolyMutable StandardTable<R, C, V> this) {
@@ -956,7 +954,7 @@ class StandardTable<R extends @Immutable Object, C extends @Immutable Object, V>
     }
 
     @WeakOuter
-    class ColumnMapEntrySet extends TableSet<Entry<C, Map<R, V>>> {
+    private final class ColumnMapEntrySet extends TableSet<Entry<C, Map<R, V>>> {
       @Override
       public Iterator<Entry<C, Map<R, V>>> iterator() {
         return Maps.asMapEntryIterator(
@@ -1004,7 +1002,7 @@ class StandardTable<R extends @Immutable Object, C extends @Immutable Object, V>
       public boolean removeAll(Collection<?> c) {
         /*
          * We can't inherit the normal implementation (which calls
-         * Sets.removeAllImpl(Set, *Collection*) because, under some
+         * Sets.removeAllImpl(Set, *Collection*)) because, under some
          * circumstances, it attempts to call columnKeySet().iterator().remove,
          * which is unsupported.
          */

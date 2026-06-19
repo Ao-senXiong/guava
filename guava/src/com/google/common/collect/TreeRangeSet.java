@@ -17,10 +17,10 @@ package com.google.common.collect;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import com.google.common.annotations.Beta;
 import com.google.common.annotations.GwtIncompatible;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.MoreObjects;
+import com.google.errorprone.annotations.concurrent.LazyInit;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Comparator;
@@ -46,7 +46,6 @@ import org.checkerframework.framework.qual.CFComment;
  * @author Louis Wasserman
  * @since 14.0
  */
-@Beta
 @GwtIncompatible // uses NavigableMap
 @ElementTypesAreNonnullByDefault
 @ReceiverDependentMutable
@@ -86,9 +85,8 @@ public class TreeRangeSet<C extends @Readonly Comparable<?>> extends AbstractRan
     this.rangesByLowerBound = rangesByLowerCut;
   }
 
-  @CFComment("Change to @LazyFinal later")
-  @CheckForNull private transient @Assignable Set<Range<C>> asRanges;
-  @CheckForNull private transient @Assignable Set<Range<C>> asDescendingSetOfRanges;
+  @LazyInit @CheckForNull private transient Set<Range<C>> asRanges;
+  @LazyInit @CheckForNull private transient Set<Range<C>> asDescendingSetOfRanges;
 
   @Override
   public @PolyMutable Set<Range<C>> asRanges(@PolyMutable TreeRangeSet<C> this) {
@@ -285,8 +283,7 @@ public class TreeRangeSet<C extends @Readonly Comparable<?>> extends AbstractRan
     }
   }
 
-  @CFComment("Change to @LazyFinal later")
-  @CheckForNull private transient @Assignable RangeSet<C> complement;
+  @LazyInit @CheckForNull private transient RangeSet<C> complement;
 
   @Override
   public RangeSet<C> complement(@PolyMutable TreeRangeSet<C> this) {
@@ -818,7 +815,7 @@ public class TreeRangeSet<C extends @Readonly Comparable<?>> extends AbstractRan
                 .iterator();
       }
       Cut<Cut<C>> upperBoundOnLowerBounds =
-          Ordering.natural()
+          Ordering.<Cut<Cut<C>>>natural()
               .min(lowerBoundWindow.upperBound, Cut.belowValue(restriction.upperBound));
       return new AbstractIterator<Entry<Cut<C>, Range<C>>>() {
         @Override
@@ -844,7 +841,7 @@ public class TreeRangeSet<C extends @Readonly Comparable<?>> extends AbstractRan
         return Iterators.emptyIterator();
       }
       Cut<Cut<C>> upperBoundOnLowerBounds =
-          Ordering.natural()
+          Ordering.<Cut<Cut<C>>>natural()
               .min(lowerBoundWindow.upperBound, Cut.belowValue(restriction.upperBound));
       Iterator<Range<C>> completeRangeItr =
           rangesByLowerBound

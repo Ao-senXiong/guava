@@ -24,12 +24,13 @@ import static java.util.Objects.requireNonNull;
 
 import com.google.common.annotations.GwtCompatible;
 import com.google.common.annotations.GwtIncompatible;
+import com.google.common.annotations.J2ktIncompatible;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableMapEntry.NonTerminalImmutableMapEntry;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.io.Serializable;
-import java.util.Map;
 import java.util.IdentityHashMap;
+import java.util.Map;
 import java.util.function.BiConsumer;
 import javax.annotation.CheckForNull;
 import org.checkerframework.checker.index.qual.NonNegative;
@@ -161,7 +162,10 @@ final class RegularImmutableMap<K extends @Immutable Object, V> extends Immutabl
         // Make sure we are not overwriting the original entries array, in case we later do
         // buildOrThrow(). We would want an exception to include two values for the duplicate key.
         if (entries == entryArray) {
-          entries = entries.clone();
+          // Temporary variable is necessary to defeat bad smartcast (entries adopting the type of
+          // entryArray) in the Kotlin translation.
+          Entry<K, V>[] originalEntries = entries;
+          entries = originalEntries.clone();
         }
       }
       entries[entryIndex] = effectiveEntry;
@@ -240,9 +244,10 @@ final class RegularImmutableMap<K extends @Immutable Object, V> extends Immutabl
    *     flooding attack
    */
   @CanIgnoreReturnValue
-  static <K extends @Immutable Object, V> @Nullable ImmutableMapEntry<K, V> checkNoConflictInKeyBucket(
-          @Readonly Object key,
-          @Readonly Object newValue,
+  @CheckForNull
+  static <K, V> ImmutableMapEntry<K, V> checkNoConflictInKeyBucket(
+      Object key,
+      Object newValue,
       @CheckForNull ImmutableMapEntry<K, V> keyBucketHead,
       boolean throwIfDuplicateKeys)
       throws BucketOverflowException {
@@ -355,8 +360,18 @@ final class RegularImmutableMap<K extends @Immutable Object, V> extends Immutabl
       return map.size();
     }
 
+    // redeclare to help optimizers with b/310253115
+    @SuppressWarnings("RedundantOverride")
+    @Override
+    @J2ktIncompatible // serialization
+    @GwtIncompatible // serialization
+    Object writeReplace() {
+      return super.writeReplace();
+    }
+
     // No longer used for new writes, but kept so that old data can still be read.
     @GwtIncompatible // serialization
+    @J2ktIncompatible
     @SuppressWarnings("unused")
     private static class SerializedForm<K extends @Immutable Object> implements Serializable {
       final ImmutableMap<K, ?> map;
@@ -369,6 +384,7 @@ final class RegularImmutableMap<K extends @Immutable Object, V> extends Immutabl
         return map.keySet();
       }
 
+      @J2ktIncompatible // serialization
       private static final long serialVersionUID = 0;
     }
   }
@@ -402,8 +418,18 @@ final class RegularImmutableMap<K extends @Immutable Object, V> extends Immutabl
       return true;
     }
 
+    // redeclare to help optimizers with b/310253115
+    @SuppressWarnings("RedundantOverride")
+    @Override
+    @J2ktIncompatible // serialization
+    @GwtIncompatible // serialization
+    Object writeReplace() {
+      return super.writeReplace();
+    }
+
     // No longer used for new writes, but kept so that old data can still be read.
     @GwtIncompatible // serialization
+    @J2ktIncompatible
     @SuppressWarnings("unused")
     private static class SerializedForm<V> implements Serializable {
       final ImmutableMap<?, V> map;
@@ -416,12 +442,23 @@ final class RegularImmutableMap<K extends @Immutable Object, V> extends Immutabl
         return map.values();
       }
 
+      @J2ktIncompatible // serialization
       private static final long serialVersionUID = 0;
     }
   }
 
+  // redeclare to help optimizers with b/310253115
+  @SuppressWarnings("RedundantOverride")
+  @Override
+  @J2ktIncompatible // serialization
+  @GwtIncompatible // serialization
+  Object writeReplace() {
+    return super.writeReplace();
+  }
+
   // This class is never actually serialized directly, but we have to make the
   // warning go away (and suppressing would suppress for all nested classes too)
+  @J2ktIncompatible // serialization
   private static final long serialVersionUID = 0;
 
   @Pure

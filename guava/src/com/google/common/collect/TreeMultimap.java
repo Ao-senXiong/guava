@@ -17,9 +17,11 @@
 package com.google.common.collect;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static java.util.Objects.requireNonNull;
 
 import com.google.common.annotations.GwtCompatible;
 import com.google.common.annotations.GwtIncompatible;
+import com.google.common.annotations.J2ktIncompatible;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -91,7 +93,8 @@ public class TreeMultimap<K extends @Nullable @Immutable Object, V extends @Null
   /**
    * Creates an empty {@code TreeMultimap} ordered by the natural ordering of its keys and values.
    */
-  public static <K extends @Immutable Comparable, V extends @Readonly Comparable> TreeMultimap<K, V> create() {
+  @SuppressWarnings("rawtypes") // https://github.com/google/guava/issues/989
+  public static <K extends Comparable, V extends Comparable> TreeMultimap<K, V> create() {
     return new TreeMultimap<>(Ordering.natural(), Ordering.natural());
   }
 
@@ -113,9 +116,10 @@ public class TreeMultimap<K extends @Nullable @Immutable Object, V extends @Null
    *
    * @param multimap the multimap whose contents are copied to this multimap
    */
-  public static <K extends @Immutable Comparable, V extends @Readonly Comparable> @PolyMutable TreeMultimap<K, V> create(
-          @PolyMutable Multimap<? extends K, ? extends V> multimap) {
-    return new @PolyMutable TreeMultimap<>(Ordering.natural(), Ordering.natural(), multimap);
+  @SuppressWarnings("rawtypes") // https://github.com/google/guava/issues/989
+  public static <K extends Comparable, V extends Comparable> TreeMultimap<K, V> create(
+      Multimap<? extends K, ? extends V> multimap) {
+    return new TreeMultimap<>(Ordering.natural(), Ordering.natural(), multimap);
   }
 
   TreeMultimap(@Nullable Comparator<? super K> keyComparator, @Nullable Comparator<? super V> valueComparator) {
@@ -152,7 +156,7 @@ public class TreeMultimap<K extends @Nullable @Immutable Object, V extends @Null
   @Override
   @PolyMutable Collection<V> createCollection(@PolyMutable TreeMultimap<K, V> this, @ParametricNullness K key) {
     if (key == null) {
-      keyComparator().compare(key, key);
+      int unused = keyComparator().compare(key, key);
     }
     return super.createCollection(key);
   }
@@ -213,6 +217,7 @@ public class TreeMultimap<K extends @Nullable @Immutable Object, V extends @Null
    *     distinct key: the key, number of values for that key, and key values
    */
   @GwtIncompatible // java.io.ObjectOutputStream
+  @J2ktIncompatible
   private void writeObject(ObjectOutputStream stream) throws IOException {
     stream.defaultWriteObject();
     stream.writeObject(keyComparator());
@@ -221,20 +226,24 @@ public class TreeMultimap<K extends @Nullable @Immutable Object, V extends @Null
   }
 
   @GwtIncompatible // java.io.ObjectInputStream
+  @J2ktIncompatible
   @SuppressWarnings("unchecked") // reading data stored by writeObject
   private void readObject(ObjectInputStream stream) throws IOException, ClassNotFoundException {
     stream.defaultReadObject();
-    keyComparator = checkNotNull((Comparator<? super K>) stream.readObject());
-    valueComparator = checkNotNull((Comparator<? super V>) stream.readObject());
+    keyComparator = requireNonNull((Comparator<? super K>) stream.readObject());
+    valueComparator = requireNonNull((Comparator<? super V>) stream.readObject());
     setMap(new TreeMap<K, Collection<V>>(keyComparator));
     Serialization.populateMultimap(this, stream);
   }
 
   @GwtIncompatible // not needed in emulated source
+  @J2ktIncompatible
   private static final long serialVersionUID = 0;
 
+@Override
 @Pure
 public boolean equals(@Readonly TreeMultimap<K, V> this, @Nullable @Readonly Object arg0) { return super.equals(arg0); }
 
-public @Readonly SortedSet<V> removeAll(@Mutable TreeMultimap<K, V> this, @Nullable @Readonly Object arg0) { return super.removeAll(arg0); }
+@Override
+public SortedSet<V> removeAll(@Nullable Object arg0) { return super.removeAll(arg0); }
 }

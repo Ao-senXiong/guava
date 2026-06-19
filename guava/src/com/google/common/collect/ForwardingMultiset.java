@@ -16,7 +16,6 @@
 
 package com.google.common.collect;
 
-import com.google.common.annotations.Beta;
 import com.google.common.annotations.GwtCompatible;
 import com.google.common.base.Objects;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
@@ -152,8 +151,7 @@ public abstract class ForwardingMultiset<E extends @Nullable @Readonly Object> e
    *
    * @since 7.0
    */
-  @Beta
-  protected int standardCount(@Readonly ForwardingMultiset<E> this, @CheckForNull @Readonly Object object) {
+  protected int standardCount(@CheckForNull Object object) {
     for (Entry<?> entry : this.entrySet()) {
       if (Objects.equal(entry.getElement(), object)) {
         return entry.getCount();
@@ -181,7 +179,6 @@ public abstract class ForwardingMultiset<E extends @Nullable @Readonly Object> e
    *
    * @since 7.0
    */
-  @Beta
   @Override
   protected boolean standardAddAll(@Mutable ForwardingMultiset<E> this, @Readonly Collection<? extends E> elementsToAdd) {
     return Multisets.addAllImpl(this, elementsToAdd);
@@ -257,8 +254,6 @@ public abstract class ForwardingMultiset<E extends @Nullable @Readonly Object> e
    *
    * @since 10.0
    */
-  @Beta
-  @ReceiverDependentMutable
   protected class StandardElementSet extends Multisets.ElementSet<E> {
     /** Constructor for use by subclasses. */
     public StandardElementSet() {}

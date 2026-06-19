@@ -17,8 +17,7 @@
 package com.google.common.collect;
 
 import com.google.common.annotations.GwtCompatible;
-import org.checkerframework.checker.pico.qual.Immutable;
-import org.checkerframework.checker.pico.qual.Readonly;
+import java.util.Collection;
 import org.checkerframework.framework.qual.AnnotatedFor;
 
 /**
@@ -37,7 +36,18 @@ class EmptyImmutableListMultimap extends ImmutableListMultimap<@Immutable Object
     super(ImmutableMap.<@Immutable Object, ImmutableList<@Readonly Object>>of(), 0);
   }
 
-  private @Immutable Object readResolve() {
+  /*
+   * TODO(b/242884182): Figure out why this helps produce the same class file when we compile most
+   * of common.collect a second time with the results of the first compilation on the classpath. Or
+   * just back this out once we stop doing that (which we'll do after our internal GWT setup
+   * changes).
+   */
+  @Override
+  public ImmutableMap<Object, Collection<Object>> asMap() {
+    return super.asMap();
+  }
+
+  private Object readResolve() {
     return INSTANCE; // preserve singleton property
   }
 

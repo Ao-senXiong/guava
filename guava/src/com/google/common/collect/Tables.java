@@ -20,7 +20,6 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.NullnessCasts.uncheckedCastNullableTToT;
 
-import com.google.common.annotations.Beta;
 import com.google.common.annotations.GwtCompatible;
 import com.google.common.base.Function;
 import com.google.common.base.Objects;
@@ -75,19 +74,19 @@ public final class Tables {
    *
    * @since 21.0
    */
-  @Beta
   public static <
-          T extends @Nullable @Readonly Object,
-          R extends @Nullable @Immutable Object,
-          C extends @Nullable @Immutable Object,
-          V extends @Nullable @Readonly Object,
+          T extends @Nullable Object,
+          R extends @Nullable Object,
+          C extends @Nullable Object,
+          V,
           I extends Table<R, C, V>>
       Collector<T, ?, I> toTable(
           java.util.function.Function<? super T, ? extends R> rowFunction,
           java.util.function.Function<? super T, ? extends C> columnFunction,
           java.util.function.Function<? super T, ? extends V> valueFunction,
           java.util.function.Supplier<I> tableSupplier) {
-    return TableCollectors.toTable(rowFunction, columnFunction, valueFunction, tableSupplier);
+    return TableCollectors.<T, R, C, V, I>toTable(
+        rowFunction, columnFunction, valueFunction, tableSupplier);
   }
 
   /**
@@ -105,10 +104,10 @@ public final class Tables {
    * @since 21.0
    */
   public static <
-          T extends @Nullable @Readonly Object,
-          R extends @Nullable @Immutable Object,
-          C extends @Nullable @Immutable Object,
-          V extends @Nullable @Readonly Object,
+          T extends @Nullable Object,
+          R extends @Nullable Object,
+          C extends @Nullable Object,
+          V,
           I extends Table<R, C, V>>
       Collector<T, ?, I> toTable(
           java.util.function.Function<? super T, ? extends R> rowFunction,
@@ -116,7 +115,7 @@ public final class Tables {
           java.util.function.Function<? super T, ? extends V> valueFunction,
           BinaryOperator<V> mergeFunction,
           java.util.function.Supplier<I> tableSupplier) {
-    return TableCollectors.toTable(
+    return TableCollectors.<T, R, C, V, I>toTable(
         rowFunction, columnFunction, valueFunction, mergeFunction, tableSupplier);
   }
 
@@ -328,26 +327,21 @@ public final class Tables {
       return original.values();
     }
 
-    // Will cast TRANSPOSE_CELL to a type that always succeeds
-    private static final Function<Cell<?, ?, ?>, Cell<?, ?, ?>> TRANSPOSE_CELL =
-        new Function<Cell<?, ?, ?>, Cell<?, ?, ?>>() {
-          @Override
-          public Cell<?, ?, ?> apply(Cell<?, ?, ?> cell) {
-            return immutableCell(cell.getColumnKey(), cell.getRowKey(), cell.getValue());
-          }
-        };
-
-    @SuppressWarnings("unchecked")
     @Override
-    Iterator<Cell<C, R, V>> cellIterator(@Readonly TransposeTable<C, R, V> this) {
-      return Iterators.transform(original.cellSet().iterator(), (Function) TRANSPOSE_CELL);
+    Iterator<Cell<C, R, V>> cellIterator() {
+      return Iterators.transform(original.cellSet().iterator(), Tables::transposeCell);
     }
 
-    @SuppressWarnings("unchecked")
     @Override
-    Spliterator<Cell<C, R, V>> cellSpliterator(@Readonly TransposeTable<C, R, V> this) {
-      return CollectSpliterators.map(original.cellSet().spliterator(), (Function) TRANSPOSE_CELL);
+    Spliterator<Cell<C, R, V>> cellSpliterator() {
+      return CollectSpliterators.map(original.cellSet().spliterator(), Tables::transposeCell);
     }
+  }
+
+  private static <
+          R extends @Nullable Object, C extends @Nullable Object, V extends @Nullable Object>
+      Cell<C, R, V> transposeCell(Cell<R, C, V> cell) {
+    return immutableCell(cell.getColumnKey(), cell.getRowKey(), cell.getValue());
   }
 
   /**
@@ -388,8 +382,7 @@ public final class Tables {
    * @throws IllegalArgumentException if {@code backingMap} is not empty
    * @since 10.0
    */
-  @Beta
-  public static <R extends @Immutable Object, C extends @Immutable Object, V> Table<R, C, V> newCustomTable(
+  public static <R, C, V> Table<R, C, V> newCustomTable(
       Map<R, Map<C, V>> backingMap, Supplier<? extends Map<C, V>> factory) {
     checkArgument(backingMap.isEmpty());
     checkNotNull(factory);
@@ -418,7 +411,6 @@ public final class Tables {
    *
    * @since 10.0
    */
-  @Beta
   public static <
           R extends @Nullable @Immutable Object,
           C extends @Nullable @Immutable Object,
@@ -678,9 +670,8 @@ public final class Tables {
    * @return an unmodifiable view of the specified table
    * @since 11.0
    */
-  @Beta
-  public static <R extends @Nullable @Immutable Object, C extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object>
-    @Readonly RowSortedTable<R, C, V> unmodifiableRowSortedTable(
+  public static <R extends @Nullable Object, C extends @Nullable Object, V extends @Nullable Object>
+      RowSortedTable<R, C, V> unmodifiableRowSortedTable(
           RowSortedTable<R, ? extends C, ? extends V> table) {
     /*
      * It's not ? extends R, because it's technically not covariant in R. Specifically,
@@ -690,9 +681,8 @@ public final class Tables {
     return new UnmodifiableRowSortedMap<>(table);
   }
 
-  @Immutable
-  static final class UnmodifiableRowSortedMap<
-          R extends @Nullable @Immutable Object, C extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object>
+  private static final class UnmodifiableRowSortedMap<
+          R extends @Nullable Object, C extends @Nullable Object, V extends @Nullable Object>
       extends UnmodifiableTable<R, C, V> implements RowSortedTable<R, C, V> {
 
     public UnmodifiableRowSortedMap(@Readonly RowSortedTable<R, ? extends C, ? extends V> delegate) {

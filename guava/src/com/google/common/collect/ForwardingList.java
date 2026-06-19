@@ -16,7 +16,6 @@
 
 package com.google.common.collect;
 
-import com.google.common.annotations.Beta;
 import com.google.common.annotations.GwtCompatible;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.util.Collection;
@@ -221,8 +220,7 @@ public abstract class ForwardingList<E extends @Nullable @Readonly Object> exten
    *
    * @since 7.0
    */
-  @Beta
-  protected ListIterator<E> standardListIterator(@Readonly ForwardingList<E> this, int start) {
+  protected ListIterator<E> standardListIterator(int start) {
     return Lists.listIteratorImpl(this, start);
   }
 
@@ -232,8 +230,7 @@ public abstract class ForwardingList<E extends @Nullable @Readonly Object> exten
    *
    * @since 7.0
    */
-  @Beta
-  protected @PolyMutable List<E> standardSubList(@PolyMutable ForwardingList<E> this, int fromIndex, int toIndex) {
+  protected List<E> standardSubList(int fromIndex, int toIndex) {
     return Lists.subListImpl(this, fromIndex, toIndex);
   }
 
@@ -244,8 +241,7 @@ public abstract class ForwardingList<E extends @Nullable @Readonly Object> exten
    *
    * @since 7.0
    */
-  @Beta
-  protected boolean standardEquals(@Readonly ForwardingList<E> this, @CheckForNull @Readonly Object object) {
+  protected boolean standardEquals(@CheckForNull Object object) {
     return Lists.equalsImpl(this, object);
   }
 
@@ -256,8 +252,7 @@ public abstract class ForwardingList<E extends @Nullable @Readonly Object> exten
    *
    * @since 7.0
    */
-  @Beta
-  protected int standardHashCode(@Readonly ForwardingList<E> this) {
+  protected int standardHashCode() {
     return Lists.hashCodeImpl(this);
   }
 }
