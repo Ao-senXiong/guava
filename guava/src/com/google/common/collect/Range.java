@@ -29,7 +29,6 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.SortedSet;
 import javax.annotation.CheckForNull;
-import org.checkerframework.checker.mutability.qual.Immutable;
 import org.checkerframework.checker.mutability.qual.Readonly;
 import org.checkerframework.checker.signedness.qual.UnknownSignedness;
 
@@ -124,7 +123,7 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
 @SuppressWarnings("rawtypes") // https://github.com/google/guava/issues/989
 @Immutable(containerOf = "C")
 @ElementTypesAreNonnullByDefault
-@Immutable
+@org.checkerframework.checker.mutability.qual.Immutable
 public final class Range<C extends @Readonly Comparable> extends RangeGwtSerializationDependencies
     implements Predicate<C>, Serializable {
   @SuppressWarnings("unchecked")
