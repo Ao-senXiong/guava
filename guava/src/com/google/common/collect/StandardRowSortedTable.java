@@ -28,8 +28,8 @@ import java.util.SortedMap;
 import java.util.SortedSet;
 import javax.annotation.CheckForNull;
 import org.checkerframework.checker.nullness.qual.KeyFor;
-import org.checkerframework.checker.pico.qual.Immutable;
-import org.checkerframework.checker.pico.qual.ReceiverDependentMutable;
+import org.checkerframework.checker.mutability.qual.Immutable;
+import org.checkerframework.checker.mutability.qual.ReceiverDependentMutable;
 
 /**
  * Implementation of {@code Table} whose iteration ordering across row keys is sorted by their

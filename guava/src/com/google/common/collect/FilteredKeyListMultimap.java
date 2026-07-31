@@ -21,8 +21,8 @@ import com.google.common.base.Predicate;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
-import org.checkerframework.checker.pico.qual.Immutable;
-import org.checkerframework.checker.pico.qual.Readonly;
+import org.checkerframework.checker.mutability.qual.Immutable;
+import org.checkerframework.checker.mutability.qual.Readonly;
 
 /**
  * Implementation of {@link Multimaps#filterKeys(ListMultimap, Predicate)}.

@@ -31,7 +31,7 @@ import java.util.List;
 import java.util.stream.Stream;
 import javax.annotation.CheckForNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
-import org.checkerframework.checker.pico.qual.Readonly;
+import org.checkerframework.checker.mutability.qual.Readonly;
 
 /**
  * An accumulator that selects the "top" {@code k} elements added to it, relative to a provided

@@ -22,7 +22,7 @@ import java.util.Comparator;
 import java.util.Iterator;
 import javax.annotation.CheckForNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
-import org.checkerframework.checker.pico.qual.Readonly;
+import org.checkerframework.checker.mutability.qual.Readonly;
 import org.checkerframework.checker.signedness.qual.UnknownSignedness;
 
 /** An ordering which sorts iterables by comparing corresponding elements pairwise. */

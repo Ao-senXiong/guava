@@ -23,7 +23,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.RandomAccess;
 import org.checkerframework.checker.nullness.qual.Nullable;
-import org.checkerframework.checker.pico.qual.Immutable;
+import org.checkerframework.checker.mutability.qual.Immutable;
 
 /**
  * Static methods pertaining to sorted {@link List} instances.

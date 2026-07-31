@@ -24,7 +24,7 @@ import com.google.common.base.Objects;
 import java.util.concurrent.Callable;
 import javax.annotation.CheckForNull;
 import org.checkerframework.checker.signedness.qual.UnknownSignedness;
-import org.checkerframework.checker.pico.qual.Immutable;
+import org.checkerframework.checker.mutability.qual.Immutable;
 
 /**
  * Statistics about the performance of a {@link Cache}. Instances of this class are immutable.

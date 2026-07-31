@@ -20,7 +20,7 @@ import static com.google.common.math.MathPreconditions.checkRoundingUnnecessary;
 import com.google.common.annotations.GwtIncompatible;
 import java.math.RoundingMode;
 
-import org.checkerframework.checker.pico.qual.Immutable;
+import org.checkerframework.checker.mutability.qual.Immutable;
 import org.checkerframework.framework.qual.CFComment;
 
 /**

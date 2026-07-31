@@ -20,7 +20,7 @@ import com.google.common.annotations.GwtCompatible;
 import java.util.NoSuchElementException;
 import javax.annotation.CheckForNull;
 
-import org.checkerframework.checker.pico.qual.ReceiverDependentMutable;
+import org.checkerframework.checker.mutability.qual.ReceiverDependentMutable;
 import org.checkerframework.framework.qual.CFComment;
 
 /**

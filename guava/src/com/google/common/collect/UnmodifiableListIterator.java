@@ -20,8 +20,8 @@ import com.google.common.annotations.GwtCompatible;
 import com.google.errorprone.annotations.DoNotCall;
 import java.util.ListIterator;
 import org.checkerframework.checker.nullness.qual.Nullable;
-import org.checkerframework.checker.pico.qual.Immutable;
-import org.checkerframework.checker.pico.qual.Readonly;
+import org.checkerframework.checker.mutability.qual.Immutable;
+import org.checkerframework.checker.mutability.qual.Readonly;
 import org.checkerframework.framework.qual.AnnotatedFor;
 
 /**

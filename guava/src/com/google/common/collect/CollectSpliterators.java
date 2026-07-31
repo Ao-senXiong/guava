@@ -35,8 +35,8 @@ import java.util.function.Predicate;
 import java.util.stream.IntStream;
 import javax.annotation.CheckForNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
-import org.checkerframework.checker.pico.qual.Assignable;
-import org.checkerframework.checker.pico.qual.Readonly;
+import org.checkerframework.checker.mutability.qual.Assignable;
+import org.checkerframework.checker.mutability.qual.Readonly;
 
 /** Spliterator utilities for {@code common.collect} internals. */
 @GwtCompatible

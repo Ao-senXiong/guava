@@ -19,8 +19,8 @@ package com.google.common.collect;
 import com.google.common.annotations.GwtIncompatible;
 import java.util.SortedSet;
 import org.checkerframework.checker.nullness.qual.Nullable;
-import org.checkerframework.checker.pico.qual.Readonly;
-import org.checkerframework.checker.pico.qual.ReceiverDependentMutable;
+import org.checkerframework.checker.mutability.qual.Readonly;
+import org.checkerframework.checker.mutability.qual.ReceiverDependentMutable;
 
 /**
  * Superinterface of {@link SortedMultiset} to introduce a bridge method for {@code elementSet()},

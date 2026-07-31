@@ -20,7 +20,7 @@ import com.google.common.annotations.J2ktIncompatible;
 import java.util.Comparator;
 import java.util.Spliterator;
 import javax.annotation.CheckForNull;
-import org.checkerframework.checker.pico.qual.Immutable;
+import org.checkerframework.checker.mutability.qual.Immutable;
 import org.checkerframework.checker.signedness.qual.UnknownSignedness;
 import org.checkerframework.framework.qual.AnnotatedFor;
 
