@@ -18,6 +18,7 @@
     <jsr305.version>3.0.2</jsr305.version>
     <checker.version>3.49.5-eisop1</checker.version>
     <errorprone.version>2.26.1</errorprone.version>
+    <errorprone.compiler.arg>-Xplugin:ErrorProne -Xep:NullArgumentForNonNullParameter:OFF -Xep:Java8ApiChecker:ERROR</errorprone.compiler.arg>
     <j2objc.version>3.0.0</j2objc.version>
     <javac.version>9+181-r4173-1</javac.version>
     <!-- Empty for all JDKs but 9-12 -->
@@ -463,7 +464,7 @@
                      be passed as part of the same <arg> as -Xplugin:ErrorProne,
                      and I gave up trying to figure out how to do that for test
                      compilation only. -->
-                <arg>-Xplugin:ErrorProne -Xep:NullArgumentForNonNullParameter:OFF -Xep:Java8ApiChecker:ERROR</arg>
+                <arg>${errorprone.compiler.arg}</arg>
                 <!-- https://github.com/google/error-prone/blob/f8e33bc460be82ab22256a7ef8b979d7a2cacaba/docs/installation.md#jdk-16 -->
                 <!-- TODO(cpovirk): Use .mvn/jvm.config instead (per
                      https://errorprone.info/docs/installation#maven) if it can
