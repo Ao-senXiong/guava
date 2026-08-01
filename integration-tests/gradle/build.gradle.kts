@@ -1,23 +1,18 @@
 val runningGradle5 = gradle.gradleVersion.startsWith("5.")
 
-val pomText = file("../../pom.xml").readText()
 val guavaVersionJre =
-  "<version>(.*)</version>".toRegex().find(pomText)?.groups?.get(1)?.value
+  "<version>(.*)</version>".toRegex().find(file("../../pom.xml").readText())?.groups?.get(1)?.value
     ?: error("version not found in pom")
 val checkerVersion =
-  "<checker.version>(.*)</checker.version>".toRegex().find(pomText)?.groups?.get(1)?.value
+  "<checker.version>(.*)</checker.version>".toRegex().find(file("../../pom.xml").readText())?.groups?.get(1)?.value
     ?: error("checker.version not found in pom")
-val errorProneVersionJre =
-  "<errorprone.version>(.*)</errorprone.version>".toRegex().find(pomText)?.groups?.get(1)?.value
-    ?: error("errorprone.version not found in pom")
-
 val expectedReducedRuntimeClasspathAndroidVersion =
   setOf(
     "guava-${guavaVersionJre.replace("jre", "android")}.jar",
     "failureaccess-1.0.2.jar",
     "jsr305-3.0.2.jar",
     "checker-qual-$checkerVersion.jar",
-    "error_prone_annotations-$errorProneVersionJre.jar",
+    "error_prone_annotations-2.26.1.jar",
     "listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar"
   )
 val expectedReducedRuntimeClasspathJreVersion =
@@ -26,7 +21,7 @@ val expectedReducedRuntimeClasspathJreVersion =
     "failureaccess-1.0.2.jar",
     "jsr305-3.0.2.jar",
     "checker-qual-$checkerVersion.jar",
-    "error_prone_annotations-$errorProneVersionJre.jar",
+    "error_prone_annotations-2.26.1.jar",
     "listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar"
   )
 val expectedCompileClasspathAndroidVersion =

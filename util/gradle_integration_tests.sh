@@ -20,7 +20,7 @@ set -eu
 GRADLE_TEMP="$(mktemp -d)"
 trap 'rm -rf "${GRADLE_TEMP}"' EXIT
 
-# The Gradle tests need the pom.xml only to read its version numbers.
+# The Gradle tests need the pom.xml only to read its version number.
 # (And the file needs to be two directory levels up from the Gradle build file.)
 # TODO(cpovirk): Find a better way to give them that information.
 cp pom.xml "${GRADLE_TEMP}"
