@@ -38,7 +38,7 @@ import org.checkerframework.framework.qual.AnnotatedFor;
  *
  * @author Gregory Kick
  */
-@AnnotatedFor("pico")
+@AnnotatedFor("mutability")
 @GwtCompatible
 @ElementTypesAreNonnullByDefault
 @Immutable

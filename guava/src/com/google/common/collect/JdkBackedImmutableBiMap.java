@@ -37,7 +37,7 @@ import org.checkerframework.framework.qual.AnnotatedFor;
  * Implementation of ImmutableBiMap backed by a pair of JDK HashMaps, which have smartness
  * protecting against hash flooding.
  */
-@AnnotatedFor("pico")
+@AnnotatedFor("mutability")
 @GwtCompatible(emulated = true)
 @ElementTypesAreNonnullByDefault
 @Immutable

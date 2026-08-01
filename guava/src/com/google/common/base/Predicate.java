@@ -44,7 +44,7 @@ import org.checkerframework.framework.qual.AnnotatedFor;
  * @author Kevin Bourrillion
  * @since 2.0
  */
-@SuppressWarnings("pico")
+@SuppressWarnings("mutability")
 @FunctionalInterface
 @GwtCompatible
 @AnnotatedFor({"nullness"})

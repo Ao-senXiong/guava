@@ -29,7 +29,7 @@ import org.checkerframework.framework.qual.AnnotatedFor;
  * @author Louis Wasserman
  */
 @SuppressWarnings("serial") // uses writeReplace, not default serialization
-@AnnotatedFor("pico")
+@AnnotatedFor("mutability")
 @GwtIncompatible
 @ElementTypesAreNonnullByDefault
 @Immutable

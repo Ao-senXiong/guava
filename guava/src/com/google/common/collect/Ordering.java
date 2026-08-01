@@ -151,7 +151,7 @@ import org.checkerframework.framework.qual.CFComment;
  * @author Kevin Bourrillion
  * @since 2.0
  */
-@AnnotatedFor({"nullness", "pico"})
+@AnnotatedFor({"nullness", "mutability"})
 @GwtCompatible
 @ElementTypesAreNonnullByDefault
 public abstract class Ordering<T extends @Nullable @Readonly Object> implements Comparator<T> {

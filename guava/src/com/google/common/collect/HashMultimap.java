@@ -57,7 +57,7 @@ import org.checkerframework.framework.qual.CFComment;
  * @author Jared Levy
  * @since 2.0
  */
-@AnnotatedFor({"nullness", "pico"})
+@AnnotatedFor({"nullness", "mutability"})
 @GwtCompatible(serializable = true, emulated = true)
 @ElementTypesAreNonnullByDefault
 @ReceiverDependentMutable
@@ -121,7 +121,7 @@ public final class HashMultimap<K extends @Nullable @Immutable Object, V extends
     this.expectedValuesPerKey = expectedValuesPerKey;
   }
 
-  @SuppressWarnings("pico:method.invocation.invalid") // Putall method
+  @SuppressWarnings("mutability:method.invocation.invalid") // Putall method
   private HashMultimap(@ReceiverDependentMutable Multimap<? extends K, ? extends V> multimap) {
     super(Platform.<K, @ReceiverDependentMutable Collection<V>>newHashMapWithExpectedSize(multimap.keySet().size()));
     putAll(multimap);

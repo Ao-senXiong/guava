@@ -36,7 +36,7 @@ import org.checkerframework.framework.qual.AnnotatedFor;
  *
  * @author Louis Wasserman
  */
-@AnnotatedFor("pico")
+@AnnotatedFor("mutability")
 @GwtCompatible
 @ElementTypesAreNonnullByDefault
 @Immutable
@@ -57,7 +57,7 @@ final class CartesianList<E> extends AbstractList<List<E>> implements RandomAcce
     return new CartesianList<>(axesBuilder.build());
   }
 
-  @SuppressWarnings("pico:assignment.type.incompatible") // cast from @Unique @Mutable to @Immutable
+  @SuppressWarnings("mutability:assignment.type.incompatible") // cast from @Unique @Mutable to @Immutable
   CartesianList(ImmutableList<@Immutable List<E>> axes) {
     this.axes = axes;
     int[] axesSizeProduct = new int[axes.size() + 1];

@@ -23,7 +23,7 @@ import org.checkerframework.dataflow.qual.Pure;
 import org.checkerframework.framework.qual.AnnotatedFor;
 
 /** An ordering that uses the natural order of the string representation of the values. */
-@AnnotatedFor("pico")
+@AnnotatedFor("mutability")
 @GwtCompatible(serializable = true)
 @ElementTypesAreNonnullByDefault
 final class UsingToStringOrdering extends Ordering<Object> implements Serializable {

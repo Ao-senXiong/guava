@@ -38,7 +38,7 @@ import org.checkerframework.framework.qual.AnnotatedFor;
  * @author Louis Wasserman
  * @since 21.0
  */
-@AnnotatedFor("pico")
+@AnnotatedFor("mutability")
 @GwtCompatible
 @ElementTypesAreNonnullByDefault
 public final class MoreCollectors {
@@ -106,7 +106,7 @@ public final class MoreCollectors {
       extras = emptyList();
     }
 
-    @SuppressWarnings("pico") // Replaced as mutable list
+    @SuppressWarnings("mutability") // Replaced as mutable list
     IllegalArgumentException multiples(boolean overflow) {
       StringBuilder sb =
           new StringBuilder().append("expected one element but was: <").append(element);
@@ -120,7 +120,7 @@ public final class MoreCollectors {
       throw new IllegalArgumentException(sb.toString());
     }
 
-    @SuppressWarnings("pico") // Replaced as mutable list
+    @SuppressWarnings("mutability") // Replaced as mutable list
     void add(Object o) {
       checkNotNull(o);
       if (element == null) {
@@ -136,7 +136,7 @@ public final class MoreCollectors {
       }
     }
 
-    @SuppressWarnings("pico") // Replaced as mutable list
+    @SuppressWarnings("mutability") // Replaced as mutable list
     ToOptionalState combine(ToOptionalState other) {
       if (element == null) {
         return other;

@@ -29,7 +29,7 @@ import org.checkerframework.framework.qual.CFComment;
  */
 @GwtIncompatible
 @ElementTypesAreNonnullByDefault
-@CFComment("pico: explicit argument to avoid type annotation invalidate error")
+@CFComment("mutability: explicit argument to avoid type annotation invalidate error")
 abstract class ToDoubleRounder<X extends @Immutable Number & Comparable<X>> {
   /**
    * Returns x rounded to either the greatest double less than or equal to the precise value of x,

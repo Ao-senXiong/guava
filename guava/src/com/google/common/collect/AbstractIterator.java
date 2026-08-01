@@ -67,7 +67,7 @@ import org.checkerframework.framework.qual.CFComment;
  */
 // When making changes to this class, please also update the copy at
 // com.google.common.base.AbstractIterator
-@AnnotatedFor({"nullness", "pico"})
+@AnnotatedFor({"nullness", "mutability"})
 @GwtCompatible
 @ElementTypesAreNonnullByDefault
 @CFComment("AOSEN: Is this a design issue?")

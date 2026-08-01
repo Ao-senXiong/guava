@@ -51,7 +51,7 @@ import org.checkerframework.framework.qual.CFComment;
  * @since 2.0
  */
 @GwtCompatible
-@AnnotatedFor({"nullness", "pico"})
+@AnnotatedFor({"nullness", "mutability"})
 @ElementTypesAreNonnullByDefault
 @CFComment("PICO: BiMap both key and value type are immutable")
 @ReceiverDependentMutable

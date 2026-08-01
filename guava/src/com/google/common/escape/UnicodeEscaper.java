@@ -57,7 +57,7 @@ import org.checkerframework.framework.qual.AnnotatedFor;
  * @author David Beaumont
  * @since 15.0
  */
-@AnnotatedFor("pico")
+@AnnotatedFor("mutability")
 @GwtCompatible
 @ElementTypesAreNonnullByDefault
 public abstract class UnicodeEscaper extends Escaper {
@@ -164,7 +164,7 @@ public abstract class UnicodeEscaper extends Escaper {
    * @throws NullPointerException if {@code string} is null
    * @throws IllegalArgumentException if invalid surrogate characters are encountered
    */
-  @SuppressWarnings("pico:argument.type.incompatible") // cast from @Unique @Mutable to @Immutable
+  @SuppressWarnings("mutability:argument.type.incompatible") // cast from @Unique @Mutable to @Immutable
   protected final String escapeSlow(String s, @IndexOrHigh("#1") int index) {
     int end = s.length();
 

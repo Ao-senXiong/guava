@@ -36,7 +36,7 @@ import org.checkerframework.framework.qual.CFComment;
  *
  * @author Jared Levy
  */
-@AnnotatedFor("pico")
+@AnnotatedFor("mutability")
 @GwtCompatible
 @ElementTypesAreNonnullByDefault
 @CFComment("AOSEN: Is this a design issue?")

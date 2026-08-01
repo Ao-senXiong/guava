@@ -56,7 +56,7 @@ import org.checkerframework.framework.qual.AnnotatedFor;
  */
 @GwtCompatible
 @ElementTypesAreNonnullByDefault
-@AnnotatedFor("pico")
+@AnnotatedFor("mutability")
 @Immutable
 public abstract class ImmutableTable<R extends @Immutable Object, C extends @Immutable Object, V> extends AbstractTable<R, C, V>
     implements Serializable {

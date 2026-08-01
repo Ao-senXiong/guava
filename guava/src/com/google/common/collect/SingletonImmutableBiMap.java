@@ -40,7 +40,7 @@ import org.checkerframework.framework.qual.CFComment;
  * @author Jesse Wilson
  * @author Kevin Bourrillion
  */
-@AnnotatedFor("pico")
+@AnnotatedFor("mutability")
 @GwtCompatible(serializable = true, emulated = true)
 @SuppressWarnings("serial") // uses writeReplace(), not default serialization
 @ElementTypesAreNonnullByDefault

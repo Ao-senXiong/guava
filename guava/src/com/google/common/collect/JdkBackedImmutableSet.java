@@ -32,7 +32,7 @@ import org.checkerframework.framework.qual.AnnotatedFor;
  *
  * @author Louis Wasserman
  */
-@AnnotatedFor("pico")
+@AnnotatedFor("mutability")
 @GwtCompatible(serializable = true)
 @ElementTypesAreNonnullByDefault
 @Immutable

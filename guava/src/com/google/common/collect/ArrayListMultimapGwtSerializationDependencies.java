@@ -32,7 +32,7 @@ import org.checkerframework.framework.qual.AnnotatedFor;
  *
  * <p>TODO(cpovirk): Consider applying this subclass approach to our other types.
  */
-@AnnotatedFor("pico")
+@AnnotatedFor("mutability")
 @GwtCompatible(emulated = true)
 @ReceiverDependentMutable
 abstract class ArrayListMultimapGwtSerializationDependencies<K extends @Immutable Object, V>

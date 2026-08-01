@@ -27,7 +27,7 @@ import org.checkerframework.dataflow.qual.Pure;
 import org.checkerframework.framework.qual.AnnotatedFor;
 
 /** An ordering that treats {@code null} as less than all other values. */
-@AnnotatedFor({"nullness", "pico"})
+@AnnotatedFor({"nullness", "mutability"})
 @GwtCompatible(serializable = true)
 @ElementTypesAreNonnullByDefault
 final class NullsFirstOrdering<T extends @Nullable @Readonly Object> extends Ordering<@Nullable T>

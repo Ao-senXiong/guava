@@ -48,7 +48,7 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
 @Beta
 @Immutable
 @ElementTypesAreNonnullByDefault
-@SuppressWarnings("pico")
+@SuppressWarnings("mutability")
 public final class ElementOrder<T> {
   private final Type type;
 

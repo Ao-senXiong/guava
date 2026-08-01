@@ -39,7 +39,7 @@ import org.checkerframework.framework.qual.AnnotatedFor;
  * Implementation of ImmutableMap backed by a JDK HashMap, which has smartness protecting against
  * hash flooding.
  */
-@AnnotatedFor("pico")
+@AnnotatedFor("mutability")
 @GwtCompatible(emulated = true)
 @ElementTypesAreNonnullByDefault
 @Immutable

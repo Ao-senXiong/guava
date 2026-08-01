@@ -57,7 +57,7 @@ import org.checkerframework.framework.qual.AnnotatedFor;
  * @author Louis Wasserman
  * @since 12.0
  */
-@AnnotatedFor("pico")
+@AnnotatedFor("mutability")
 @GwtIncompatible // hasn't been tested yet
 @ElementTypesAreNonnullByDefault
 public abstract class ImmutableSortedMultiset<E> extends ImmutableMultiset<E>

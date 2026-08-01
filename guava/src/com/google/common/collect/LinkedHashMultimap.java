@@ -94,7 +94,7 @@ import org.checkerframework.framework.qual.CFComment;
  * @author Louis Wasserman
  * @since 2.0
  */
-@AnnotatedFor({"nullness", "pico"})
+@AnnotatedFor({"nullness", "mutability"})
 @GwtCompatible(serializable = true, emulated = true)
 @ElementTypesAreNonnullByDefault
 @ReceiverDependentMutable

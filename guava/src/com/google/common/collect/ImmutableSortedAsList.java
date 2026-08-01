@@ -30,7 +30,7 @@ import org.checkerframework.framework.qual.AnnotatedFor;
  * @author Jared Levy
  * @author Louis Wasserman
  */
-@AnnotatedFor("pico")
+@AnnotatedFor("mutability")
 @GwtCompatible(emulated = true)
 @SuppressWarnings("serial")
 @ElementTypesAreNonnullByDefault

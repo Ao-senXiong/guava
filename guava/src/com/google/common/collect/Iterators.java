@@ -75,7 +75,7 @@ import org.checkerframework.framework.qual.CFComment;
  * @author Jared Levy
  * @since 2.0
  */
-@AnnotatedFor({"nullness", "pico"})
+@AnnotatedFor({"nullness", "mutability"})
 @GwtCompatible(emulated = true)
 @ElementTypesAreNonnullByDefault
 public final class Iterators {

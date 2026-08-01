@@ -29,7 +29,7 @@ import org.checkerframework.framework.qual.AnnotatedFor;
  *
  * @author Emily Soldal
  */
-@AnnotatedFor("pico")
+@AnnotatedFor("mutability")
 @GwtCompatible(serializable = true)
 @ElementTypesAreNonnullByDefault
 final class AllEqualOrdering extends Ordering<@Nullable @Readonly Object> implements Serializable {

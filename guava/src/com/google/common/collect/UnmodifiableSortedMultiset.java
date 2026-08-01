@@ -36,7 +36,7 @@ import org.checkerframework.framework.qual.CFComment;
  *
  * @author Louis Wasserman
  */
-@AnnotatedFor("pico")
+@AnnotatedFor("mutability")
 @GwtCompatible(emulated = true)
 @ElementTypesAreNonnullByDefault
 @Immutable

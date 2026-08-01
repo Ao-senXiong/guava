@@ -44,7 +44,7 @@ import org.checkerframework.framework.qual.AnnotatedFor;
  * @author Dimitris Andreou
  * @since 11.0
  */
-@AnnotatedFor("pico")
+@AnnotatedFor("mutability")
 @Beta
 @DoNotMock("Implement with a lambda")
 @ElementTypesAreNonnullByDefault

@@ -30,7 +30,7 @@ import org.checkerframework.framework.qual.AnnotatedFor;
  * @since 7.0
  * @author Louis Wasserman
  */
-@AnnotatedFor("pico")
+@AnnotatedFor("mutability")
 @GwtCompatible
 @ElementTypesAreNonnullByDefault
 @Immutable

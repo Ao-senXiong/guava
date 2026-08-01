@@ -32,7 +32,7 @@ import org.checkerframework.framework.qual.CFComment;
  *
  * @author Gregory Kick
  */
-@AnnotatedFor("pico")
+@AnnotatedFor("mutability")
 @GwtCompatible
 @ElementTypesAreNonnullByDefault
 @CFComment("Value need to be immutable because it is later used for constructing a bimap")

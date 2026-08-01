@@ -38,7 +38,7 @@ import org.checkerframework.framework.qual.AnnotatedFor;
  *
  * @author Jared Levy
  */
-@AnnotatedFor({"nullness", "pico"})
+@AnnotatedFor({"nullness", "mutability"})
 @GwtIncompatible
 @J2ktIncompatible
 @ElementTypesAreNonnullByDefault

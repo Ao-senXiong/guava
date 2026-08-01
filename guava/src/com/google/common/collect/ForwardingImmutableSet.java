@@ -25,7 +25,7 @@ import org.checkerframework.framework.qual.AnnotatedFor;
  *
  * @author Chris Povirk
  */
-@AnnotatedFor("pico")
+@AnnotatedFor("mutability")
 @GwtCompatible(emulated = true)
 @ElementTypesAreNonnullByDefault
 @Immutable

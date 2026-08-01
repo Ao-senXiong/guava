@@ -74,7 +74,7 @@ import org.checkerframework.framework.qual.AnnotatedFor;
 @DoNotMock("Use ImmutableTable, HashBasedTable, or another implementation")
 @GwtCompatible
 @ElementTypesAreNonnullByDefault
-@AnnotatedFor("pico")
+@AnnotatedFor("mutability")
 @ReceiverDependentMutable
 public interface Table<
     R extends @Nullable @Immutable Object, C extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object> {

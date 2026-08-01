@@ -48,7 +48,7 @@ import org.checkerframework.framework.qual.AnnotatedFor;
  *
  * @author James Sexton
  */
-@AnnotatedFor("pico")
+@AnnotatedFor("mutability")
 @ElementTypesAreNonnullByDefault
 @ReceiverDependentMutable
 class MapIteratorCache<K extends @Immutable Object, V> {

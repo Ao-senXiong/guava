@@ -59,7 +59,7 @@ import org.checkerframework.framework.qual.AnnotatedFor;
  * @since 2.0
  */
 @GwtCompatible
-@AnnotatedFor({"nullness", "pico"})
+@AnnotatedFor({"nullness", "mutability"})
 @ElementTypesAreNonnullByDefault
 @ReceiverDependentMutable
 public interface SetMultimap<K extends @Nullable @Immutable Object, V extends @Readonly @Nullable Object>

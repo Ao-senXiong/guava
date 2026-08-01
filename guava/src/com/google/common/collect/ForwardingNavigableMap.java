@@ -61,7 +61,7 @@ import org.checkerframework.framework.qual.AnnotatedFor;
  * @author Louis Wasserman
  * @since 12.0
  */
-@AnnotatedFor("pico")
+@AnnotatedFor("mutability")
 @GwtIncompatible
 @ElementTypesAreNonnullByDefault
 @ReceiverDependentMutable

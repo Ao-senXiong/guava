@@ -29,7 +29,7 @@ import org.checkerframework.framework.qual.AnnotatedFor;
 /** Precondition checks useful in collection implementations. */
 @GwtCompatible
 @ElementTypesAreNonnullByDefault
-@AnnotatedFor("pico")
+@AnnotatedFor("mutability")
 final class CollectPreconditions {
 
   static void checkEntryNotNull(@UnknownSignedness @Readonly Object key, @UnknownSignedness @Readonly Object value) {

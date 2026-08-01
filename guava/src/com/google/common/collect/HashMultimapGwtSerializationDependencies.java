@@ -34,7 +34,7 @@ import java.util.Map;
  *
  * <p>TODO(cpovirk): Consider applying this subclass approach to our other types.
  */
-@AnnotatedFor("pico")
+@AnnotatedFor("mutability")
 @GwtCompatible(emulated = true)
 @ReceiverDependentMutable
 abstract class HashMultimapGwtSerializationDependencies<K extends @Immutable Object , V extends @Readonly Object> extends AbstractSetMultimap<K, V> {

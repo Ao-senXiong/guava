@@ -28,7 +28,7 @@ import org.checkerframework.dataflow.qual.Pure;
 import org.checkerframework.framework.qual.AnnotatedFor;
 
 /** An ordering that tries several comparators in order. */
-@AnnotatedFor({"nullness", "pico"})
+@AnnotatedFor({"nullness", "mutability"})
 @GwtCompatible(serializable = true)
 @ElementTypesAreNonnullByDefault
 final class CompoundOrdering<T extends @Nullable @Readonly Object> extends Ordering<T>

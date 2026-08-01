@@ -172,7 +172,7 @@ import org.checkerframework.framework.qual.AnnotatedFor;
  */
 @DoNotMock("Use ImmutableMultimap, HashMultimap, or another implementation")
 @GwtCompatible
-@AnnotatedFor({"nullness", "pico"})
+@AnnotatedFor({"nullness", "mutability"})
 @ElementTypesAreNonnullByDefault
 @ReceiverDependentMutable
 public interface Multimap<K extends @Nullable @Immutable Object, V extends @Nullable @Readonly Object> {

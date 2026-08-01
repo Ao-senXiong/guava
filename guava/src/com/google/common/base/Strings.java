@@ -26,11 +26,10 @@ import java.util.logging.Logger;
 import javax.annotation.CheckForNull;
 import org.checkerframework.checker.index.qual.IndexOrHigh;
 import org.checkerframework.checker.index.qual.NonNegative;
-import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.checker.mutability.qual.Immutable;
 import org.checkerframework.checker.mutability.qual.Readonly;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.framework.qual.AnnotatedFor;
-import org.checkerframework.framework.qual.EnsuresQualifierIf;
 
 /**
  * Static utility methods pertaining to {@code String} or {@code CharSequence} instances.
@@ -38,7 +37,7 @@ import org.checkerframework.framework.qual.EnsuresQualifierIf;
  * @author Kevin Bourrillion
  * @since 3.0
  */
-@AnnotatedFor("pico")
+@AnnotatedFor("mutability")
 @GwtCompatible
 @ElementTypesAreNonnullByDefault
 public final class Strings {
@@ -156,7 +155,7 @@ public final class Strings {
    */
   @InlineMe(replacement = "string.repeat(count)")
   @InlineMeValidationDisabled("Java 11+ API only")
-  @SuppressWarnings("pico:argument.type.incompatible") // cast from @Unique @Mutable to @Immutable
+  @SuppressWarnings("mutability:argument.type.incompatible") // cast from @Unique @Mutable to @Immutable
   public static String repeat(String string, @NonNegative int count) {
     checkNotNull(string); // eager for GWT.
 

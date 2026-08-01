@@ -95,7 +95,7 @@ import org.checkerframework.framework.qual.CFComment;
  * @author Jared Levy
  * @author Louis Wasserman
  */
-@AnnotatedFor("pico")
+@AnnotatedFor("mutability")
 @GwtCompatible
 @ElementTypesAreNonnullByDefault
 @ReceiverDependentMutable
@@ -440,14 +440,14 @@ abstract class AbstractMapBasedMultimap<K extends @Nullable @Immutable Object, V
     }
 
     @Override
-    @SuppressWarnings("pico:method.invocation.invalid") // refreshIfEmpty mutates 'this'
+    @SuppressWarnings("mutability:method.invocation.invalid") // refreshIfEmpty mutates 'this'
     public Iterator<V> iterator(@Readonly WrappedCollection this) {
       refreshIfEmpty();
       return new WrappedIterator();
     }
 
     @Override
-    @SuppressWarnings("pico:method.invocation.invalid") // refreshIfEmpty mutates 'this'
+    @SuppressWarnings("mutability:method.invocation.invalid") // refreshIfEmpty mutates 'this'
     public Spliterator<V> spliterator(@Readonly WrappedCollection this) {
       refreshIfEmpty();
       return delegate.spliterator();

@@ -50,7 +50,7 @@ import org.checkerframework.framework.qual.CFComment;
  *
  * @author Louis Wasserman
  */
-@AnnotatedFor({"nullness", "pico"})
+@AnnotatedFor({"nullness", "mutability"})
 @GwtCompatible
 @ElementTypesAreNonnullByDefault
 @ReceiverDependentMutable

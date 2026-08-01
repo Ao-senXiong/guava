@@ -23,7 +23,7 @@ import org.checkerframework.framework.qual.AnnotatedFor;
  * A dummy superclass of {@link ImmutableMultimap} that can be instanceof'd without ProGuard
  * retaining additional implementation details of {@link ImmutableMultimap}.
  */
-@AnnotatedFor("pico")
+@AnnotatedFor("mutability")
 @GwtCompatible
 @ElementTypesAreNonnullByDefault
 @Immutable

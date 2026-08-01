@@ -110,7 +110,7 @@ import org.checkerframework.checker.signedness.qual.UnknownSignedness;
 @SuppressWarnings({
   "GoodTime", // lots of violations (nanosecond math)
   "nullness", // too much trouble for the payoff
-        "pico"
+        "mutability"
 })
 @GwtCompatible(emulated = true)
 // TODO(cpovirk): Annotate for nullness.

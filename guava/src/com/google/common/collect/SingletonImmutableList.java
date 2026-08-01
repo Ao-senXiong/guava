@@ -38,7 +38,7 @@ import org.checkerframework.framework.qual.AnnotatedFor;
  *
  * @author Hayward Chan
  */
-@AnnotatedFor({"nullness", "pico"})
+@AnnotatedFor({"nullness", "mutability"})
 @GwtCompatible(serializable = true, emulated = true)
 @SuppressWarnings("serial") // uses writeReplace(), not default serialization
 @ElementTypesAreNonnullByDefault

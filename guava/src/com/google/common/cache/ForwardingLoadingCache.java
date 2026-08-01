@@ -37,7 +37,7 @@ import org.checkerframework.checker.mutability.qual.ReceiverDependentMutable;
 @GwtIncompatible
 @ElementTypesAreNonnullByDefault
 @ReceiverDependentMutable
-@SuppressWarnings("pico")
+@SuppressWarnings("mutability")
 public abstract class ForwardingLoadingCache<K extends @Immutable Object, V> extends ForwardingCache<K, V>
     implements LoadingCache<K, V> {
 

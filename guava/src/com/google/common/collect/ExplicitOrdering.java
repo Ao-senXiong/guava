@@ -20,12 +20,14 @@ import com.google.common.annotations.GwtCompatible;
 import java.io.Serializable;
 import java.util.List;
 import javax.annotation.CheckForNull;
+import org.checkerframework.checker.mutability.qual.Immutable;
+import org.checkerframework.checker.mutability.qual.Readonly;
 import org.checkerframework.checker.signedness.qual.UnknownSignedness;
 import org.checkerframework.dataflow.qual.Pure;
 import org.checkerframework.framework.qual.AnnotatedFor;
 
 /** An ordering that compares objects according to a given order. */
-@AnnotatedFor({"nullness", "pico"})
+@AnnotatedFor({"nullness", "mutability"})
 @GwtCompatible(serializable = true)
 @ElementTypesAreNonnullByDefault
 final class ExplicitOrdering<T extends @Immutable Object> extends Ordering<T> implements Serializable {

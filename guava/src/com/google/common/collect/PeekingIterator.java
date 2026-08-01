@@ -39,7 +39,7 @@ import org.checkerframework.framework.qual.AnnotatedFor;
  */
 @DoNotMock("Use Iterators.peekingIterator")
 @GwtCompatible
-@AnnotatedFor({"nullness", "pico"})
+@AnnotatedFor({"nullness", "mutability"})
 @ElementTypesAreNonnullByDefault
 @ReceiverDependentMutable
 public interface PeekingIterator<E extends @Nullable @Readonly Object> extends Iterator<E> {

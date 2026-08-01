@@ -47,7 +47,7 @@ import org.checkerframework.framework.qual.AnnotatedFor;
  * @author Charles Fry
  * @since 10.0
  */
-@AnnotatedFor("pico")
+@AnnotatedFor("mutability")
 @DoNotMock("Use CacheBuilder.newBuilder().build()")
 @GwtCompatible
 @ElementTypesAreNonnullByDefault
