@@ -1,7 +1,11 @@
 val runningGradle5 = gradle.gradleVersion.startsWith("5.")
 
 val pomText = file("../../pom.xml").readText()
-val androidPomText = file("../../android-pom.xml").readText()
+val androidPomFile =
+  listOf(file("../../android/pom.xml"), file("../../android-pom.xml"))
+    .firstOrNull { it.isFile }
+    ?: error("android pom not found")
+val androidPomText = androidPomFile.readText()
 val guavaVersionJre =
   "<version>(.*)</version>".toRegex().find(pomText)?.groups?.get(1)?.value
     ?: error("version not found in pom")
