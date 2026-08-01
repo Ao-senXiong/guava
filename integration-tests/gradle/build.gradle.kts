@@ -1,11 +1,6 @@
 val runningGradle5 = gradle.gradleVersion.startsWith("5.")
 
 val pomText = file("../../pom.xml").readText()
-val androidPomFile =
-  listOf(file("../../android/pom.xml"), file("../../android-pom.xml"))
-    .firstOrNull { it.isFile }
-    ?: error("android pom not found")
-val androidPomText = androidPomFile.readText()
 val guavaVersionJre =
   "<version>(.*)</version>".toRegex().find(pomText)?.groups?.get(1)?.value
     ?: error("version not found in pom")
@@ -15,9 +10,6 @@ val checkerVersion =
 val errorProneVersionJre =
   "<errorprone.version>(.*)</errorprone.version>".toRegex().find(pomText)?.groups?.get(1)?.value
     ?: error("errorprone.version not found in pom")
-val errorProneVersionAndroid =
-  "<errorprone.version>(.*)</errorprone.version>".toRegex().find(androidPomText)?.groups?.get(1)?.value
-    ?: error("errorprone.version not found in android pom")
 
 val expectedReducedRuntimeClasspathAndroidVersion =
   setOf(
@@ -25,7 +17,7 @@ val expectedReducedRuntimeClasspathAndroidVersion =
     "failureaccess-1.0.2.jar",
     "jsr305-3.0.2.jar",
     "checker-qual-$checkerVersion.jar",
-    "error_prone_annotations-$errorProneVersionAndroid.jar",
+    "error_prone_annotations-$errorProneVersionJre.jar",
     "listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar"
   )
 val expectedReducedRuntimeClasspathJreVersion =
@@ -37,32 +29,10 @@ val expectedReducedRuntimeClasspathJreVersion =
     "error_prone_annotations-$errorProneVersionJre.jar",
     "listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar"
   )
-val expectedReducedRuntimeClasspathAndroidVersionFromJreMetadata =
-  setOf(
-    "guava-${guavaVersionJre.replace("jre", "android")}.jar",
-    "failureaccess-1.0.2.jar",
-    "jsr305-3.0.2.jar",
-    "checker-qual-$checkerVersion.jar",
-    "error_prone_annotations-$errorProneVersionJre.jar",
-    "listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar"
-  )
-val expectedReducedRuntimeClasspathJreVersionFromAndroidMetadata =
-  setOf(
-    "guava-$guavaVersionJre.jar",
-    "failureaccess-1.0.2.jar",
-    "jsr305-3.0.2.jar",
-    "checker-qual-$checkerVersion.jar",
-    "error_prone_annotations-$errorProneVersionAndroid.jar",
-    "listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar"
-  )
 val expectedCompileClasspathAndroidVersion =
   expectedReducedRuntimeClasspathAndroidVersion + setOf("j2objc-annotations-3.0.0.jar")
 val expectedCompileClasspathJreVersion =
   expectedReducedRuntimeClasspathJreVersion + setOf("j2objc-annotations-3.0.0.jar")
-val expectedCompileClasspathAndroidVersionFromJreMetadata =
-  expectedReducedRuntimeClasspathAndroidVersionFromJreMetadata + setOf("j2objc-annotations-3.0.0.jar")
-val expectedCompileClasspathJreVersionFromAndroidMetadata =
-  expectedReducedRuntimeClasspathJreVersionFromAndroidMetadata + setOf("j2objc-annotations-3.0.0.jar")
 val expectedPomClasspathJreVersion =
   expectedCompileClasspathJreVersion +
     setOf(
@@ -115,18 +85,10 @@ subprojects {
       if (name.contains("Android") && !name.contains("JreConstraint")) {
         when {
           name.contains("RuntimeClasspath") -> {
-            if (name.startsWith("android")) {
-              expectedReducedRuntimeClasspathAndroidVersion
-            } else {
-              expectedReducedRuntimeClasspathAndroidVersionFromJreMetadata
-            }
+            expectedReducedRuntimeClasspathAndroidVersion
           }
           name.contains("CompileClasspath") -> {
-            if (name.startsWith("android")) {
-              expectedCompileClasspathAndroidVersion
-            } else {
-              expectedCompileClasspathAndroidVersionFromJreMetadata
-            }
+            expectedCompileClasspathAndroidVersion
           }
           else -> {
             error("unexpected classpath type: $name")
@@ -135,18 +97,10 @@ subprojects {
       } else {
         when {
           name.contains("RuntimeClasspath") -> {
-            if (name.startsWith("android")) {
-              expectedReducedRuntimeClasspathJreVersionFromAndroidMetadata
-            } else {
-              expectedReducedRuntimeClasspathJreVersion
-            }
+            expectedReducedRuntimeClasspathJreVersion
           }
           name.contains("CompileClasspath") -> {
-            if (name.startsWith("android")) {
-              expectedCompileClasspathJreVersionFromAndroidMetadata
-            } else {
-              expectedCompileClasspathJreVersion
-            }
+            expectedCompileClasspathJreVersion
           }
           else -> {
             error("unexpected classpath type: $name")
