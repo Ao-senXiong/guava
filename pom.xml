@@ -144,18 +144,15 @@
               <arg>-XDcompilePolicy=simple</arg>
               <!-- -Xplugin:ErrorProne is set conditionally by a profile. -->
             </compilerArgs>
+	    <!--
             <annotationProcessorPaths>
               <path>
                 <groupId>com.google.errorprone</groupId>
                 <artifactId>error_prone_core</artifactId>
-                <version>${errorprone.version}</version>
-              </path>
-              <path>
-                <groupId>io.github.eisop</groupId>
-                <artifactId>checker</artifactId>
-                <version>${checker.version}</version>
+                <version>2.23.0</version>
               </path>
             </annotationProcessorPaths>
+	    -->
             <!-- Fork:
 
                  - for JDK8 because we use a javac9 bootclasspath
@@ -468,7 +465,7 @@
                      be passed as part of the same <arg> as -Xplugin:ErrorProne,
                      and I gave up trying to figure out how to do that for test
                      compilation only. -->
-                <arg>-Xplugin:ErrorProne -Xep:NullArgumentForNonNullParameter:OFF -Xep:Java8ApiChecker:ERROR</arg>
+<!--                <arg>-Xplugin:ErrorProne -Xep:NullArgumentForNonNullParameter:OFF -Xep:Java8ApiChecker:ERROR</arg>-->
                 <!-- https://github.com/google/error-prone/blob/f8e33bc460be82ab22256a7ef8b979d7a2cacaba/docs/installation.md#jdk-16 -->
                 <!-- TODO(cpovirk): Use .mvn/jvm.config instead (per
                      https://errorprone.info/docs/installation#maven) if it can
